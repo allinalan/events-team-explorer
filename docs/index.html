@@ -1,0 +1,1533 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<meta name="description" content="Open each events team agent, watch it run, set it to your rules, and build your division plan.">
+<meta property="og:title" content="Events Team Agent Explorer">
+<meta property="og:description" content="Open each events team agent, watch it run, set it to your rules, and build your division plan.">
+<meta property="og:image" content="https://allinalan.github.io/events-team-explorer/img/board.jpg">
+<meta property="og:url" content="https://allinalan.github.io/events-team-explorer/">
+<link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2064%2064%22%3E%3Crect%20width%3D%2264%22%20height%3D%2264%22%20rx%3D%2214%22%20fill%3D%22%2316213A%22%2F%3E%3Cpath%20d%3D%22M14%2044a18%2018%200%200%201%2036%200z%22%20fill%3D%22%23DD6B1A%22%2F%3E%3Crect%20x%3D%2210%22%20y%3D%2246%22%20width%3D%2244%22%20height%3D%224%22%20rx%3D%222%22%20fill%3D%22%23EEF1F6%22%2F%3E%3C%2Fsvg%3E">
+<style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style>
+<title>Events Team Agent Explorer</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@700;800&family=Source+Sans+3:ital,wght@0,400;0,600;0,700;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap">
+</head>
+<body>
+<style>
+/* Layout: a sticky plan bar over an agent gallery. Each tile opens a sheet with four tabs (what it does, watch it run,
+   make it yours, what it looks like). Below: the division's shared settings, how coordinators talk to agents, and the
+   division plan the coordinator's picks and settings add up to. Navy + sunrise orange, the All In Automation look. */
+:root {
+  --bg: #F3F4F7;
+  --surface: #FFFFFF;
+  --surface-2: #F7F8FB;
+  --ink: #16213A;
+  --muted: #56627A;
+  --line: #DCE0E8;
+  --sun: #DD6B1A;
+  --sun-ink: #B04F0B;
+  --sun-soft: #FCEDE1;
+  --result: #FFF6EC;
+  --frame: #1B2335;
+  --scrim: rgba(17, 26, 44, 0.55);
+  --shadow: 0 1px 2px rgba(17, 26, 44, 0.05), 0 10px 30px rgba(17, 26, 44, 0.10);
+
+  --ok: #1F7139; --ok-bg: #E2F3E7;
+  --wip: #8A5300; --wip-bg: #FBEFD7;
+  --pilot: #5B3FA0; --pilot-bg: #ECE6F8;
+  --plan-c: #56627A; --plan-bg: #ECEEF3;
+  --bad: #B42318; --bad-bg: #FDECEA;
+
+  --navy: #111A2C;
+  --navy-2: #1A2540;
+  --navy-line: #2B3752;
+  --navy-ink: #EEF1F6;
+  --navy-muted: #AAB4C6;
+  --gold: #F2B533;
+
+  --mark-bg: #16213A; --mark-fg: #FFFFFF; --mark-accent: #F07A22;
+
+  --f-display: "Big Shoulders Display", "Arial Narrow", "Helvetica Neue", Arial, sans-serif;
+  --f-body: "Source Sans 3", "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+  --f-mono: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0E1524; --surface: #162034; --surface-2: #1B2740; --ink: #E8ECF3; --muted: #A1ACBE; --line: #28334B;
+    --sun: #FF9A47; --sun-ink: #FFB173; --sun-soft: #33231A; --result: #2A2118; --frame: #0A0F1A; --scrim: rgba(0, 0, 0, 0.6);
+    --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 10px 30px rgba(0, 0, 0, 0.35);
+    --ok: #7DD99D; --ok-bg: #173325; --wip: #F5C46A; --wip-bg: #3A2C12; --pilot: #C3A8F5; --pilot-bg: #2B2347; --plan-c: #A1ACBE; --plan-bg: #222D42;
+    --bad: #FF8A80; --bad-bg: #3A1A1A;
+    --navy: #0A101C; --navy-2: #141D30; --navy-line: #26324A; --navy-ink: #EEF1F6; --navy-muted: #A6B1C4; --gold: #F5BE45;
+    --mark-bg: #24345A;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0E1524; --surface: #162034; --surface-2: #1B2740; --ink: #E8ECF3; --muted: #A1ACBE; --line: #28334B;
+  --sun: #FF9A47; --sun-ink: #FFB173; --sun-soft: #33231A; --result: #2A2118; --frame: #0A0F1A; --scrim: rgba(0, 0, 0, 0.6);
+  --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 10px 30px rgba(0, 0, 0, 0.35);
+  --ok: #7DD99D; --ok-bg: #173325; --wip: #F5C46A; --wip-bg: #3A2C12; --pilot: #C3A8F5; --pilot-bg: #2B2347; --plan-c: #A1ACBE; --plan-bg: #222D42;
+  --bad: #FF8A80; --bad-bg: #3A1A1A;
+  --navy: #0A101C; --navy-2: #141D30; --navy-line: #26324A; --navy-ink: #EEF1F6; --navy-muted: #A6B1C4; --gold: #F5BE45;
+  --mark-bg: #24345A;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+body { background: var(--bg); color: var(--ink); font-family: var(--f-body); font-size: 17px; line-height: 1.55; -webkit-text-size-adjust: 100%; }
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 30; background: var(--surface); }
+body.sheet-open { overflow: hidden; }
+a { color: var(--sun-ink); text-underline-offset: 3px; }
+:focus-visible { outline: 3px solid var(--sun); outline-offset: 2px; border-radius: 6px; }
+img { max-width: 100%; }
+[hidden] { display: none !important; }
+.muted { color: var(--muted); }
+.wrap { max-width: 1160px; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+h1, h2 { font-family: var(--f-display); text-transform: uppercase; letter-spacing: 0.005em; line-height: 0.95; text-wrap: balance; margin: 0; font-weight: 800; }
+h3 { margin: 0; font-size: 19px; line-height: 1.25; text-wrap: balance; }
+p { margin: 0; }
+.eyebrow { font-family: var(--f-mono); font-size: 12px; font-weight: 500; letter-spacing: 0.09em; text-transform: uppercase; color: var(--sun-ink); }
+.mono { font-family: var(--f-mono); }
+.num { font-variant-numeric: tabular-nums; }
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+button { font: inherit; color: inherit; }
+
+/* Buttons and chips */
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 42px; padding: 8px 16px; border-radius: 11px; border: 1px solid var(--line); background: var(--surface); color: var(--ink); font-weight: 700; font-size: 15.5px; cursor: pointer; text-decoration: none; }
+.btn:hover { border-color: var(--ink); }
+.btn.primary { background: var(--sun); border-color: var(--sun); color: #FFFFFF; }
+.btn.primary:hover { filter: brightness(0.95); }
+.btn.dark { background: var(--ink); border-color: var(--ink); color: var(--bg); }
+.btn.quiet { background: transparent; }
+.btn.danger { color: var(--bad); }
+.btn.sm { min-height: 34px; padding: 5px 12px; font-size: 14px; border-radius: 9px; }
+.st { display: inline-flex; align-items: center; gap: 6px; font-family: var(--f-mono); font-size: 11px; letter-spacing: 0.04em; text-transform: uppercase; padding: 3px 9px; border-radius: 999px; line-height: 1.35; white-space: nowrap; }
+.st::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: currentColor; flex: none; }
+.st.live { color: var(--ok); background: var(--ok-bg); }
+.st.dev { color: var(--wip); background: var(--wip-bg); }
+.st.pilot { color: var(--pilot); background: var(--pilot-bg); }
+.set-chip { font-family: var(--f-mono); font-size: 11px; letter-spacing: 0.05em; text-transform: uppercase; padding: 3px 9px; border-radius: 999px; border: 1px solid var(--line); color: var(--muted); white-space: nowrap; }
+.set-chip.s-basic { color: var(--ink); }
+.set-chip.s-team { color: var(--sun-ink); border-color: color-mix(in srgb, var(--sun) 45%, var(--line)); }
+.set-chip.s-complete { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+.set-chip.s-addon { border-style: dashed; }
+
+/* Sticky plan bar */
+.topbar { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 20; background: color-mix(in srgb, var(--surface) 92%, transparent); border-bottom: 1px solid var(--line); -webkit-backdrop-filter: saturate(1.4) blur(10px); backdrop-filter: saturate(1.4) blur(10px); }
+.topbar .wrap { display: flex; align-items: center; gap: 14px; min-height: 58px; }
+.brand { display: inline-flex; align-items: center; gap: 10px; text-decoration: none; color: var(--ink); font-family: var(--f-display); font-weight: 800; text-transform: uppercase; font-size: 21px; letter-spacing: 0.02em; white-space: nowrap; }
+.brand .mark { width: 30px; height: 30px; flex: none; }
+.brand b { color: var(--sun); font-weight: 800; }
+.planbar { margin-left: auto; display: flex; align-items: center; gap: 10px; min-width: 0; }
+.plan-who { display: grid; text-align: right; min-width: 0; line-height: 1.2; }
+.plan-who b { font-size: 15px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.plan-who span { font-size: 12.5px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.count-pill { display: inline-flex; align-items: center; gap: 8px; }
+.count-pill .n { display: inline-grid; place-items: center; min-width: 26px; height: 26px; padding: 0 7px; border-radius: 999px; background: var(--sun); color: #FFFFFF; font-size: 14px; font-weight: 700; font-variant-numeric: tabular-nums; }
+@media (max-width: 680px) {
+  .brand span { display: none; }
+  .plan-who { display: none; }
+}
+
+/* Hero */
+.hero { padding-block: clamp(40px, 7vw, 76px) 8px; }
+.hero h1 { font-size: clamp(48px, 8.4vw, 98px); margin-top: 14px; }
+.hero h1 em { font-style: normal; color: var(--sun); }
+.lede { font-size: clamp(18px, 2.1vw, 21px); color: var(--muted); max-width: 62ch; margin-top: 18px; }
+.howto { margin-top: 22px; display: flex; flex-wrap: wrap; gap: 10px 22px; color: var(--muted); font-size: 15.5px; }
+.howto span { display: inline-flex; align-items: center; gap: 8px; }
+.howto b { display: inline-grid; place-items: center; width: 24px; height: 24px; border-radius: 50%; background: var(--ink); color: var(--bg); font-size: 13px; }
+.loop { margin-top: 30px; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); border: 1px solid var(--line); border-radius: 14px; background: var(--surface); overflow: hidden; }
+.loop div { padding: 16px 18px; border-left: 1px solid var(--line); min-width: 0; }
+.loop div:first-child { border-left: 0; }
+.loop b { display: block; font-family: var(--f-display); text-transform: uppercase; font-size: 24px; line-height: 1; color: var(--sun-ink); margin-bottom: 6px; }
+.loop span { font-size: 15px; color: var(--muted); }
+@media (max-width: 760px) { .loop { grid-template-columns: repeat(2, minmax(0, 1fr)); } .loop div:nth-child(3) { border-left: 0; } .loop div:nth-child(n+3) { border-top: 1px solid var(--line); } }
+
+section { padding-block: clamp(48px, 7vw, 84px) 0; scroll-margin-top: calc(70px + env(safe-area-inset-top, 0px)); }
+.sec-head { display: grid; gap: 10px; margin-bottom: 22px; max-width: 820px; }
+.sec-head h2 { font-size: clamp(36px, 5.4vw, 56px); }
+.sec-head p { color: var(--muted); }
+
+/* Filters + gallery */
+.filters { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 18px; align-items: center; }
+.fchip { padding: 7px 14px; border-radius: 999px; border: 1px solid var(--line); background: var(--surface); font-size: 15px; font-weight: 600; color: var(--muted); cursor: pointer; }
+.fchip[aria-pressed="true"] { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+.fchip .c { font-family: var(--f-mono); font-size: 12px; margin-left: 6px; opacity: 0.75; }
+.gallery { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 270px), 1fr)); gap: 14px; }
+.tile { position: relative; display: grid; grid-template-rows: auto auto 1fr auto; gap: 10px; background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 18px 18px 16px; min-width: 0; text-align: left; cursor: pointer; }
+.tile:hover { border-color: color-mix(in srgb, var(--sun) 60%, var(--line)); box-shadow: var(--shadow); }
+.tile.picked { border: 2px solid var(--sun); padding: 17px 17px 15px; background: color-mix(in srgb, var(--sun-soft) 45%, var(--surface)); }
+.tile .area { font-family: var(--f-mono); font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); padding-right: 52px; }
+.tile h3 { font-size: 21px; padding-right: 44px; }
+.tile p { font-size: 15.5px; color: var(--muted); }
+.tile .chips { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.tile .open-hint { margin-left: auto; font-size: 13.5px; font-weight: 700; color: var(--sun-ink); }
+.pick { position: absolute; top: 12px; right: 12px; width: 40px; height: 40px; border-radius: 12px; border: 1.5px solid var(--line); background: var(--surface); display: grid; place-items: center; cursor: pointer; z-index: 1; }
+.pick svg { width: 20px; height: 20px; stroke: var(--muted); opacity: 0.45; }
+.pick:hover { border-color: var(--sun); }
+.pick:hover svg { opacity: 0.9; }
+.pick[aria-pressed="true"] { background: var(--sun); border-color: var(--sun); }
+.pick[aria-pressed="true"] svg { stroke: #FFFFFF; opacity: 1; }
+.empty-filter { grid-column: 1 / -1; padding: 28px; text-align: center; color: var(--muted); border: 1px dashed var(--line); border-radius: 14px; }
+
+/* Sheet */
+.scrim { position: fixed; inset: 0; z-index: 40; background: var(--scrim); display: grid; place-items: center; padding: calc(env(safe-area-inset-top, 0px) + 16px) max(16px, env(safe-area-inset-right, 0px)) calc(env(safe-area-inset-bottom, 0px) + 16px) max(16px, env(safe-area-inset-left, 0px)); }
+.sheet { width: 100%; max-width: 1040px; max-height: 100%; overflow: auto; overscroll-behavior: contain; background: var(--bg); border-radius: 18px; box-shadow: var(--shadow); display: flex; flex-direction: column; }
+.sheet-head { position: sticky; top: 0; z-index: 2; background: var(--surface); border-bottom: 1px solid var(--line); padding: 16px 20px 0; }
+.sheet-top { display: flex; flex-wrap: wrap; gap: 10px 14px; align-items: flex-start; }
+.sheet-title { flex: 1 1 280px; min-width: 0; display: grid; gap: 6px; }
+.sheet-title h2 { font-size: clamp(30px, 4.4vw, 44px); }
+.sheet-title .chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.sheet-actions { display: flex; gap: 8px; align-items: center; }
+.pick-big[aria-pressed="true"] { background: var(--sun); border-color: var(--sun); color: #FFFFFF; }
+.close-x { width: 42px; height: 42px; padding: 0; }
+.tabs { display: flex; gap: 2px; margin-top: 14px; overflow-x: auto; scrollbar-width: none; }
+.tabs::-webkit-scrollbar { display: none; }
+.tab { padding: 10px 14px; border: 0; background: transparent; font-weight: 700; font-size: 15px; color: var(--muted); cursor: pointer; border-bottom: 3px solid transparent; white-space: nowrap; }
+.tab[aria-selected="true"] { color: var(--ink); border-bottom-color: var(--sun); }
+.sheet-body { padding: 22px 20px 26px; display: grid; gap: 18px; }
+.panel[hidden] { display: none !important; }
+
+/* What it does */
+.does { display: grid; grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.5fr) minmax(0, 1fr); background: var(--surface); border: 1px solid var(--line); border-radius: 14px; overflow: hidden; }
+.does > div { padding: 18px 20px; min-width: 0; }
+.does > div + div { border-left: 1px solid var(--line); }
+.label { display: block; font-family: var(--f-mono); font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); margin-bottom: 8px; }
+.does .job p { font-size: 19px; font-weight: 700; line-height: 1.35; }
+.steps { list-style: none; margin: 0; padding: 0; counter-reset: s; display: grid; gap: 8px; }
+.steps li { counter-increment: s; display: grid; grid-template-columns: 24px minmax(0, 1fr); gap: 9px; font-size: 15.5px; line-height: 1.45; }
+.steps li::before { content: counter(s); width: 24px; height: 24px; border-radius: 50%; border: 1px solid var(--line); display: grid; place-items: center; font-family: var(--f-mono); font-size: 12px; color: var(--muted); }
+.does .res { background: var(--result); }
+.does .res .label { color: var(--sun-ink); }
+.does .res p { font-size: 17.5px; line-height: 1.4; }
+.needs { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+.box { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 16px 18px; min-width: 0; }
+.box ul { margin: 0; padding-left: 18px; display: grid; gap: 6px; font-size: 15.5px; }
+.box p { font-size: 15.5px; color: var(--muted); }
+
+/* Watch it run */
+.run-bar { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; justify-content: space-between; }
+.run-bar p { color: var(--muted); font-size: 15px; }
+.run { list-style: none; margin: 0; padding: 0; display: grid; gap: 0; }
+.frame { display: grid; grid-template-columns: 44px minmax(0, 1fr); gap: 14px; position: relative; padding-bottom: 16px; }
+.frame:not(:last-child)::before { content: ""; position: absolute; left: 21px; top: 44px; bottom: 0; width: 2px; background: var(--line); }
+.frame .ic { width: 44px; height: 44px; border-radius: 12px; display: grid; place-items: center; background: var(--surface); border: 1px solid var(--line); }
+.frame .ic svg { width: 22px; height: 22px; stroke: var(--sun-ink); fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.frame.t-ask .ic { background: var(--sun); border-color: var(--sun); }
+.frame.t-ask .ic svg { stroke: #FFFFFF; }
+.frame .fbody { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 14px 16px; min-width: 0; display: grid; gap: 8px; }
+.frame .kind { font-family: var(--f-mono); font-size: 10.5px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+.frame h4 { margin: 0; font-size: 17px; }
+.frame .fbody > p { font-size: 15.5px; color: var(--muted); }
+.frame.hidden-step { display: none; }
+@media (prefers-reduced-motion: no-preference) { .frame.appear { animation: rise 0.35s ease-out; } }
+@keyframes rise { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+.mini { width: 100%; border-collapse: collapse; font-size: 14.5px; font-variant-numeric: tabular-nums; }
+.mini td { padding: 6px 8px; border-top: 1px solid var(--line); }
+.mini tr:first-child td { border-top: 0; }
+.mini td.r { text-align: right; white-space: nowrap; }
+.ok-t { color: var(--ok); font-weight: 700; }
+.bad-t { color: var(--bad); font-weight: 700; }
+.wip-t { color: var(--wip); font-weight: 700; }
+.bubble { justify-self: start; max-width: 520px; background: var(--surface-2); border: 1px solid var(--line); border-radius: 16px 16px 16px 4px; padding: 10px 14px; font-size: 15.5px; }
+.bubble.me { justify-self: end; background: #2F7BF6; border-color: #2F7BF6; color: #FFFFFF; border-radius: 16px 16px 4px 16px; }
+.approval { border: 1px solid var(--line); border-radius: 12px; overflow: hidden; background: var(--surface-2); }
+.approval .ah { display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 9px 14px; border-bottom: 1px solid var(--line); font-size: 13px; color: var(--muted); }
+.approval .ah b { color: var(--ink); font-size: 14.5px; }
+.approval .ab { padding: 10px 14px; display: grid; gap: 6px; font-size: 15px; }
+.approval .ab ul { margin: 0; padding-left: 18px; }
+.approval .aa { display: flex; flex-wrap: wrap; gap: 8px; padding: 0 14px 12px; align-items: center; }
+.approval .done { font-weight: 700; color: var(--ok); }
+.qchips { display: flex; flex-wrap: wrap; gap: 6px; }
+.qchips span { padding: 4px 10px; border-radius: 999px; background: var(--surface-2); border: 1px solid var(--line); font-size: 14px; }
+
+/* Make it yours */
+.yours { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr); gap: 18px; align-items: start; }
+.fields { display: grid; gap: 14px; background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 18px; min-width: 0; }
+.fields .intro { color: var(--muted); font-size: 15px; }
+.field { display: grid; gap: 6px; min-width: 0; }
+.field > label, .field > .flabel { font-weight: 700; font-size: 15px; }
+.field .help { color: var(--muted); font-size: 13.5px; }
+.field.row2 { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 10px; }
+input[type="text"], input[type="number"], input[type="time"], select, textarea { font: inherit; font-size: 16px; color: var(--ink); background: var(--surface-2); border: 1px solid var(--line); border-radius: 10px; padding: 8px 10px; min-height: 42px; width: 100%; min-width: 0; }
+textarea { min-height: 84px; resize: vertical; line-height: 1.45; }
+input:focus, select:focus, textarea:focus { outline: 2px solid var(--sun); outline-offset: 0; border-color: transparent; }
+.money-in { position: relative; }
+.money-in::before { content: "$"; position: absolute; left: 10px; top: 50%; transform: translateY(-50%); color: var(--muted); }
+.money-in input { padding-left: 22px; }
+.checks { display: flex; flex-wrap: wrap; gap: 8px; }
+.cbox { display: inline-flex; align-items: center; gap: 7px; padding: 6px 11px; border: 1px solid var(--line); border-radius: 999px; background: var(--surface-2); font-size: 14.5px; cursor: pointer; }
+.cbox input { width: 16px; height: 16px; accent-color: var(--sun); margin: 0; }
+.cbox:has(input:checked) { border-color: var(--sun); background: var(--sun-soft); }
+.yn { display: inline-flex; border: 1px solid var(--line); border-radius: 10px; overflow: hidden; width: max-content; }
+.yn button { padding: 7px 14px; border: 0; background: var(--surface-2); cursor: pointer; font-weight: 600; font-size: 14.5px; }
+.yn button[aria-pressed="true"] { background: var(--ink); color: var(--bg); }
+.preview { position: sticky; top: 132px; display: grid; gap: 12px; background: var(--navy); color: var(--navy-ink); border-radius: 14px; padding: 18px; min-width: 0; }
+.preview .label { color: var(--gold); }
+.preview .pv-note { color: var(--navy-muted); font-size: 13.5px; }
+.preview .mini td { border-top-color: var(--navy-line); }
+.preview .mini .muted { color: var(--navy-muted); }
+.preview .bubble { background: var(--navy-2); border-color: var(--navy-line); color: var(--navy-ink); }
+.preview .ok-t { color: #8EE2AA; }
+.preview .bad-t { color: #FF9D8F; }
+.preview .total td { border-top: 1px solid var(--navy-muted); font-weight: 700; }
+.rank { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
+.rank li { display: grid; grid-template-columns: 30px minmax(0, 1fr) auto; gap: 10px; align-items: center; background: var(--navy-2); border: 1px solid var(--navy-line); border-radius: 10px; padding: 8px 12px; }
+.rank .pos { font-family: var(--f-display); font-weight: 800; font-size: 22px; color: var(--gold); line-height: 1; }
+.rank .who b { display: block; font-size: 15.5px; }
+.rank .who span { display: block; font-size: 12.5px; color: var(--navy-muted); font-variant-numeric: tabular-nums; }
+.rank .pts { font-family: var(--f-mono); font-size: 14px; font-variant-numeric: tabular-nums; }
+@media (prefers-reduced-motion: no-preference) { .rank li { transition: transform 0.2s; } }
+.tiertabs { display: flex; gap: 6px; flex-wrap: wrap; }
+.weights { display: grid; gap: 10px; }
+.wrow { display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr) 52px; gap: 10px; align-items: center; }
+.wrow input[type="range"] { width: 100%; accent-color: var(--sun); }
+.wrow output { font-family: var(--f-mono); font-size: 14px; text-align: right; font-variant-numeric: tabular-nums; }
+.wsum { font-size: 14px; font-weight: 700; }
+.wsum.ok { color: var(--ok); }
+.wsum.bad { color: var(--bad); }
+.also { color: var(--muted); font-size: 14.5px; }
+.also ul { margin: 6px 0 0; padding-left: 18px; }
+.vcform { background: #F4F4F0; color: #222222; border-radius: 10px; padding: 12px 14px; font-family: Arial, Helvetica, sans-serif; font-size: 13.5px; display: grid; gap: 6px; }
+.vcform .vh { font-weight: 700; font-size: 14px; border-bottom: 1px solid #CFCFC8; padding-bottom: 6px; margin-bottom: 2px; }
+.vcform .vr { display: grid; grid-template-columns: 120px minmax(0, 1fr); gap: 8px; }
+.vcform .vr span:first-child { color: #555555; }
+.vcform .vr span:last-child { background: #FFFFFF; border: 1px solid #C9C9C2; border-radius: 3px; padding: 1px 6px; }
+.setup-note { display: grid; gap: 10px; }
+.setup-note p { color: var(--muted); }
+
+/* What it looks like */
+.look { display: grid; grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr); gap: 20px; align-items: start; }
+.look.phones { grid-template-columns: auto minmax(0, 1fr); }
+.look.duo { grid-template-columns: minmax(0, 1.6fr) auto minmax(0, 0.9fr); }
+.browser { margin: 0; border: 1px solid var(--line); border-radius: 10px; overflow: hidden; background: var(--surface); box-shadow: var(--shadow); min-width: 0; }
+.browser .bar { height: 22px; display: flex; gap: 5px; align-items: center; padding: 0 10px; border-bottom: 1px solid var(--line); }
+.browser .bar i { width: 8px; height: 8px; border-radius: 50%; background: var(--line); }
+.browser img, .phone img { display: block; width: 100%; height: auto; }
+.phone { margin: 0; width: 210px; max-width: 100%; border: 6px solid var(--frame); border-radius: 28px; overflow: hidden; background: var(--frame); box-shadow: var(--shadow); }
+.look-text { display: grid; gap: 8px; align-content: start; }
+.look-text p { color: var(--muted); font-size: 15.5px; }
+.fake { font-family: var(--f-mono); font-size: 11px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); }
+.noscreen { display: grid; gap: 8px; background: var(--surface); border: 1px dashed var(--line); border-radius: 14px; padding: 22px; color: var(--muted); }
+.noscreen b { color: var(--ink); }
+
+/* Division settings */
+.divgrid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 20px; }
+.divgrid .field.wide { grid-column: span 2; }
+@media (max-width: 860px) { .divgrid { grid-template-columns: minmax(0, 1fr); } .divgrid .field.wide { grid-column: auto; } }
+
+/* Talk band */
+.band { background: var(--navy); color: var(--navy-ink); margin-top: clamp(48px, 7vw, 84px); padding-block: clamp(48px, 7vw, 76px); }
+.band .eyebrow { color: var(--gold); }
+.band h2 { font-size: clamp(36px, 5.4vw, 56px); color: var(--navy-ink); }
+.band .lead { color: var(--navy-muted); max-width: 66ch; margin-top: 12px; }
+.talk { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; margin-top: 26px; }
+.tcard { background: var(--navy-2); border: 1px solid var(--navy-line); border-radius: 14px; padding: 18px; display: grid; gap: 8px; align-content: start; min-width: 0; }
+.tcard h3 { color: var(--navy-ink); font-size: 19px; }
+.tcard p { color: var(--navy-muted); font-size: 15.5px; }
+.tcard .st { justify-self: start; }
+.band .st.live { background: #1B3A28; color: #8EE2AA; }
+.band .st.dev { background: #3A2C12; color: #F5C46A; }
+.rules4 { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; margin-top: 28px; }
+.rule { border-top: 2px solid var(--gold); padding-top: 12px; min-width: 0; }
+.rule b { display: block; font-size: 16.5px; color: var(--navy-ink); }
+.rule span { color: var(--navy-muted); font-size: 15px; }
+@media (max-width: 900px) { .talk { grid-template-columns: minmax(0, 1fr); } .rules4 { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 520px) { .rules4 { grid-template-columns: minmax(0, 1fr); } }
+
+/* Plan */
+.plan { display: grid; grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.3fr); gap: 18px; align-items: start; }
+.plan-card { background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 20px; display: grid; gap: 14px; min-width: 0; }
+.plan-switch { display: flex; gap: 8px; align-items: end; }
+.plan-switch .field { flex: 1; }
+.savestate { font-size: 13.5px; color: var(--muted); display: flex; align-items: center; gap: 8px; }
+.savestate i { width: 8px; height: 8px; border-radius: 50%; background: var(--muted); flex: none; }
+.savestate.cloud i { background: var(--ok); }
+.savestate.err i { background: var(--bad); }
+.summary { background: var(--surface); border: 1px solid var(--line); border-radius: 16px; overflow: hidden; min-width: 0; }
+.sum-head { padding: 18px 20px; border-bottom: 1px solid var(--line); display: flex; flex-wrap: wrap; gap: 10px 16px; align-items: center; justify-content: space-between; }
+.sum-head h3 { font-size: 22px; }
+.covers { font-size: 15px; color: var(--muted); }
+.covers b { color: var(--ink); }
+.sum-group { padding: 14px 20px; border-bottom: 1px solid var(--line); display: grid; gap: 8px; }
+.sum-group:last-child { border-bottom: 0; }
+.sum-group .label { margin-bottom: 0; }
+.sum-agents { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
+.sum-agents li { display: flex; align-items: center; gap: 10px; justify-content: space-between; }
+.sum-agents li button { border: 0; background: transparent; color: var(--sun-ink); font-weight: 700; cursor: pointer; padding: 0; text-align: left; font-size: 15.5px; }
+.sum-agents .x { color: var(--muted); font-weight: 400; font-size: 13.5px; }
+.sum-changes { margin: 0; padding-left: 18px; display: grid; gap: 4px; font-size: 15px; }
+.sum-empty { color: var(--muted); font-size: 15px; }
+.plan-actions { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.copybuf { width: 100%; min-height: 160px; font-family: var(--f-mono); font-size: 12.5px; }
+.confirm { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; font-size: 14.5px; }
+.toast { position: fixed; left: 50%; bottom: calc(env(safe-area-inset-bottom, 0px) + 20px); transform: translateX(-50%); z-index: 60; background: var(--ink); color: var(--bg); padding: 10px 16px; border-radius: 12px; font-weight: 700; font-size: 15px; box-shadow: var(--shadow); }
+
+footer { padding-block: 40px 56px; color: var(--muted); font-size: 14.5px; }
+
+@media (max-width: 900px) {
+  .does, .yours, .plan, .look, .look.duo { grid-template-columns: minmax(0, 1fr); }
+  .does > div + div { border-left: 0; border-top: 1px solid var(--line); }
+  .needs { grid-template-columns: minmax(0, 1fr); }
+  .preview { position: static; }
+}
+@media (max-width: 640px) {
+  .scrim { padding: env(safe-area-inset-top, 0px) 0 0; place-items: end stretch; }
+  .sheet { border-radius: 18px 18px 0 0; max-height: 100%; }
+  .look.phones { grid-template-columns: minmax(0, 1fr); }
+  .phone { width: 200px; }
+  .field.row2 { grid-template-columns: minmax(0, 1fr); }
+  .wrow { grid-template-columns: minmax(0, 1fr) 52px; }
+  .wrow select { grid-column: 1 / -1; }
+}
+@media (prefers-reduced-motion: no-preference) { .tile, .btn, .fchip, .pick { transition: border-color .15s, background-color .15s, box-shadow .15s, color .15s; } }
+</style>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+  <symbol id="aia-mark" viewBox="0 0 64 64">
+    <rect width="64" height="64" rx="15" style="fill:var(--mark-bg)"/>
+    <path d="M16 50 L32 13 L48 50" fill="none" stroke-width="7.5" stroke-linecap="round" stroke-linejoin="round" style="stroke:var(--mark-fg)"/>
+    <path d="M21.6 37 H42.4" fill="none" stroke-width="4.5" stroke-linecap="round" style="stroke:var(--mark-accent)"/>
+    <circle cx="21.6" cy="37" r="5.6" style="fill:var(--mark-accent)"/>
+    <circle cx="42.4" cy="37" r="5.6" style="fill:var(--mark-accent)"/>
+  </symbol>
+  <symbol id="i-check" viewBox="0 0 24 24"><path d="m5 12.5 4.5 4.5L19 7.5" fill="none" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-read" viewBox="0 0 24 24"><path d="M4 5.5h6a2 2 0 0 1 2 2V19a1.5 1.5 0 0 0-1.5-1.5H4zM20 5.5h-6a2 2 0 0 0-2 2V19a1.5 1.5 0 0 1 1.5-1.5H20z"/></symbol>
+  <symbol id="i-work" viewBox="0 0 24 24"><rect x="5" y="3.5" width="14" height="17" rx="2.5"/><path d="M8.5 7.5h7M8.5 11.5h2M13.5 11.5h2M8.5 15.5h2M13.5 15.5h2"/></symbol>
+  <symbol id="i-ask" viewBox="0 0 24 24"><path d="M20.5 11.5c0 4.4-3.8 8-8.5 8-1.3 0-2.5-.3-3.6-.7L3.5 20l1.3-3.7A7.6 7.6 0 0 1 3.5 11.5c0-4.4 3.8-8 8.5-8s8.5 3.6 8.5 8Z"/><path d="m8.8 11.6 2.2 2.2 4.2-4.3"/></symbol>
+  <symbol id="i-do" viewBox="0 0 24 24"><path d="M12 19V5M5.5 11.5 12 5l6.5 6.5"/></symbol>
+  <symbol id="i-proof" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="m8.3 12.3 2.6 2.6 5-5.2"/></symbol>
+</svg>
+
+<header class="topbar">
+  <div class="wrap">
+    <a class="brand" href="#top" aria-label="All In Automation, back to top"><svg class="mark" aria-hidden="true"><use href="#aia-mark"/></svg><span>All In <b>Automation</b></span></a>
+    <div class="planbar">
+      <div class="plan-who" id="barWho"><b>No plan yet</b><span>Tick an agent to start one</span></div>
+      <a class="btn sm count-pill" href="#plan" id="barCount"><span class="n" id="barN">0</span><span>Division plan</span></a>
+    </div>
+  </div>
+</header>
+
+<main id="top">
+  <div class="hero">
+    <div class="wrap">
+      <p class="eyebrow" id="heroEyebrow">All In Automation · proven at Rising Sun</p>
+      <h1>Agents for your <em>events team</em></h1>
+      <p class="lede">Each agent takes one piece of coordinator work off your plate: stats, rankings, bookings, charges, pay, reminders and rep questions. All of them run every day for the Rising Sun events team, and each one can be set to your division's own rules.</p>
+      <div class="howto" aria-label="How to use this page">
+        <span><b>1</b>Open an agent to see what it does and watch it run</span>
+        <span><b>2</b>Set it to your rules under "Make it yours"</span>
+        <span><b>3</b>Tick the ones you want for your division plan</span>
+        <a href="lineup.html">See every agent on one page</a>
+      </div>
+      <div class="loop" aria-label="How every agent works">
+        <div><b>Reads</b><span>VectorConnect, your schedule, your stat tracker, your calendar.</span></div>
+        <div><b>Works it out</b><span>Rules do the math. AI only where judgment helps.</span></div>
+        <div><b>Asks you</b><span>Every name, every dollar, the exact words. You approve.</span></div>
+        <div><b>Does it</b><span>Texts, forms, emails, pages. Then proves it worked.</span></div>
+      </div>
+    </div>
+  </div>
+
+  <section id="agents">
+    <div class="wrap">
+      <div class="sec-head">
+        <p class="eyebrow">The agents</p>
+        <h2>Pick what's eating your week</h2>
+      </div>
+      <div class="filters" id="filters" role="group" aria-label="Show agents for"></div>
+      <div class="gallery" id="gallery"></div>
+    </div>
+  </section>
+
+  <section id="division">
+    <div class="wrap">
+      <div class="sec-head">
+        <p class="eyebrow">Set once for the whole division</p>
+        <h2>Your division, your settings</h2>
+        <p>Every agent reads these. Your division is one settings file in the same system Rising Sun runs on, never a copy of it.</p>
+      </div>
+      <form class="divgrid" id="divForm" autocomplete="off" novalidate></form>
+    </div>
+  </section>
+
+  <div class="band" id="talk">
+    <div class="wrap">
+      <p class="eyebrow">How you'd talk to your agents</p>
+      <h2>They ask. You answer from your phone.</h2>
+      <p class="lead">At Rising Sun my agents ask me in Slack. Yours ask you in your own portal, The Block, and reach your reps from an events line in your name. Nothing goes to a rep, a form or the home office until someone you chose says yes.</p>
+      <div class="talk">
+        <div class="tcard"><span class="st live">Live</span><h3>Your portal</h3><p>Sign in on your phone or computer. See every agent and what it's working on, keep your roster and tiers, open your dashboards, and ask for help. Your phone gets a ping when an agent is stuck or waiting on you.</p></div>
+        <div class="tcard"><span class="st dev">Coming next</span><h3>Approvals by area</h3><p>Each batch waits in the portal with every name, dollar and word. You or the approver you pick for that area says yes, no, or types a change.</p></div>
+        <div class="tcard"><span class="st live">Complete set</span><h3>Your events line</h3><p>Texts to reps come from an events number registered in your name. Replies come back to the portal, and the agent drafts answers for you to OK.</p></div>
+      </div>
+      <div class="rules4">
+        <div class="rule"><b>Nothing new goes out without a yes</b><span>The first time an agent sends something, you see every recipient and every word.</span></div>
+        <div class="rule"><b>When in doubt, it stops</b><span>If a number doesn't tie out or a page won't load, it sends nothing and says why.</span></div>
+        <div class="rule"><b>Every agent has its own off switch</b><span>Pausing one never touches the others.</span></div>
+        <div class="rule"><b>It proves it worked</b><span>Forms, emails and texts are read back before an agent calls it done.</span></div>
+      </div>
+    </div>
+  </div>
+
+  <section id="plan">
+    <div class="wrap">
+      <div class="sec-head">
+        <p class="eyebrow">The division plan</p>
+        <h2>What this division gets</h2>
+        <p>Every agent ticked above and every setting changed under "Make it yours" lands here.</p>
+      </div>
+      <div class="plan">
+        <div class="plan-card">
+          <div class="plan-switch">
+            <div class="field"><label for="planPick">Plan</label><select id="planPick"></select></div>
+            <button class="btn" type="button" id="planNew">New plan</button>
+          </div>
+          <div class="field"><label for="planCoord">Coordinator</label><input type="text" id="planCoord" placeholder="Their name" maxlength="80"></div>
+          <div class="field"><label for="planDiv">Division</label><input type="text" id="planDiv" placeholder="Like Lone Star" maxlength="80"></div>
+          <div class="field"><label for="planNotes">Notes from the call</label><textarea id="planNotes" placeholder="What they said, what to follow up on" maxlength="4000"></textarea></div>
+          <p class="savestate" id="saveState" role="status"><i></i><span>Changes are kept as you go.</span></p>
+          <div class="confirm" id="delRow"><button class="btn sm quiet danger" type="button" id="planDel">Delete this plan</button></div>
+        </div>
+        <div class="summary" id="summary" aria-live="polite"></div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">All In Automation · Alan Hernandez · Rising Sun Events Team. Names, customers and numbers on this page are made up.</div>
+</footer>
+
+<div class="scrim" id="scrim" hidden>
+  <div class="sheet" id="sheet" role="dialog" aria-modal="true" aria-labelledby="sheetTitle">
+    <div class="sheet-head">
+      <div class="sheet-top">
+        <div class="sheet-title"><p class="eyebrow" id="sheetArea"></p><h2 id="sheetTitle"></h2><div class="chips" id="sheetChips"></div></div>
+        <div class="sheet-actions">
+          <button class="btn pick-big" type="button" id="sheetPick" aria-pressed="false"></button>
+          <button class="btn close-x" type="button" id="sheetClose" aria-label="Close"><svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg></button>
+        </div>
+      </div>
+      <div class="tabs" role="tablist" aria-label="About this agent">
+        <button class="tab" role="tab" type="button" data-tab="does" id="tab-does" aria-controls="panel-does">What it does</button>
+        <button class="tab" role="tab" type="button" data-tab="run" id="tab-run" aria-controls="panel-run">Watch it run</button>
+        <button class="tab" role="tab" type="button" data-tab="yours" id="tab-yours" aria-controls="panel-yours">Make it yours</button>
+        <button class="tab" role="tab" type="button" data-tab="look" id="tab-look" aria-controls="panel-look">What it looks like</button>
+      </div>
+    </div>
+    <div class="sheet-body">
+      <div class="panel" id="panel-does" role="tabpanel" aria-labelledby="tab-does"></div>
+      <div class="panel" id="panel-run" role="tabpanel" aria-labelledby="tab-run" hidden></div>
+      <div class="panel" id="panel-yours" role="tabpanel" aria-labelledby="tab-yours" hidden></div>
+      <div class="panel" id="panel-look" role="tabpanel" aria-labelledby="tab-look" hidden></div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function () {
+'use strict';
+
+/* ---------- helpers ---------- */
+const $ = (s, r) => (r || document).querySelector(s);
+const $$ = (s, r) => Array.from((r || document).querySelectorAll(s));
+const esc = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const usd = (n) => '$' + Number(n || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+const usd0 = (n) => '$' + Math.round(Number(n || 0)).toLocaleString('en-US');
+const clone = (o) => JSON.parse(JSON.stringify(o));
+const lines = (s) => String(s || '').split(/\n|,/).map((x) => x.trim()).filter(Boolean);
+const DAYS = [['mon', 'Monday'], ['tue', 'Tuesday'], ['wed', 'Wednesday'], ['thu', 'Thursday'], ['fri', 'Friday'], ['sat', 'Saturday'], ['sun', 'Sunday']];
+const dayName = (k) => (DAYS.find((d) => d[0] === k) || ['', k])[1];
+const t12 = (hm) => { const m = /^(\d{1,2}):(\d{2})/.exec(hm || ''); if (!m) return hm || ''; let h = +m[1]; const ap = h >= 12 ? 'pm' : 'am'; h = h % 12 || 12; return h + (m[2] === '00' ? '' : ':' + m[2]) + ap; };
+const reduceMotion = () => window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+/* ---------- the catalog ---------- */
+const AREAS = [
+  ['stats', 'Stats & rankings'], ['bookings', 'Schedule & bookings'], ['money', 'Charges & pay'],
+  ['meet', 'Meetings & texts'], ['reports', 'Dashboards & reports'], ['reps', 'Rep questions'],
+];
+const SETS = { basic: ['Basic', 1], team: ['Team', 2], complete: ['Complete', 3], addon: ['Add-on', 0] };
+const STATUS = { live: ['live', 'Live at Rising Sun'], dev: ['dev', 'In development'], pilot: ['pilot', 'Pilot at Rising Sun'] };
+
+const AGENTS = [
+  { id: 'schedule-board', name: 'Schedule Board', area: 'bookings', set: 'basic', status: 'live',
+    job: 'One live show schedule your reps, your staff and every agent work from.',
+    steps: ['Copies your Show Shift Schedule sheet onto a web app every hour, or the moment someone taps Sync.', 'Coordinators edit shows, booths and shifts from their phone. Every change is logged with who made it.', 'Every other agent, and the rep assistant, reads from it.'],
+    result: 'One schedule that is always current, instead of copies that drift apart.',
+    needs: ['Your Show Shift Schedule sheet', 'Who on your staff can edit'],
+    uses: ['Your show tiers and access levels', 'Your editors'] },
+  { id: 'rep-assistant', name: 'Rep Assistant', alias: 'SUNNY at Rising Sun', area: 'reps', set: 'basic', status: 'live',
+    job: 'Answers rep questions day or night, so they stop texting you for every little thing.',
+    steps: ['A rep opens a link on their phone and picks their name. No login, no app.', 'They ask in plain words: a customer on the RoR, their next shift, a show charge, a teammate\'s number.', 'It checks your Rep of Record list, the live schedule, your policy doc and your team roster, and answers for that rep\'s level.', 'Messages about burnout or quitting are flagged to you. Customer lookups are checked again the next day.'],
+    result: 'Reps get answers in seconds, and you stop answering the same ten questions.',
+    needs: ['Your Rep of Record list', 'Your team policy document', 'Your team roster (kept in your portal)'] },
+  { id: 'season-dashboard', name: 'Season Dashboard', area: 'reports', set: 'basic', status: 'live',
+    job: 'The season scoreboard for leaders, plus every rep\'s own page.',
+    steps: ['Pulls Team Sales for the campaign from VectorConnect.', 'Runs every number through a set of checks and stops if anything looks wrong.', 'Updates the dashboard: season totals, a leaderboard, each campaign, and each rep\'s own page with a coaching read.', 'You give it a final look before it goes live.'],
+    result: 'A season dashboard reps and leaders scroll through on their phone.',
+    needs: ['Your roster', 'VectorConnect access'], setNote: 'In the Basic set I update it from your exports. In Team and up it updates itself from VectorConnect.' },
+  { id: 'picking-order', name: 'Picking Order Agent', area: 'stats', set: 'team', status: 'live',
+    job: 'Ranks every rep for shift picking before each team meeting.',
+    steps: ['Pulls your schedule, your stat tracker and event sales from VectorConnect.', 'Scores each tier on your weights, golf-score style: lowest points picks first.', 'Publishes the rankings to a team page. Each rep can tap their name to see exactly how their score was built.', 'Locks the order for the picking meeting, so nobody\'s spot moves mid-meeting.'],
+    result: 'A picking order nobody can argue with, kept current every week.',
+    needs: ['Your roster and tiers, kept in your portal (I can suggest the tiers from your policy doc)', 'Your schedule and stat tracker'] },
+  { id: 'booking-check', name: 'Booking Check Agent', area: 'bookings', set: 'team', status: 'live',
+    job: 'Catches shows you\'ve staffed that aren\'t actually booked.',
+    steps: ['Pulls My Events from VectorConnect under your coordinator number.', 'Lines every show up against the schedule.', 'Flags shows with reps on them and no booking behind them, and shows whose dates or status changed.', 'Drafts the list for you and texts for the reps it affects. Sends once you approve.'],
+    result: 'No rep shows up to a show that was never booked.',
+    needs: ['VectorConnect access', 'Your schedule'], uses: ['Your coordinator name and number', 'Your texting hours'] },
+  { id: 'show-research', name: 'Show Research Agent', area: 'bookings', set: 'team', status: 'dev',
+    job: 'Double-checks every upcoming show before reps pick shifts, and finds when applications open and close.',
+    steps: ['A week before your meeting, looks each show up online to confirm its dates.', 'Finds when each show\'s applications open and close, from the show\'s own page. Last year\'s date is never passed off as this year\'s.', 'Two days before, confirms dates, venue and promoter.', 'Corrects the schedule and emails you a report. A date you typed in by hand stays, and the report says if research found a different one.', 'Texts any rep whose show day moved, after your OK.'],
+    result: 'Reps pick from a schedule that is actually right, and no application deadline sneaks up on you.',
+    needs: ['Your schedule', 'Your team meeting dates'] },
+  { id: 'shift-cost', name: 'Shift Cost Agent', area: 'money', set: 'team', status: 'live',
+    job: 'Charges each rep their share of the shows they worked.',
+    steps: ['Reads who worked what from the schedule and VectorConnect\'s own counts.', 'Works out each rep\'s share of the show cost, plus any overage charges.', 'Sends you the full list: every rep, every dollar.', 'After you approve, fills in the Event Charge and Overage Recaps in VectorConnect and reads each one back.'],
+    result: 'Show charges entered right every week, without anyone typing a form.',
+    needs: ['VectorConnect access', 'Your show costs on the schedule'] },
+  { id: 'coordinator-pay', name: 'Coordinator Pay Agent', area: 'money', set: 'team', status: 'live',
+    job: 'Handles your coordinator pay.',
+    steps: ['On bonus week, pulls every rep\'s event sales for the last full month.', 'Works out each rep\'s share at your rate and checks the month ties out.', 'Sends you the whole list.', 'After you approve, fills in the Coordinator Compensation form: each rep charged, the coordinator credited.'],
+    result: 'Coordinator pay done on time, down to the penny.',
+    needs: ['VectorConnect access'] },
+  { id: 'booking-request', name: 'Booking Request Agent', area: 'bookings', set: 'team', status: 'dev',
+    job: 'Submits the booking requests once shifts are picked.',
+    steps: ['The week after your meeting, finds every staffed show still waiting on a booking.', 'Prepares each Booking Request the way you set them, with your Submission Notes and the show\'s application dates in the comments, plus the email to Cutco Events.', 'Shows you every request with its comments word for word, and waits for your approve. If the comments are too long for VectorConnect, that request waits for you instead of being cut.', 'Fills VectorConnect\'s Booking Request form, checks every field, and submits each one exactly once.'],
+    result: 'Every staffed show requested within a week of the meeting, with no forms done by hand.',
+    needs: ['VectorConnect access', 'Your team meeting dates'] },
+  { id: 'stat-reminder', name: 'Stat Reminder Agent', area: 'stats', set: 'complete', status: 'live',
+    job: 'Gets every rep\'s show stats turned in.',
+    steps: ['Finds shows that just wrapped, and confirms each one actually ran.', 'Checks for every day a rep worked and didn\'t report.', 'Texts each rep one message with everything they still owe.', 'Unreported shifts count as $0 in the rankings, so reps have a reason to answer.'],
+    result: 'Stats come in without anyone chasing reps one by one.',
+    needs: ['Where stats are reported (VectorConnect or a form)', 'Your events line'] },
+  { id: 'team-text', name: 'Team Text Agent', area: 'meet', set: 'complete', status: 'live',
+    job: 'Sends team announcements and handles the replies.',
+    steps: ['You say who: a tier, or everyone highlighted on a sheet.', 'It shows you the recipient list and the exact words.', 'Sends them: iMessage, or regular text for Android, during your texting hours.', 'Reads every reply and drafts answers in your voice for you to OK.'],
+    result: 'One message to the whole team in a minute, and no reply slips through.',
+    needs: ['Your roster with tiers', 'Your events line'] },
+  { id: 'meeting-reminder', name: 'Meeting Reminder Agent', area: 'meet', set: 'addon', status: 'live',
+    job: 'Makes sure everyone shows up to team meetings and leader one-on-ones.',
+    steps: ['Watches your calendar for events-team meetings. It reads it, never changes it.', 'Shows you each meeting with who gets reminded and the exact words.', 'Once you approve, texts and emails each person ahead of time and again the day of.', 'If the meeting moves or gets cancelled, nothing goes out.'],
+    result: 'Reminders go out on time, every time, and you never have to remember to send them.',
+    needs: ['Read-only access to your calendar', 'Your events line'] },
+  { id: 'stat-assistant', name: 'Stat Assistant', alias: 'ALMA Stats', area: 'stats', set: 'addon', status: 'pilot',
+    job: 'Fills out the stat form with the rep, so they don\'t dig for numbers.',
+    steps: ['Each rep gets their own private link on their phone. The first visit shows them how it works.', 'It already knows their shows, from your schedule and your shift board, and pulls each day\'s booth sales from VectorConnect.', 'The rep only answers what nobody else knows. Every question has a "What does this mean?", and a question they type gets a straight answer or goes to you.', 'If something is off, the rep taps "Stats are off" or "Shifts are off". A missing sale gets step-by-step help tagging the order to the show in VectorConnect, or the rep adds it by hand for now. A hand-added sale stays out of the picking order until VectorConnect shows it.', 'It files the stats for them. Each week it tells you where reps got stuck and suggests fixes, and nothing changes until you say yes.'],
+    result: 'Stats take a minute instead of ten, they match VectorConnect, and missing sales get tagged to the show.',
+    needs: ['Your stat form or tracker', 'Your schedule'] },
+  { id: 'event-analyzer', name: 'Event Analyzer', area: 'reports', set: 'addon', status: 'live',
+    job: 'Shows which events are actually worth working.',
+    steps: ['Pulls event sales for the campaign from VectorConnect\'s Eventalytics.', 'Sorts every event into its category. AI only for the few it can\'t place by rule.', 'Publishes the analyzer and a report for the coordinators.'],
+    result: 'Real numbers on which shows pay off, for planning next season\'s bookings.',
+    needs: ['VectorConnect access'] },
+];
+const byId = Object.fromEntries(AGENTS.map((a) => [a.id, a]));
+
+/* ---------- sample data (all invented) ---------- */
+const TIERS = {
+  Elite: [
+    ['Marcus Webb', { last12Sales: 182000, shiftAverage: 1890, campaignSales: 39900, careerSales: 1250000, ytdSales: 151000 }],
+    ['Priya Nair', { last12Sales: 149900, shiftAverage: 2410, campaignSales: 41200, careerSales: 980000, ytdSales: 128400 }],
+    ['Diego Salinas', { last12Sales: 171200, shiftAverage: 1990, campaignSales: 36800, careerSales: 1100000, ytdSales: 149800 }],
+    ['Kayla Morgan', { last12Sales: 160400, shiftAverage: 2280, campaignSales: 45100, careerSales: 870000, ytdSales: 140200 }],
+  ],
+  Varsity: [
+    ['Sofia Bennett', { last12Sales: 98200, shiftAverage: 1760, campaignSales: 22400, careerSales: 310000, ytdSales: 84100 }],
+    ['Ethan Cole', { last12Sales: 104800, shiftAverage: 1520, campaignSales: 26100, careerSales: 280000, ytdSales: 90300 }],
+    ['Chloe Ramsey', { last12Sales: 91300, shiftAverage: 1940, campaignSales: 19800, careerSales: 255000, ytdSales: 77900 }],
+    ['Owen Patel', { last12Sales: 87600, shiftAverage: 1610, campaignSales: 24700, careerSales: 199000, ytdSales: 80200 }],
+  ],
+  JV: [
+    ['Ava Delgado', { last12Sales: 51200, shiftAverage: 1210, campaignSales: 12400, careerSales: 88000, ytdSales: 46300 }],
+    ['Noah Fischer', { last12Sales: 46800, shiftAverage: 1390, campaignSales: 9800, careerSales: 64000, ytdSales: 41100 }],
+    ['Hannah Price', { last12Sales: 39900, shiftAverage: 980, campaignSales: 14100, careerSales: 52000, ytdSales: 37800 }],
+    ['Caleb Ward', { last12Sales: 55300, shiftAverage: 1120, campaignSales: 8700, careerSales: 120000, ytdSales: 49900 }],
+    ['Mia Thornton', { last12Sales: 33100, shiftAverage: 1450, campaignSales: 11200, careerSales: 41000, ytdSales: 30200 }],
+  ],
+};
+const METRICS = [['last12Sales', 'Last 12 months sales'], ['shiftAverage', 'Weighted shift average'], ['campaignSales', 'Campaign event sales'], ['careerSales', 'Career sales'], ['ytdSales', 'Year-to-date sales']];
+const metricName = (k) => (METRICS.find((m) => m[0] === k) || ['', k])[1];
+const SHIFT_WEEK = {
+  shows: [
+    { name: 'Fall Home Show', day: 'Sat', type: 'FAIR', cost: 340, reps: ['Ava Delgado', 'Marcus Webb', 'Priya Nair', 'Noah Fischer'] },
+    { name: 'Harvest Fair', day: 'Sun', type: 'FAIR', cost: 240, reps: ['Ethan Cole', 'Kayla Morgan', 'Ava Delgado', 'Sofia Bennett'] },
+    { name: 'Riverside Expo', day: 'Sat', type: 'IND', cost: 200, reps: ['Marcus Webb', 'Ethan Cole', 'Hannah Price', 'Caleb Ward'] },
+    { name: 'Community Service Day', day: 'Sun', type: 'SERV', cost: 120, reps: ['Priya Nair', 'Noah Fischer', 'Kayla Morgan', 'Hannah Price'] },
+  ],
+  overage: { 'Ethan Cole': 2, 'Marcus Webb': 1, 'Ava Delgado': 1 },
+  kiosk: { rep: 'Sofia Bennett', name: 'Mall kiosk, November', amount: 1260 },
+};
+const PAY_MONTH = [
+  ['Ava Delgado', { FAIR: 8420, MALL: 1200 }], ['Marcus Webb', { FAIR: 12980, SERV: 2100 }], ['Priya Nair', { IND: 3450, TEAM: 900 }],
+  ['Noah Fischer', { FAIR: 640 }], ['Ethan Cole', { REAL: 2300 }], ['Kayla Morgan', { FAIR: 5210, FDRL: 400 }],
+  ['Sofia Bennett', { MALL: 4880 }], ['Hannah Price', { FAIR: 80 }],
+];
+const PAY_TYPES = ['FAIR', 'IND', 'SERV', 'MALL', 'TEAM', 'REAL', 'FDRL'];
+const UPCOMING = [
+  { name: 'Fall Home Show', tier: 'Traditional' }, { name: 'Harvest Fair', tier: 'Traditional' }, { name: 'Riverside Expo', tier: 'Key' },
+  { name: 'Pines Golf Classic', tier: 'Traditional' }, { name: 'State Fair', tier: 'Elite' }, { name: 'Winter Craft Market', tier: 'Traditional' },
+];
+const ROSTER_TIERS = { Elite: 4, Varsity: 6, JV: 12, Freshmen: 9 };
+
+/* ---------- rules: the real fields from the coordinator portal, Rising Sun's values as the starting point ---------- */
+const DEF_WEIGHTS = {
+  Elite: [['last12Sales', 20], ['shiftAverage', 40], ['campaignSales', 40]],
+  Varsity: [['last12Sales', 20], ['shiftAverage', 40], ['campaignSales', 40]],
+  JV: [['careerSales', 20], ['ytdSales', 40], ['campaignSales', 40]],
+};
+const RULES = {
+  'picking-order': { intro: 'How each tier is ranked before a picking meeting. Move the weights and watch the sample reps re-rank.',
+    defaults: { weights: DEF_WEIGHTS, tieBreak: 'shiftAverage' } },
+  'stat-reminder': { intro: 'When stats are due, which shows need them, and the text a rep gets when theirs are missing.',
+    defaults: { reportedFrom: 'vectorconnect', formLink: '', weekStarts: 'tue', dueDay: 'tue', dueTime: '23:59', remindDay: 'wed', remindTime: '09:00', noStatsNeeded: 'golf', message: 'Hi {first}, your stats for {shows} aren\'t in yet. They\'re due {due}.' },
+    fields: [
+      { k: 'reportedFrom', label: 'A rep\'s stats count as in when they\'re', kind: 'choice', opts: [['vectorconnect', 'Entered in VectorConnect under the show'], ['form', 'Sent through a Google Form']] },
+      { k: 'formLink', label: 'The Google Form\'s link', kind: 'text', help: 'Only if stats come through a form.', show: (r) => r.reportedFrom === 'form' },
+      { k: 'weekStarts', label: 'The stat week starts on', kind: 'weekday' },
+      { k: ['dueDay', 'dueTime'], label: 'Stats are due', kind: 'daytime' },
+      { k: ['remindDay', 'remindTime'], label: 'Reminder texts go out', kind: 'daytime' },
+      { k: 'noStatsNeeded', label: 'Shows that never need stats', kind: 'list', help: 'One per line. A word in the show\'s name is enough, like golf or mall.' },
+      { k: 'message', label: 'The reminder text', kind: 'longtext', help: '{first}, {shows} and {due} fill themselves in.' },
+    ] },
+  'shift-cost': { intro: 'What reps are charged for the shifts they work, and who pays the leader rate.',
+    defaults: { overagePerShift: '22.00', leaderOveragePerShift: '11.00', leaders: ['Marcus Webb'], installmentWeeks: 7, neverChargedTypes: 'SERV' },
+    fields: [
+      { k: 'overagePerShift', label: 'Overage charge per shift', kind: 'money' },
+      { k: 'leaderOveragePerShift', label: 'Overage charge per shift for leaders', kind: 'money' },
+      { k: 'leaders', label: 'Leaders (pay the leader rate)', kind: 'pick', opts: () => ['Marcus Webb', 'Priya Nair', 'Kayla Morgan', 'Ethan Cole', 'Ava Delgado'] },
+      { k: 'installmentWeeks', label: 'A big event charge is split over at most … weeks', kind: 'int', min: 1, max: 12 },
+      { k: 'neverChargedTypes', label: 'VectorConnect event types never charged here', kind: 'list', help: 'Type codes, like SERV for service events.' },
+    ] },
+  'coordinator-pay': { intro: 'Your coordinator pay: the rate, which sales count, and the smallest charge worth entering.',
+    defaults: { rate: '1.00', paidTypes: ['FAIR', 'IND', 'SERV', 'MALL'], minCharge: '1.00' },
+    fields: [
+      { k: 'rate', label: 'Coordinator pay, as a share of each rep\'s event sales', kind: 'percent' },
+      { k: 'paidTypes', label: 'VectorConnect event types that count', kind: 'pick', opts: () => PAY_TYPES },
+      { k: 'minCharge', label: 'A charge under this is listed, not entered', kind: 'money' },
+    ] },
+  'booking-request': { intro: 'What the Booking Request form is filled with, and which shows you book yourself.',
+    defaults: { eventType: 'Traditional', payment: 'Company Pay', boothSize: '10 X 10', corner: true, electric: true, leadsOnly: false, negotiated: false, skipTiers: ['Elite'], skipShows: '' },
+    fields: [
+      { k: 'eventType', label: 'Event type', kind: 'text', help: 'As VectorConnect\'s form shows it.' },
+      { k: 'payment', label: 'Payment', kind: 'choice', opts: [['Company Pay', 'Company Pay'], ['Rep Pay', 'Rep Pay']] },
+      { k: 'boothSize', label: 'Booth size', kind: 'choice', opts: [['10 X 10', '10 X 10'], ['10 X 20', '10 X 20'], ['10 X 30', '10 X 30']] },
+      { k: 'corner', label: 'Ask for a corner', kind: 'yesno' },
+      { k: 'electric', label: 'Ask for electric', kind: 'yesno' },
+      { k: 'leadsOnly', label: 'Leads only', kind: 'yesno' },
+      { k: 'negotiated', label: 'Negotiated', kind: 'yesno' },
+      { k: 'skipTiers', label: 'Tiers that book their own shows', kind: 'pick', opts: () => ['Elite', 'Key', 'Traditional'] },
+      { k: 'skipShows', label: 'Shows you book yourself', kind: 'list', help: 'One per line. A word in the name is enough.' },
+    ] },
+  'show-research': { intro: 'Which shows the research agent leaves alone, and what it looks up for your booking requests.',
+    defaults: { skipTiers: ['Elite'], skipShows: 'golf\nbuilder', researchAppDates: true, submissionNotesToVc: true, manualWins: true },
+    fields: [
+      { k: 'skipTiers', label: 'Tiers whose shows aren\'t researched', kind: 'pick', opts: () => ['Elite', 'Key', 'Traditional'] },
+      { k: 'skipShows', label: 'Shows never researched', kind: 'list', help: 'One per line. A word in the name is enough, like golf.' },
+      { k: 'researchAppDates', label: 'Look up when applications open and close', kind: 'yesno', help: 'From the show\'s or the promoter\'s own page, in the page\'s words. Never last year\'s date passed off as this year\'s.' },
+      { k: 'submissionNotesToVc', label: 'Put Submission Notes in the Booking Request comments', kind: 'yesno', help: 'What you write on a show for Cutco\'s events team goes first in the request\'s comments, then the application dates.' },
+      { k: 'manualWins', label: 'A date typed in by hand beats research', kind: 'yesno', help: 'Research never changes it. If research finds a different date, the show says so and the date stays yours.' },
+    ] },
+  'rep-assistant': { intro: 'Name it, choose what it reads, and add what your documents don\'t say.',
+    defaults: { botName: 'SUNNY', docs: ['Rep of Record list', 'Show schedule', 'Team policy doc', 'Important dates', 'Team roster'], notes: '' },
+    fields: [
+      { k: 'botName', label: 'What your reps call it', kind: 'text', help: 'Rising Sun\'s is SUNNY. Pick your own.' },
+      { k: 'docs', label: 'What it reads', kind: 'pick', opts: () => ['Rep of Record list', 'Show schedule', 'Team policy doc', 'Important dates', 'Team roster', 'Scripts'] },
+      { k: 'notes', label: 'Notes for it', kind: 'longtext', help: 'How reps reach you, who handles money questions, anything your policy doesn\'t say.' },
+    ] },
+  'team-text': { intro: 'Who gets the message and what it says. Texts only go out during your texting hours.',
+    defaults: { tiers: ['JV', 'Freshmen'], message: 'Hey {first}, shift picking opens Tuesday at 7pm. Check the board and have your top three ready.' },
+    fields: [
+      { k: 'tiers', label: 'Send to', kind: 'pick', opts: () => Object.keys(ROSTER_TIERS) },
+      { k: 'message', label: 'The message', kind: 'longtext', help: '{first} fills itself in.' },
+    ] },
+  'meeting-reminder': { intro: 'Which meetings count, how early people hear about them, and the words.',
+    defaults: { meetings: ['Team meeting', 'Freshmen/JV meeting', 'Leader one-on-ones'], daysBefore: 7, dayOf: true, channels: ['Text', 'Email'], message: 'Hi {first}, reminder: the {meeting} is {when} at {where}. See you there.' },
+    fields: [
+      { k: 'meetings', label: 'Meetings that get reminders', kind: 'pick', opts: () => ['Team meeting', 'Freshmen/JV meeting', 'Leader one-on-ones', 'Training'] },
+      { k: 'daysBefore', label: 'First reminder, days before', kind: 'int', min: 1, max: 21 },
+      { k: 'dayOf', label: 'Another reminder the day of', kind: 'yesno' },
+      { k: 'channels', label: 'Send by', kind: 'pick', opts: () => ['Text', 'Email'] },
+      { k: 'message', label: 'The words', kind: 'longtext', help: '{first}, {meeting}, {when} and {where} fill themselves in.' },
+    ] },
+  'stat-assistant': { intro: 'The questions only the rep can answer. Everything else it already knows.',
+    defaults: { questions: ['Leads each day', 'Like the booth spot?', 'Did weather hurt it?', 'How busy, 1 to 5', 'Booth size', 'Work it again?'] },
+    fields: [ { k: 'questions', label: 'What it asks after each show', kind: 'pick', opts: () => ['Leads each day', 'Like the booth spot?', 'Did weather hurt it?', 'How busy, 1 to 5', 'Booth size', 'Work it again?', 'Best selling item'] } ] },
+};
+const DIV_FIELDS = [
+  { k: 'coordinator', label: 'Coordinator credited for pay and overages', kind: 'text', ph: 'Name as VectorConnect shows it' },
+  { k: 'tz', label: 'Time zone', kind: 'choice', opts: [['America/Phoenix', 'Arizona (no daylight saving)'], ['America/Los_Angeles', 'Pacific'], ['America/Denver', 'Mountain'], ['America/Chicago', 'Central'], ['America/New_York', 'Eastern']] },
+  { k: 'weekStart', label: 'The Vector week starts on', kind: 'weekday' },
+  { k: ['textFrom', 'textUntil'], label: 'Texts to reps go out between', kind: 'hours' },
+  { k: 'vcDivision', label: 'VectorConnect division number', kind: 'text', ph: 'Like 75' },
+  { k: 'approvers', label: 'Who approves', kind: 'list', help: 'One per line. Each can approve by area: bookings, charges, texts.', wide: true },
+];
+const DIV_DEFAULTS = { coordinator: '', tz: 'America/Chicago', weekStart: 'tue', textFrom: '9', textUntil: '18', vcDivision: '', approvers: '' };
+
+/* ---------- plan state ---------- */
+const uid8 = () => Math.random().toString(36).slice(2, 10);
+const newPlan = () => ({ id: 'p-' + Date.now().toString(36) + '-' + uid8(), kind: 'plan', coordinator: '', division: '', agents: [], rules: {}, divisionSettings: clone(DIV_DEFAULTS), notes: '', updatedAt: '' });
+let plan = newPlan();
+let plans = {};                 // id -> plan, from the store
+const ALAN_EMAIL = 'ahernandez@allinknifeguy.com';   // where "Email this plan to Alan" sends a plan
+let dirty = false;              // this plan has edits not yet saved
+const rulesOf = (id) => Object.assign(clone(RULES[id] ? RULES[id].defaults : {}), clone(plan.rules[id] || {}));
+const divOf = () => Object.assign(clone(DIV_DEFAULTS), clone(plan.divisionSettings || {}));
+const divName = () => plan.division.trim() || 'Your division';
+const coordName = () => (divOf().coordinator || plan.coordinator || '').trim() || 'your coordinator';
+const isPicked = (id) => plan.agents.includes(id);
+const hasContent = (p) => !!(p.coordinator || p.division || p.agents.length || Object.keys(p.rules).length || p.notes);
+
+function touch() {
+  plan.updatedAt = new Date().toISOString();
+  dirty = true;
+  scheduleSave();
+  renderPlanBits();
+}
+function setRule(id, k, v) { const r = clone(plan.rules[id] || {}); r[k] = v; plan.rules[id] = r; touch(); }
+function togglePick(id) {
+  plan.agents = isPicked(id) ? plan.agents.filter((x) => x !== id) : plan.agents.concat(id);
+  touch(); renderGallery(); syncSheetPick();
+  toast(isPicked(id) ? byId[id].name + ' added to the plan' : byId[id].name + ' taken off the plan');
+}
+
+/* ---------- storage: the viewer's private plans in the page's database, else this browser ---------- */
+const LS_PLANS = 'aia-explorer-plans-v1', LS_CURRENT = 'aia-explorer-current';
+const ls = {
+  get(k) { try { return localStorage.getItem(k); } catch (e) { return null; } },
+  set(k, v) { try { localStorage.setItem(k, v); return true; } catch (e) { return false; } },
+};
+let backend = { mode: 'pending' };
+let resolveReady; const ready = new Promise((r) => { resolveReady = r; });
+let saveTimer = null, chain = Promise.resolve(), saveMsg = '', saveErr = false, restored = false;
+
+const localBackend = {
+  mode: 'local',
+  load() { try { return JSON.parse(ls.get(LS_PLANS) || '{}') || {}; } catch (e) { return {}; } },
+  async save(p) { const all = this.load(); all[p.id] = p; if (!ls.set(LS_PLANS, JSON.stringify(all))) throw new Error('storage'); plans = all; },
+  async remove(id) { const all = this.load(); delete all[id]; ls.set(LS_PLANS, JSON.stringify(all)); plans = all; },
+};
+
+async function initStore() {
+  let user = null, db = null, uid = null;
+  try {
+    if (window.claude && typeof window.claude.use === 'function') {
+      [user, db] = await Promise.all([window.claude.use('user'), window.claude.use('db')]);
+    }
+    if (user && db) uid = await user.id();
+  } catch (e) { db = null; uid = null; }
+  if (db && uid) {
+    const col = db.collection('data/users/' + uid);
+    backend = {
+      mode: 'cloud',
+      save: (p) => col.doc(p.id).set(p),
+      remove: (id) => col.doc(id).delete(),
+    };
+    col.onSnapshot((snap) => {
+      const next = {};
+      snap.docs.forEach((d) => { const v = d.data(); if (v && v.kind === 'plan') next[d.id] = clone(v); });
+      plans = next;
+      if (!restored) restoreCurrent();
+      else if (!dirty && plans[plan.id] && plans[plan.id].updatedAt !== plan.updatedAt) { plan = normalize(plans[plan.id]); renderAll(); }
+      else renderPlanPick();
+    }, () => { useLocal('This view lost its link to your saved plans. Changes are kept in this browser.'); });
+  } else {
+    useLocal();
+  }
+  resolveReady();
+  renderSaveState();
+}
+function useLocal(msg) {
+  backend = localBackend;
+  plans = Object.assign(localBackend.load(), {});
+  if (msg) { saveMsg = msg; }
+  if (!restored) restoreCurrent();
+  renderPlanPick(); renderSaveState();
+}
+function restoreCurrent() {
+  restored = true;
+  const id = ls.get(LS_CURRENT);
+  if (!dirty && id && plans[id]) { plan = normalize(plans[id]); renderAll(); }
+  else renderPlanPick();
+}
+function normalize(p) {
+  const n = Object.assign(newPlan(), clone(p));
+  n.agents = Array.isArray(n.agents) ? n.agents.filter((a) => byId[a]) : [];
+  n.rules = n.rules && typeof n.rules === 'object' ? n.rules : {};
+  n.divisionSettings = Object.assign(clone(DIV_DEFAULTS), n.divisionSettings || {});
+  return n;
+}
+function scheduleSave() { clearTimeout(saveTimer); saveTimer = setTimeout(() => { saveNow(); }, 650); }
+/* One write at a time, in order; each waits until the store has answered. */
+function saveNow(p) {
+  clearTimeout(saveTimer);
+  const target = p || plan;
+  if (!hasContent(target)) { if (target === plan) dirty = false; return chain; }
+  const body = clone(target);
+  chain = chain.then(() => ready).then(() => writeBody(body));
+  return chain;
+}
+async function writeBody(body) {
+  try {
+    await backend.save(body);
+    plans[body.id] = body;
+    ls.set(LS_CURRENT, plan.id);
+    if (body.id === plan.id && JSON.stringify(body) === JSON.stringify(plan)) dirty = false;
+    saveErr = false; if (backend.mode === 'cloud') saveMsg = '';
+  } catch (e) {
+    const code = e && e.code;
+    if (backend.mode === 'cloud' && ['invalid_argument', 'revoked', 'not_granted', 'capability_disabled', 'capability_removed'].includes(code)) {
+      useLocal('Your saved plans aren\'t available in this view, so this plan is kept in this browser.');
+      try { await backend.save(body); plans[body.id] = body; saveErr = false; } catch (e2) { saveErr = true; saveMsg = 'This browser won\'t keep it either. Copy the plan before you close the page.'; }
+    } else {
+      saveErr = true;
+      saveMsg = code === 'quota_exceeded' ? 'The plan list is full. Delete an old plan, then make your change again.' : 'Your last change didn\'t save. It will try again with your next change.';
+    }
+  }
+  renderSaveState(); renderPlanPick();
+}
+function renderSaveState() {
+  const el = $('#saveState');
+  el.classList.toggle('cloud', backend.mode === 'cloud' && !saveErr);
+  el.classList.toggle('err', saveErr);
+  let t;
+  if (saveErr || saveMsg) t = saveMsg;
+  else if (backend.mode === 'cloud') t = 'Saved to your private plans. Only you can see them.';
+  else if (backend.mode === 'local') t = 'Saved in this browser only.';
+  else t = 'Getting your saved plans…';
+  $('span', el).textContent = t;
+}
+
+/* ---------- gallery ---------- */
+let filter = 'all';
+function renderFilters() {
+  const counts = {}; AGENTS.forEach((a) => { counts[a.area] = (counts[a.area] || 0) + 1; });
+  const items = [['all', 'All agents', AGENTS.length]].concat(AREAS.map(([k, n]) => [k, n, counts[k] || 0])).concat([['picked', 'In the plan', plan.agents.length]]);
+  $('#filters').innerHTML = items.map(([k, n, c]) => `<button type="button" class="fchip" data-f="${k}" aria-pressed="${filter === k}">${esc(n)}<span class="c">${c}</span></button>`).join('');
+}
+const setChip = (s) => `<span class="set-chip s-${s}">${esc(SETS[s][0])}${s === 'addon' ? '' : ' set'}</span>`;
+const stChip = (s) => `<span class="st ${STATUS[s][0]}">${esc(STATUS[s][1])}</span>`;
+function renderGallery() {
+  renderFilters();
+  const list = AGENTS.filter((a) => filter === 'all' || (filter === 'picked' ? isPicked(a.id) : a.area === filter));
+  $('#gallery').innerHTML = list.length ? list.map((a) => `
+    <article class="tile${isPicked(a.id) ? ' picked' : ''}" data-open="${a.id}" tabindex="0" aria-label="${esc(a.name)}: open details">
+      <button type="button" class="pick" data-pick="${a.id}" aria-pressed="${isPicked(a.id)}" aria-label="${isPicked(a.id) ? 'Take ' + esc(a.name) + ' off the plan' : 'Add ' + esc(a.name) + ' to the plan'}"><svg aria-hidden="true"><use href="#i-check"/></svg></button>
+      <p class="area">${esc((AREAS.find((x) => x[0] === a.area) || [])[1])}</p>
+      <h3>${esc(a.name)}</h3>
+      <p>${esc(a.job)}</p>
+      <div class="chips">${setChip(a.set)}${stChip(a.status)}<span class="open-hint">Open</span></div>
+    </article>`).join('') : '<p class="empty-filter">Nothing ticked yet. Tick an agent\'s check box to add it to the plan.</p>';
+}
+
+/* ---------- sheet ---------- */
+let current = null, lastFocus = null, activeTab = 'does';
+function openSheet(id, tab) {
+  const a = byId[id]; if (!a) return;
+  current = id; lastFocus = document.activeElement;
+  $('#sheetArea').textContent = (AREAS.find((x) => x[0] === a.area) || [])[1] + (a.alias ? ' · ' + a.alias : '');
+  $('#sheetTitle').textContent = a.name;
+  $('#sheetChips').innerHTML = setChip(a.set) + stChip(a.status);
+  syncSheetPick();
+  renderDoes(a); renderRun(a); renderYours(a); renderLook(a);
+  $('#scrim').hidden = false; document.body.classList.add('sheet-open');
+  showTab(tab || 'does');
+  $('#sheet').scrollTop = 0;
+  $('#sheetClose').focus();
+  try { history.replaceState(null, '', '#' + id); } catch (e) { /* framed */ }
+}
+function closeSheet() {
+  if ($('#scrim').hidden) return;
+  $('#scrim').hidden = true; document.body.classList.remove('sheet-open'); stopRun();
+  current = null;
+  try { history.replaceState(null, '', location.pathname + location.search); } catch (e) { /* framed */ }
+  if (lastFocus && lastFocus.focus) lastFocus.focus();
+}
+function syncSheetPick() {
+  if (!current) return;
+  const on = isPicked(current), b = $('#sheetPick');
+  b.setAttribute('aria-pressed', on);
+  b.innerHTML = on ? '<svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12.5 4.5 4.5L19 7.5" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>In the plan' : 'Add to plan';
+}
+function showTab(t) {
+  activeTab = t;
+  $$('.tab').forEach((b) => b.setAttribute('aria-selected', b.dataset.tab === t));
+  $$('.panel').forEach((p) => { p.hidden = p.id !== 'panel-' + t; });
+  if (t !== 'run') stopRun();
+}
+
+function renderDoes(a) {
+  const uses = (a.uses || []).length ? `<div class="box"><span class="label">From your division settings</span><ul>${a.uses.map((u) => `<li>${esc(u)}</li>`).join('')}</ul></div>` : '';
+  $('#panel-does').innerHTML = `
+    <div class="does">
+      <div class="job"><span class="label">The job</span><p>${esc(a.job)}</p></div>
+      <div><span class="label">How it works</span><ol class="steps">${a.steps.map((s) => `<li>${esc(s)}</li>`).join('')}</ol></div>
+      <div class="res"><span class="label">What you get</span><p>${esc(a.result)}</p></div>
+    </div>
+    <div class="needs">
+      <div class="box"><span class="label">What you'd need</span><ul>${a.needs.map((n) => `<li>${esc(n)}</li>`).join('')}</ul></div>
+      ${uses || `<div class="box"><span class="label">Where it fits</span><p>${esc(a.setNote || setLine(a))}</p></div>`}
+    </div>`;
+}
+const setLine = (a) => a.set === 'addon' ? 'An add-on to any set. Running at Rising Sun today.' : `Part of the ${SETS[a.set][0]} set${a.set === 'basic' ? ', so every division gets it.' : a.set === 'team' ? ', with Basic\'s web apps included.' : ', with everything in Team included.'}`;
+
+/* ---------- watch it run ---------- */
+const ICON = { read: 'i-read', work: 'i-work', ask: 'i-ask', do: 'i-do', proof: 'i-proof' };
+const KIND = { read: 'Reads', work: 'Works it out', ask: 'Asks you', do: 'Does it', proof: 'Proves it' };
+function approval(title, body, approveLabel) {
+  return `<div class="approval"><div class="ah"><b>${title}</b><span>Your portal</span></div><div class="ab">${body}</div>
+    <div class="aa"><button type="button" class="btn sm primary" data-approve>${esc(approveLabel || 'Approve')}</button><button type="button" class="btn sm" data-decline>Decline</button><span class="done" hidden>Approved</span></div></div>`;
+}
+function framesFor(a) {
+  const d = divName(), c = coordName(), r = rulesOf(a.id), first = 'Ava';
+  switch (a.id) {
+    case 'schedule-board': return [
+      ['read', 'Reads your Show Shift Schedule sheet', `<table class="mini"><tr><td>Fall Home Show</td><td>Sat · Shift 1</td><td class="r">Ava Delgado</td></tr><tr><td>Riverside Expo</td><td>Sat · Shift 2</td><td class="r">Caleb Ward</td></tr><tr><td>Harvest Fair</td><td>Sun · Shift 1</td><td class="r">Open</td></tr></table>`],
+      ['work', 'Finds what changed', '<p>2 changes since the last sync: a rep added to Fall Home Show, and Riverside Expo moved a week.</p>'],
+      ['do', 'Updates the board', '<p>Every rep, your staff and every agent see the change at once.</p>'],
+      ['proof', 'Logs who changed what', '<p class="mono" style="font-size:13.5px">Riverside Expo · date changed · by the Sync button</p>']];
+    case 'rep-assistant': return [
+      ['read', 'A rep asks a question', '<div class="bubble me">Is Dana Whitley in Gilbert on the RoR?</div>'],
+      ['work', 'Checks your Rep of Record list', '<p>Name, city and close spellings, across every customer on the list.</p>'],
+      ['do', 'Answers in seconds', `<div class="bubble"><b>Dana Whitley</b> in Gilbert is on the Rep of Record list. Rep of Record: <b>Marcus Webb</b>. Call Marcus before you write anything up.</div>`],
+      ['proof', 'Checks itself the next day', '<p>Every customer lookup is checked again. A doubtful answer goes to your review list.</p>']];
+    case 'season-dashboard': return [
+      ['read', 'Pulls Team Sales when the campaign closes', '<p>From VectorConnect, for every rep on your roster.</p>'],
+      ['work', 'Checks every number', `<table class="mini"><tr><td>Rep totals tie to the division total</td><td class="r ok-t">Pass</td></tr><tr><td>Every rep on the roster found</td><td class="r ok-t">Pass</td></tr><tr><td>No campaign counted twice</td><td class="r ok-t">Pass</td></tr></table>`],
+      ['ask', 'You take a final look', approval('Season dashboard · ' + esc(d), '<p>21 reps updated. 3 new names on the leaderboard.</p>', 'Publish')],
+      ['do', 'Publishes the dashboard', '<p>Season totals, the leaderboard, each campaign and every rep\'s own page.</p>']];
+    case 'picking-order': {
+      const top = rankTier('Elite', r).slice(0, 3);
+      return [
+        ['read', 'Pulls shifts, stats and sales', '<p>Your schedule, your stat tracker and VectorConnect event sales.</p>'],
+        ['work', 'Scores every rep on your weights', `<table class="mini">${top.map((x, i) => `<tr><td>${i + 1}. ${esc(x.name)}</td><td class="r">${x.points.toFixed(2)} pts</td></tr>`).join('')}</table>`],
+        ['do', 'Publishes the rankings', '<p>A team page reps check on their phone. Each rep can tap their name to see how their score was built.</p>'],
+        ['proof', 'Locks it for the meeting', '<p>The order is frozen at the picking meeting, so nobody\'s spot moves mid-meeting.</p>']];
+    }
+    case 'booking-check': return [
+      ['read', 'Pulls My Events from VectorConnect', `<p>Every show booked under ${esc(c)}.</p>`],
+      ['work', 'Lines them up against the schedule', `<table class="mini"><tr><td>Fall Home Show</td><td class="r ok-t">Staffed, booked</td></tr><tr><td>Harvest Fair</td><td class="r bad-t">Staffed, no booking</td></tr><tr><td>Riverside Expo</td><td class="r wip-t">Dates changed</td></tr></table>`],
+      ['ask', 'Asks before anything goes out', approval('Booking check', '<ul><li>1 staffed show with no booking: Harvest Fair</li><li>Riverside Expo moved: text the 3 reps on it</li></ul>')],
+      ['do', 'Sends the list and the texts', '<p>The no-booking list to you, and a text to each rep on the moved show.</p>']];
+    case 'show-research': return [
+      ['read', 'Takes every upcoming show', '<p>A week before your meeting, then again two days before.</p>'],
+      ['work', 'Looks each one up online', `<table class="mini">${researchList(r).slice(0, 4).map((s) => `<tr><td>${esc(s.name)}</td><td class="r ${s.skip ? 'muted' : 'ok-t'}">${s.skip ? 'Skipped' : 'Dates, venue, promoter'}</td></tr>`).join('')}</table>${r.researchAppDates ? '<p>Also finds when applications open and close, quoting the show\'s own page.</p>' : ''}`],
+      ['ask', 'Asks before texting reps', approval('Show research', '<p>Riverside Expo moved to Sat 11/14. Text the 3 reps on it?</p>')],
+      ['do', 'Fixes the schedule and reports', `<p>Corrects the dates on the board and emails you what it found.${r.manualWins ? ' Dates you typed in by hand stay as they are, and the report says if research disagrees.' : ''}</p>`]];
+    case 'shift-cost': {
+      const rows = shiftRows(r), total = rows.reduce((s, x) => s + x.total, 0);
+      return [
+        ['read', 'Reads the week\'s shifts', '<p>Who worked what, from the schedule and VectorConnect\'s own counts.</p>'],
+        ['work', 'Works out each rep\'s share', `<p>${SHIFT_WEEK.shows.slice(0, 2).map((s) => `${esc(s.name)}: ${usd0(s.cost)} ÷ ${s.reps.length} shifts = ${usd(s.cost / s.reps.length)} each`).join('<br>')}</p>`],
+        ['ask', 'Sends you every rep and every dollar', approval(`Shift costs · ${rows.length} reps · ${usd(total)}`, `<ul>${rows.slice(0, 4).map((x) => `<li>${esc(x.name)} · ${usd(x.total)}</li>`).join('')}<li>and ${rows.length - 4} more</li></ul>`)],
+        ['do', 'Fills the VectorConnect forms', '<p>Event Charge and Overage Recaps, one per rep.</p>'],
+        ['proof', 'Reads every form back', `<p>${rows.length} of ${rows.length} saved, each matching what you approved.</p>`]];
+    }
+    case 'coordinator-pay': {
+      const p = payRows(r);
+      return [
+        ['read', 'Pulls last month\'s event sales', '<p>On bonus week, for every rep in your division.</p>'],
+        ['work', 'Works out each rep\'s share', `<p>${esc(r.rate)}% of counted event sales. The month has to tie out before anything is staged.</p>`],
+        ['ask', 'Sends you the whole list', approval(`Coordinator pay · ${p.entered.length} reps · ${usd(p.total)}`, `<p>Credited to ${esc(c)}.</p>`)],
+        ['do', 'Fills the Coordinator Compensation form', '<p>Each rep charged, the coordinator credited, then read back.</p>']];
+    }
+    case 'booking-request': return [
+      ['read', 'Finds staffed shows waiting on a booking', '<p>The week after your meeting, from the board and VectorConnect.</p>'],
+      ['work', 'Prepares each request your way', `<p>${esc(r.boothSize)} booth, ${r.corner ? 'corner' : 'no corner'}, ${r.electric ? 'electric' : 'no electric'}, ${esc(r.payment)}.</p><p>Comments: ${esc(vcComments().join(' '))}</p>`],
+      ['ask', 'Waits for your approve', approval('Booking requests · 5 shows', '<p>Every request with its comments word for word, plus the email to Cutco Events listing them.</p>')],
+      ['do', 'Submits each one exactly once', '<p>Fills the form, checks every field, submits, and stops if anything looks off.</p>']];
+    case 'stat-reminder': return [
+      ['read', 'Finds shows that just wrapped', '<p>And confirms each one actually ran.</p>'],
+      ['work', 'Checks who hasn\'t reported', `<p>${r.reportedFrom === 'form' ? 'Against your stat form.' : 'Against what\'s entered in VectorConnect.'} Shows that never need stats are left out.</p>`],
+      ['do', 'Texts each rep once', `<div class="bubble">${esc(statText(r, first))}</div>`],
+      ['proof', 'Updates everyone\'s audit page', '<p>Unreported shifts count as $0 until they\'re in.</p>']];
+    case 'team-text': return [
+      ['read', 'You say who and what', `<p>${esc((r.tiers || []).join(' and ') || 'Nobody yet')}.</p>`],
+      ['ask', 'Shows you the list and the exact words', approval(`Text ${textCount(r)} reps`, `<p>"${esc(fill(r.message, { first }))}"</p>`, 'Send')],
+      ['do', 'Sends it', '<p>iMessage, or regular text for Android, during your texting hours.</p>'],
+      ['proof', 'Reads every reply', '<p>Sorts the answers and drafts replies in your voice for you to OK.</p>']];
+    case 'meeting-reminder': return [
+      ['read', 'Watches your calendar', '<p>Read only. It never changes your calendar.</p>'],
+      ['ask', 'Shows you who gets reminded', approval('Freshmen/JV meeting · Tue 11/17 · 14 people', `<p>${esc((r.channels || []).join(' and ') || 'Nothing')}, ${esc(r.daysBefore)} days before${r.dayOf ? ' and the day of' : ''}.</p>`)],
+      ['do', 'Sends ahead and the day of', `<div class="bubble">${esc(meetText(r, first))}</div>`],
+      ['proof', 'Checks the calendar again first', '<p>Moved or cancelled means nothing goes out.</p>']];
+    case 'stat-assistant': return [
+      ['read', 'The rep opens their link', '<p>It already knows their shows, from the schedule and the shift board, and pulls each day\'s booth sales.</p>'],
+      ['work', 'Asks only what nobody else knows', `<div class="qchips">${(r.questions || []).map((q) => `<span>${esc(q)}</span>`).join('')}</div><p>"What does this mean?" sits under every question.</p>`],
+      ['work', 'Catches a missing sale', '<p>VectorConnect shows 2 orders on Saturday, the rep says 3. It walks them through tagging the third to the show: My Account, View My Orders, the blank Event column, pick the show, Booth Sale, Save. Or they add it by hand for now.</p>'],
+      ['do', 'Files the stats for them', '<p>One Submit for every show. A hand-added sale stays out of the picking order until VectorConnect shows it.</p>'],
+      ['ask', 'Asks you before it changes anything', approval('Stat assistant · this week', '<p>3 reps asked how Rep of Record is counted. Add that answer under the RoR question?</p>')]];
+    case 'event-analyzer': return [
+      ['read', 'Pulls the campaign\'s event sales', '<p>From VectorConnect\'s Eventalytics.</p>'],
+      ['work', 'Sorts every event into a category', '<p>By rule first. AI only for the few it can\'t place.</p>'],
+      ['do', 'Publishes the analyzer', '<p>Sales by show, month and category, this year against last.</p>'],
+      ['proof', 'Builds the coordinators\' report', '<p>One report per campaign.</p>']];
+  }
+  return [];
+}
+let runTimer = null, runIdx = 0;
+function renderRun(a) {
+  const fr = framesFor(a);
+  $('#panel-run').innerHTML = `
+    <div class="run-bar"><p>Sample data, made-up names. Tap Approve when it asks you.</p><button type="button" class="btn sm dark" id="runPlay">Play it step by step</button></div>
+    <ol class="run">${fr.map(([t, h, body], i) => `<li class="frame t-${t}" data-i="${i}"><div class="ic"><svg aria-hidden="true"><use href="#${ICON[t]}"/></svg></div>
+      <div class="fbody"><span class="kind">${KIND[t]}</span><h4>${esc(h)}</h4>${body}</div></li>`).join('')}</ol>`;
+}
+function stopRun() { clearTimeout(runTimer); runTimer = null; }
+function playRun() {
+  stopRun();
+  const frames = $$('#panel-run .frame');
+  $$('#panel-run [data-approve]').forEach((b) => { b.disabled = false; b.parentNode.querySelector('.done').hidden = true; b.hidden = false; b.nextElementSibling.hidden = false; });
+  if (reduceMotion()) { frames.forEach((f) => f.classList.remove('hidden-step')); return; }
+  frames.forEach((f, i) => f.classList.toggle('hidden-step', i > 0));
+  runIdx = 0; step();
+}
+function step() {
+  const frames = $$('#panel-run .frame');
+  const f = frames[runIdx]; if (!f) return;
+  f.classList.remove('hidden-step'); f.classList.remove('appear'); void f.offsetWidth; f.classList.add('appear');
+  f.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+  if (f.classList.contains('t-ask')) return;            // waits for Approve
+  if (runIdx < frames.length - 1) runTimer = setTimeout(() => { runIdx++; step(); }, 1500);
+}
+function approveFrame(btn, ok) {
+  const box = btn.closest('.approval'), done = $('.done', box);
+  $$('button', box).forEach((b) => { b.hidden = true; });
+  done.hidden = false; done.textContent = ok ? 'Approved. On its way.' : 'Declined. Nothing goes out.';
+  done.style.color = ok ? '' : 'var(--muted)';
+  const f = btn.closest('.frame'), frames = $$('#panel-run .frame'), i = frames.indexOf(f);
+  if (!ok) { frames.slice(i + 1).forEach((x) => x.classList.add('hidden-step')); stopRun(); return; }
+  if (frames.slice(i + 1).some((x) => x.classList.contains('hidden-step'))) { runIdx = i + 1; runTimer = setTimeout(step, 500); }
+}
+
+/* ---------- make it yours: calculations ---------- */
+function rankTier(tier, r) {
+  const reps = TIERS[tier]; const w = (r.weights && r.weights[tier]) || DEF_WEIGHTS[tier];
+  const rankOf = (metric) => { const sorted = reps.map((x) => x[1][metric]).sort((a, b) => b - a); return (v) => sorted.indexOf(v) + 1; };
+  const out = reps.map(([name, m]) => {
+    let pts = 0; w.forEach(([metric, pct]) => { pts += rankOf(metric)(m[metric]) * (pct / 100); });
+    return { name, m, points: Math.round(pts * 100) / 100 };
+  });
+  out.sort((a, b) => a.points - b.points || b.m[r.tieBreak] - a.m[r.tieBreak]);
+  return out;
+}
+function shiftRows(r) {
+  const leaders = new Set(r.leaders || []), never = new Set(lines(r.neverChargedTypes).map((x) => x.toUpperCase()));
+  const ov = parseFloat(r.overagePerShift) || 0, lov = r.leaderOveragePerShift === '' ? ov : (parseFloat(r.leaderOveragePerShift) || 0);
+  const per = {};
+  SHIFT_WEEK.shows.forEach((s) => { s.reps.forEach((n) => { per[n] = per[n] || { name: n, show: 0, over: 0, kiosk: 0 }; if (!never.has(s.type)) per[n].show += s.cost / s.reps.length; }); });
+  Object.entries(SHIFT_WEEK.overage).forEach(([n, k]) => { per[n] = per[n] || { name: n, show: 0, over: 0, kiosk: 0 }; per[n].over += k * (leaders.has(n) ? lov : ov); });
+  const weeks = Math.max(1, Math.min(52, parseInt(r.installmentWeeks, 10) || 1));
+  const kz = SHIFT_WEEK.kiosk; per[kz.rep] = per[kz.rep] || { name: kz.rep, show: 0, over: 0, kiosk: 0 }; per[kz.rep].kiosk = kz.amount / weeks;
+  return Object.values(per).map((x) => Object.assign(x, { total: x.show + x.over + x.kiosk, leader: leaders.has(x.name) })).filter((x) => x.total > 0).sort((a, b) => b.total - a.total);
+}
+function payRows(r) {
+  const rate = (parseFloat(r.rate) || 0) / 100, types = new Set(r.paidTypes || []), min = parseFloat(r.minCharge) || 0;
+  const rows = PAY_MONTH.map(([name, s]) => {
+    const counted = Object.entries(s).filter(([t]) => types.has(t)).reduce((a, [, v]) => a + v, 0);
+    const charge = Math.round(counted * rate * 100) / 100;
+    return { name, counted, charge, small: charge > 0 && charge < min };
+  });
+  const entered = rows.filter((x) => x.charge > 0 && !x.small);
+  return { rows, entered, total: entered.reduce((a, x) => a + x.charge, 0) };
+}
+function vcComments() {
+  const s = rulesOf('show-research'), out = [];
+  if (s.submissionNotesToVc) out.push('Corner by the main entrance if open. Same booth as last year.');
+  out.push(s.researchAppDates ? 'Application opens: Jan 5 · Deadline: Feb 1' : 'Application dates: typed in by hand only');
+  return out;
+}
+function researchList(r) {
+  const tiers = new Set(r.skipTiers || []), words = lines(r.skipShows).map((w) => w.toLowerCase());
+  return UPCOMING.map((s) => Object.assign({}, s, { skip: tiers.has(s.tier) || words.some((w) => s.name.toLowerCase().includes(w)) }));
+}
+function fill(tpl, vars) { return String(tpl || '').replace(/\{(\w+)\}/g, (m, k) => (vars[k] != null ? vars[k] : m)); }
+function statText(r, first) {
+  const skip = lines(r.noStatsNeeded).map((w) => w.toLowerCase());
+  const shows = ['Fall Home Show (Sat)', 'Pines Golf Classic (Sun)', 'Harvest Fair (Sun)'].filter((s) => !skip.some((w) => s.toLowerCase().includes(w)));
+  const list = shows.length > 1 ? shows.slice(0, -1).join(', ') + ' and ' + shows[shows.length - 1] : (shows[0] || 'last week');
+  return fill(r.message, { first, shows: list, due: dayName(r.dueDay) + ' ' + t12(r.dueTime) });
+}
+function meetText(r, first) { return fill(r.message, { first, meeting: 'Freshmen/JV meeting', when: 'Tue 11/17 at 6:30pm', where: 'the ' + divName() + ' office' }); }
+function textCount(r) { return (r.tiers || []).reduce((a, t) => a + (ROSTER_TIERS[t] || 0), 0); }
+
+/* ---------- make it yours: form + preview ---------- */
+function fieldHtml(id, f, r) {
+  if (f.show && !f.show(r)) return '';
+  const fid = (k) => `f-${id}-${k}`;
+  const help = f.help ? `<span class="help">${esc(f.help)}</span>` : '';
+  switch (f.kind) {
+    case 'text': return `<div class="field"><label for="${fid(f.k)}">${esc(f.label)}</label><input type="text" id="${fid(f.k)}" data-k="${f.k}" value="${esc(r[f.k])}" maxlength="200">${help}</div>`;
+    case 'longtext': return `<div class="field"><label for="${fid(f.k)}">${esc(f.label)}</label><textarea id="${fid(f.k)}" data-k="${f.k}" maxlength="1000">${esc(r[f.k])}</textarea>${help}</div>`;
+    case 'list': return `<div class="field"><label for="${fid(f.k)}">${esc(f.label)}</label><textarea id="${fid(f.k)}" data-k="${f.k}" maxlength="1000" style="min-height:64px">${esc(r[f.k])}</textarea>${help}</div>`;
+    case 'money': return `<div class="field"><label for="${fid(f.k)}">${esc(f.label)}</label><div class="money-in"><input type="number" inputmode="decimal" min="0" step="0.01" id="${fid(f.k)}" data-k="${f.k}" value="${esc(r[f.k])}"></div>${help}</div>`;
+    case 'percent': return `<div class="field"><label for="${fid(f.k)}">${esc(f.label)}</label><div style="display:flex;gap:8px;align-items:center"><input type="number" inputmode="decimal" min="0" max="10" step="0.05" id="${fid(f.k)}" data-k="${f.k}" value="${esc(r[f.k])}" style="max-width:140px"><span>%</span></div>${help}</div>`;
+    case 'int': return `<div class="field"><label for="${fid(f.k)}">${esc(f.label)}</label><input type="number" inputmode="numeric" min="${f.min || 0}" max="${f.max || 99}" step="1" id="${fid(f.k)}" data-k="${f.k}" value="${esc(r[f.k])}" style="max-width:140px">${help}</div>`;
+    case 'weekday': return `<div class="field"><label for="${fid(f.k)}">${esc(f.label)}</label><select id="${fid(f.k)}" data-k="${f.k}">${DAYS.map(([k, n]) => `<option value="${k}"${r[f.k] === k ? ' selected' : ''}>${n}</option>`).join('')}</select>${help}</div>`;
+    case 'daytime': return `<div class="field"><span class="flabel">${esc(f.label)}</span><div class="field row2"><select aria-label="${esc(f.label)}, day" id="${fid(f.k[0])}" data-k="${f.k[0]}">${DAYS.map(([k, n]) => `<option value="${k}"${r[f.k[0]] === k ? ' selected' : ''}>${n}</option>`).join('')}</select><input type="time" aria-label="${esc(f.label)}, time" id="${fid(f.k[1])}" data-k="${f.k[1]}" value="${esc(r[f.k[1]])}"></div></div>`;
+    case 'choice': return `<div class="field"><label for="${fid(f.k)}">${esc(f.label)}</label><select id="${fid(f.k)}" data-k="${f.k}">${f.opts.map(([v, n]) => `<option value="${esc(v)}"${r[f.k] === v ? ' selected' : ''}>${esc(n)}</option>`).join('')}</select>${help}</div>`;
+    case 'yesno': return `<div class="field"><span class="flabel">${esc(f.label)}</span><div class="yn" role="group" aria-label="${esc(f.label)}"><button type="button" data-yn="${f.k}" data-v="1" aria-pressed="${!!r[f.k]}">Yes</button><button type="button" data-yn="${f.k}" data-v="0" aria-pressed="${!r[f.k]}">No</button></div>${help}</div>`;
+    case 'pick': { const sel = new Set(r[f.k] || []); return `<div class="field"><span class="flabel">${esc(f.label)}</span><div class="checks" role="group" aria-label="${esc(f.label)}">${f.opts().map((o, i) => `<label class="cbox"><input type="checkbox" id="${fid(f.k)}-${i}" data-pick-k="${f.k}" value="${esc(o)}"${sel.has(o) ? ' checked' : ''}>${esc(o)}</label>`).join('')}</div>${help}</div>`; }
+  }
+  return '';
+}
+function renderYours(a) {
+  const spec = RULES[a.id], el = $('#panel-yours');
+  if (!spec) {
+    el.innerHTML = `<div class="box setup-note"><span class="label">Nothing to fill in</span><p>I set this one up with you on our setup call${a.uses ? ', using your division settings' : ''}.</p>${a.uses ? `<ul>${a.uses.map((u) => `<li>${esc(u)}</li>`).join('')}</ul>` : ''}<p>What it needs from you: ${esc(a.needs.join(', ').toLowerCase())}.</p></div>`;
+    return;
+  }
+  const r = rulesOf(a.id);
+  let left;
+  if (a.id === 'picking-order') left = pickingFields(r);
+  else left = `<p class="intro">${esc(spec.intro)}</p>` + spec.fields.map((f) => fieldHtml(a.id, f, r)).join('');
+  el.innerHTML = `<div class="yours"><form class="fields" id="yoursForm" autocomplete="off" novalidate>${left}
+      <p class="also">Starting values are how Rising Sun runs it. Everything you change here is saved to the division plan.</p>
+      <div><button type="button" class="btn sm quiet" id="resetRules">Back to the starting values</button></div></form>
+    <div class="preview" id="preview" aria-live="polite"></div></div>`;
+  renderPreview(a);
+}
+let pickTier = 'Elite';
+function pickingFields(r) {
+  const w = r.weights[pickTier] || DEF_WEIGHTS[pickTier];
+  const sum = w.reduce((s, x) => s + Number(x[1]), 0);
+  return `<p class="intro">${esc(RULES['picking-order'].intro)}</p>
+    <div class="field"><span class="flabel">Tier</span><div class="tiertabs">${Object.keys(TIERS).map((t) => `<button type="button" class="btn sm${t === pickTier ? ' dark' : ''}" data-tier="${t}" aria-pressed="${t === pickTier}">${t}</button>`).join('')}</div></div>
+    <div class="weights" role="group" aria-label="${pickTier} weights">${w.map(([m, p], i) => `<div class="wrow">
+        <select aria-label="Measure ${i + 1}" data-wm="${i}">${METRICS.map(([k, n]) => `<option value="${k}"${k === m ? ' selected' : ''}>${n}</option>`).join('')}</select>
+        <input type="range" min="0" max="100" step="5" value="${p}" data-wp="${i}" aria-label="${metricName(m)} weight">
+        <output>${p}%</output></div>`).join('')}
+      <p class="wsum ${sum === 100 ? 'ok' : 'bad'}" id="wsum">${sum === 100 ? 'Weights add up to 100%' : 'Weights add up to ' + sum + '%. They need to make 100%.'}</p></div>
+    <div class="field"><label for="f-po-tie">When two reps tie, the higher one goes first on</label><select id="f-po-tie" data-k="tieBreak">${METRICS.map(([k, n]) => `<option value="${k}"${k === r.tieBreak ? ' selected' : ''}>${n}</option>`).join('')}</select></div>
+    <div class="also"><b>Also part of your picking rules</b><ul><li>What it takes to make each tier: shifts worked, shift averages, career and 12-month sales, campaigns on the team</li><li>How much Traditional show sales count against Key shows</li><li>Dropping a rep's worst shift for every so many worked</li><li>Requirements a person confirms, like owning a booth</li></ul></div>`;
+}
+function renderPreview(a) {
+  const el = $('#preview'); if (!el) return;
+  const r = rulesOf(a.id), d = divName(), c = coordName();
+  let h = '';
+  switch (a.id) {
+    case 'picking-order': {
+      const list = rankTier(pickTier, r);
+      h = `<span class="label">${esc(d)} · ${pickTier} picking order</span><ol class="rank">${list.map((x, i) => `<li><span class="pos">${i + 1}</span><span class="who"><b>${esc(x.name)}</b><span>${(r.weights[pickTier] || DEF_WEIGHTS[pickTier]).map(([m]) => metricName(m).replace('Weighted ', '') + ' ' + (m === 'shiftAverage' ? usd0(x.m[m]) : usd0(x.m[m] / 1000) + 'k')).join(' · ')}</span></span><span class="pts">${x.points.toFixed(2)} pts</span></li>`).join('')}</ol><p class="pv-note">Lowest points picks first. Each measure ranks the tier, and the ranks are weighted.</p>`;
+      break;
+    }
+    case 'stat-reminder': {
+      const skip = lines(r.noStatsNeeded).map((w) => w.toLowerCase());
+      const wk = ['Fall Home Show', 'Pines Golf Classic', 'Harvest Fair'];
+      h = `<span class="label">Text to Ava · ${esc(dayName(r.remindDay))} ${esc(t12(r.remindTime))}</span><div class="bubble">${esc(statText(r, 'Ava'))}</div>
+        <table class="mini">${wk.map((s) => { const no = skip.some((w) => s.toLowerCase().includes(w)); return `<tr><td>${esc(s)}</td><td class="r ${no ? 'muted' : 'ok-t'}">${no ? 'Never needs stats' : 'Needs stats'}</td></tr>`; }).join('')}</table>
+        <p class="pv-note">Stats count as in when ${r.reportedFrom === 'form' ? 'the rep sends your Google Form' : 'they\'re entered in VectorConnect'}. The week starts ${esc(dayName(r.weekStarts))}.</p>`;
+      break;
+    }
+    case 'shift-cost': {
+      const rows = shiftRows(r), total = rows.reduce((s, x) => s + x.total, 0), weeks = Math.max(1, parseInt(r.installmentWeeks, 10) || 1);
+      h = `<span class="label">${esc(d)} · sample week</span><table class="mini"><tr><td class="muted">Rep</td><td class="r muted">Shows</td><td class="r muted">Overage</td><td class="r muted">Total</td></tr>
+        ${rows.map((x) => `<tr><td>${esc(x.name)}${x.leader ? ' <span class="muted">· leader</span>' : ''}</td><td class="r">${usd(x.show + x.kiosk)}</td><td class="r">${x.over ? usd(x.over) : '-'}</td><td class="r">${usd(x.total)}</td></tr>`).join('')}
+        <tr class="total"><td>${rows.length} reps</td><td></td><td></td><td class="r">${usd(total)}</td></tr></table>
+        <p class="pv-note">${esc(SHIFT_WEEK.kiosk.rep)}'s ${esc(SHIFT_WEEK.kiosk.name)} (${usd0(SHIFT_WEEK.kiosk.amount)}) is split over ${weeks} week${weeks > 1 ? 's' : ''}: ${usd(SHIFT_WEEK.kiosk.amount / weeks)} this week.${lines(r.neverChargedTypes).length ? ' Never charged here: ' + esc(lines(r.neverChargedTypes).join(', ')) + '.' : ''}</p>`;
+      break;
+    }
+    case 'coordinator-pay': {
+      const p = payRows(r);
+      h = `<span class="label">${esc(d)} · sample month</span><table class="mini"><tr><td class="muted">Rep</td><td class="r muted">Counted sales</td><td class="r muted">Charge</td></tr>
+        ${p.rows.map((x) => `<tr><td>${esc(x.name)}</td><td class="r">${usd0(x.counted)}</td><td class="r">${x.charge === 0 ? '-' : x.small ? '<span class="muted">' + usd(x.charge) + ' listed</span>' : usd(x.charge)}</td></tr>`).join('')}
+        <tr class="total"><td>Credited to ${esc(c)}</td><td></td><td class="r">${usd(p.total)}</td></tr></table>
+        <p class="pv-note">Counts ${esc((r.paidTypes || []).join(', ') || 'no event types')}. Charges under ${usd(parseFloat(r.minCharge) || 0)} are listed for you, not entered.</p>`;
+      break;
+    }
+    case 'booking-request': {
+      const tiers = new Set(r.skipTiers || []), words = lines(r.skipShows).map((w) => w.toLowerCase());
+      const shows = UPCOMING.slice(0, 5);
+      h = `<span class="label">Booking Request · Fall Home Show</span><div class="vcform"><div class="vh">VectorConnect · Booking Request</div>
+        <div class="vr"><span>Coordinator</span><span>${esc(c)}</span></div><div class="vr"><span>Event type</span><span>${esc(r.eventType)}</span></div>
+        <div class="vr"><span>Payment</span><span>${esc(r.payment)}</span></div><div class="vr"><span>Booth size</span><span>${esc(r.boothSize)}</span></div>
+        <div class="vr"><span>Corner</span><span>${r.corner ? 'Yes' : 'No'}</span></div><div class="vr"><span>Electric</span><span>${r.electric ? 'Yes' : 'No'}</span></div>
+        <div class="vr"><span>Leads only</span><span>${r.leadsOnly ? 'Yes' : 'No'}</span></div><div class="vr"><span>Negotiated</span><span>${r.negotiated ? 'Yes' : 'No'}</span></div><div class="vr"><span>Comments</span><span>${esc(vcComments().join(' '))}</span></div></div>
+        <table class="mini">${shows.map((s) => { const skip = tiers.has(s.tier) || words.some((w) => s.name.toLowerCase().includes(w)); return `<tr><td>${esc(s.name)} <span class="muted">· ${esc(s.tier)}</span></td><td class="r ${skip ? 'muted' : 'ok-t'}">${skip ? 'You book it' : 'Requested'}</td></tr>`; }).join('')}</table>`;
+      break;
+    }
+    case 'show-research': {
+      h = `<span class="label">${esc(d)} · before the next meeting</span><table class="mini">${researchList(r).map((s) => `<tr><td>${esc(s.name)} <span class="muted">· ${esc(s.tier)}</span></td><td class="r ${s.skip ? 'muted' : 'ok-t'}">${s.skip ? 'Left alone' : 'Researched'}</td></tr>`).join('')}</table><p class="pv-note">Each researched show is looked up a week out for dates, then two days out for dates, venue and promoter.${r.researchAppDates ? ' It also finds when applications open and close.' : ''}${r.manualWins ? ' A date you typed in by hand is never changed.' : ''}</p><p class="pv-note">Booking Request comments: ${esc(vcComments().join(' '))}</p>`;
+      break;
+    }
+    case 'rep-assistant': {
+      const name = (r.botName || '').trim() || 'Your assistant';
+      h = `<span class="label">${esc(name)} · ${esc(d)}</span><div class="bubble">Hey! I'm <b>${esc(name)}</b>, the ${esc(d)} events assistant. Ask me about a customer, your shifts, a show or a teammate.</div>
+        <p class="pv-note">Reads: ${esc((r.docs || []).join(', ') || 'nothing yet')}.</p>${r.notes ? `<p class="pv-note">Notes: ${esc(r.notes)}</p>` : ''}`;
+      break;
+    }
+    case 'team-text': {
+      h = `<span class="label">${textCount(r)} reps · ${esc((r.tiers || []).join(', ') || 'nobody')}</span><div class="bubble">${esc(fill(r.message, { first: 'Ava' }))}</div>
+        <table class="mini">${Object.entries(ROSTER_TIERS).map(([t, n]) => `<tr><td>${t}</td><td class="r ${(r.tiers || []).includes(t) ? 'ok-t' : 'muted'}">${(r.tiers || []).includes(t) ? n + ' get it' : 'Not this time'}</td></tr>`).join('')}</table>`;
+      break;
+    }
+    case 'meeting-reminder': {
+      h = `<span class="label">${esc(r.daysBefore)} days before · ${esc((r.channels || []).join(' + ') || 'not sent')}</span><div class="bubble">${esc(meetText(r, 'Ava'))}</div>
+        ${r.dayOf ? '<span class="label">The day of</span><div class="bubble">' + esc(meetText(r, 'Ava')) + '</div>' : ''}
+        <p class="pv-note">Reminds for: ${esc((r.meetings || []).join(', ') || 'nothing yet')}.</p>`;
+      break;
+    }
+    case 'stat-assistant': {
+      h = `<span class="label">After Fall Home Show</span><div class="bubble"><b>Fall Home Show</b><br>Sat: $2,140 · 3 orders<br>Sun: $1,330 · 2 orders</div>
+        <ol class="steps" style="color:var(--navy-ink)">${(r.questions || []).map((q) => `<li>${esc(q)}</li>`).join('')}</ol>
+        <p class="pv-note">A sale missing? It walks the rep through tagging it to the show in VectorConnect, or they add it by hand for now.</p>`;
+      break;
+    }
+  }
+  el.innerHTML = h;
+}
+
+/* ---------- what it looks like ---------- */
+const LOOK = {
+  'schedule-board': { kind: 'browser', img: 'img/board.jpg', w: 1200, h: 759, alt: 'The Show Shift Board with open shifts, booked and upcoming counts, filters and one weekend of shows', text: 'Open shifts, booked shows and upcoming weekends at the top. Each show card has its dates, cost, last year\'s sales, open shifts and booking status.' },
+  'rep-assistant': { kind: 'phone', img: 'img/sunny.jpg', w: 600, h: 1298, alt: 'The rep assistant on a phone answering a Rep of Record question and a shift question', text: 'Rising Sun\'s assistant, SUNNY. A rep asks about a customer and their next shift and gets both answers in seconds. Tabs along the bottom go straight to customer lookups, shifts and contacts.' },
+  'season-dashboard': { kind: 'duo', img: 'img/etd.jpg', w: 1200, h: 759, img2: 'img/rep.jpg', w2: 600, h2: 1000, alt: 'The season dashboard with totals against last year and a rep leaderboard', alt2: 'A rep\'s own page on a phone with rank and a coaching read', text: 'The season view for leaders, and each rep\'s own page with their rank and their biggest opportunity.' },
+  'picking-order': { kind: 'browser', img: 'img/picking-order.jpg', w: 1200, h: 864, alt: 'The picking order page with reps ranked by points within each tier', text: 'Lowest points picks first, tier by tier. Reps tap their own name to see how their score was built.' },
+  'stat-reminder': { kind: 'browser', img: 'img/stat-audit.jpg', w: 1200, h: 864, alt: 'The stat audit page listing each rep\'s averages and missing shifts', text: 'The audit page reps check before the meeting. It lists each rep\'s averages and how many shifts they still owe.' },
+  'event-analyzer': { kind: 'browser', img: 'img/analyzer.jpg', w: 1200, h: 760, alt: 'The Event Analyzer: this season against last year, total CPO, orders, average order and CPO by month', text: 'This season against last year at a glance, then tabs to dig in by month, campaign, event and category. These are Rising Sun\'s real numbers.', real: true },
+  'stat-assistant': { kind: 'phone', img: 'img/stats-card.jpg', w: 600, h: 1298, alt: 'The stat assistant on a phone offering to do five unreported days', text: 'The rep taps "Do my event stats" and their shows are already lined up. One show at a time, then one Submit for all of it.', link: ['https://alma-stats.vercel.app/demo', 'Try the demo yourself'] },
+};
+function renderLook(a) {
+  const L = LOOK[a.id], el = $('#panel-look');
+  if (!L) { el.innerHTML = `<div class="noscreen"><b>No screen of its own.</b><p>This agent works where you already are: it asks you in your portal, and then texts, emails or fills VectorConnect forms. Watch it run to see each step.</p><div><button type="button" class="btn sm dark" data-goto="run">Watch it run</button></div></div>`; return; }
+  const img = (src, w, h, alt, cls) => cls === 'phone' ? `<figure class="phone"><img src="${src}" width="${w}" height="${h}" alt="${esc(alt)}" loading="lazy"></figure>` : `<figure class="browser"><div class="bar"><i></i><i></i><i></i></div><img src="${src}" width="${w}" height="${h}" alt="${esc(alt)}" loading="lazy"></figure>`;
+  const text = `<div class="look-text"><span class="label">At Rising Sun today</span><p>${esc(L.text)}</p><span class="fake">${L.real ? 'Live page, team totals' : 'Made-up names and numbers'}</span>${L.link ? `<a class="btn sm dark" href="${L.link[0]}" target="_blank" rel="noopener">${esc(L.link[1])}</a>` : ''}</div>`;
+  if (L.kind === 'duo') el.innerHTML = `<div class="look duo">${img(L.img, L.w, L.h, L.alt)}${img(L.img2, L.w2, L.h2, L.alt2, 'phone')}${text}</div>`;
+  else if (L.kind === 'phone') el.innerHTML = `<div class="look phones">${img(L.img, L.w, L.h, L.alt, 'phone')}${text}</div>`;
+  else el.innerHTML = `<div class="look">${img(L.img, L.w, L.h, L.alt)}${text}</div>`;
+}
+
+/* ---------- division settings ---------- */
+function renderDivision() {
+  const d = divOf(), hours = Array.from({ length: 16 }, (_, i) => i + 6);
+  const h12 = (h) => (h % 12 || 12) + (h < 12 ? 'am' : 'pm');
+  $('#divForm').innerHTML = DIV_FIELDS.map((f) => {
+    const id = 'd-' + (Array.isArray(f.k) ? f.k[0] : f.k);
+    if (f.kind === 'text') return `<div class="field"><label for="${id}">${esc(f.label)}</label><input type="text" id="${id}" data-dk="${f.k}" value="${esc(d[f.k])}" placeholder="${esc(f.ph || '')}" maxlength="120"></div>`;
+    if (f.kind === 'choice') return `<div class="field"><label for="${id}">${esc(f.label)}</label><select id="${id}" data-dk="${f.k}">${f.opts.map(([v, n]) => `<option value="${v}"${d[f.k] === v ? ' selected' : ''}>${esc(n)}</option>`).join('')}</select></div>`;
+    if (f.kind === 'weekday') return `<div class="field"><label for="${id}">${esc(f.label)}</label><select id="${id}" data-dk="${f.k}">${DAYS.map(([k, n]) => `<option value="${k}"${d[f.k] === k ? ' selected' : ''}>${n}</option>`).join('')}</select></div>`;
+    if (f.kind === 'hours') return `<div class="field"><span class="flabel">${esc(f.label)}</span><div class="field row2"><select aria-label="Texts start at" id="${id}" data-dk="${f.k[0]}">${hours.map((h) => `<option value="${h}"${String(d[f.k[0]]) === String(h) ? ' selected' : ''}>${h12(h)}</option>`).join('')}</select><select aria-label="Texts stop at" id="d-${f.k[1]}" data-dk="${f.k[1]}">${hours.map((h) => `<option value="${h}"${String(d[f.k[1]]) === String(h) ? ' selected' : ''}>${h12(h)}</option>`).join('')}</select></div></div>`;
+    if (f.kind === 'list') return `<div class="field${f.wide ? ' wide' : ''}"><label for="${id}">${esc(f.label)}</label><textarea id="${id}" data-dk="${f.k}" maxlength="600" style="min-height:64px" placeholder="Like: Angie, bookings">${esc(d[f.k])}</textarea><span class="help">${esc(f.help || '')}</span></div>`;
+    return '';
+  }).join('');
+}
+
+/* ---------- plan summary ---------- */
+function changesFor(id) {
+  const spec = RULES[id]; if (!spec || !plan.rules[id]) return [];
+  const r = rulesOf(id), def = spec.defaults, out = [];
+  if (id === 'picking-order') {
+    Object.keys(TIERS).forEach((t) => { const w = r.weights[t], dw = def.weights[t]; if (w && JSON.stringify(w) !== JSON.stringify(dw)) out.push(`${t}: ` + w.map(([m, p]) => `${metricName(m)} ${p}%`).join(', ')); });
+    if (r.tieBreak !== def.tieBreak) out.push('Ties go to the higher ' + metricName(r.tieBreak).toLowerCase());
+    return out;
+  }
+  spec.fields.forEach((f) => {
+    const keys = Array.isArray(f.k) ? f.k : [f.k];
+    if (keys.every((k) => JSON.stringify(r[k]) === JSON.stringify(def[k]))) return;
+    let v;
+    if (f.kind === 'daytime') v = dayName(r[keys[0]]) + ' ' + t12(r[keys[1]]);
+    else if (f.kind === 'weekday') v = dayName(r[f.k]);
+    else if (f.kind === 'yesno') v = r[f.k] ? 'Yes' : 'No';
+    else if (f.kind === 'pick') v = (r[f.k] || []).join(', ') || 'None';
+    else if (f.kind === 'money') v = usd(parseFloat(r[f.k]) || 0);
+    else if (f.kind === 'percent') v = r[f.k] + '%';
+    else if (f.kind === 'choice') v = (f.opts.find((o) => o[0] === r[f.k]) || ['', r[f.k]])[1];
+    else if (f.kind === 'list') v = lines(r[f.k]).join(', ') || 'None';
+    else v = String(r[f.k]);
+    out.push(f.label.replace(/…/g, '').trim() + ': ' + v);
+  });
+  return out;
+}
+function coverage() {
+  const picked = plan.agents.map((id) => byId[id]);
+  const rank = picked.reduce((m, a) => Math.max(m, SETS[a.set][1]), 0);
+  const setName = rank ? Object.values(SETS).find((s) => s[1] === rank)[0] : '';
+  return { setName, addons: picked.filter((a) => a.set === 'addon') };
+}
+function divisionLines() {
+  const d = divOf(), out = [];
+  const tz = (DIV_FIELDS[1].opts.find((o) => o[0] === d.tz) || ['', d.tz])[1];
+  const h12 = (h) => ((+h) % 12 || 12) + ((+h) < 12 ? 'am' : 'pm');
+  if (d.coordinator) out.push('Coordinator credited: ' + d.coordinator);
+  out.push('Time zone: ' + tz);
+  out.push('Vector week starts ' + dayName(d.weekStart));
+  out.push('Texts to reps ' + h12(d.textFrom) + ' to ' + h12(d.textUntil));
+  if (d.vcDivision) out.push('VectorConnect division ' + d.vcDivision);
+  if (lines(d.approvers).length) out.push('Approvers: ' + lines(d.approvers).join('; '));
+  return out;
+}
+function renderSummary() {
+  const cov = coverage(), groups = ['basic', 'team', 'complete', 'addon'];
+  const picked = plan.agents.map((id) => byId[id]);
+  const agentsHtml = picked.length ? groups.filter((g) => picked.some((a) => a.set === g)).map((g) => `
+    <div class="sum-group"><span class="label">${esc(SETS[g][0])}${g === 'addon' ? 's' : ' set'}</span><ul class="sum-agents">${picked.filter((a) => a.set === g).map((a) => {
+      const ch = changesFor(a.id);
+      return `<li><button type="button" data-open-agent="${a.id}">${esc(a.name)}</button><span class="x">${ch.length ? ch.length + ' setting' + (ch.length > 1 ? 's' : '') + ' changed' : 'starting values'}</span></li>`;
+    }).join('')}</ul></div>`).join('') : '<div class="sum-group"><p class="sum-empty">No agents ticked yet. Tick the check box on any agent above, or open one and choose Add to plan.</p></div>';
+  const changes = plan.agents.flatMap((id) => changesFor(id).map((c) => byId[id].name + ' · ' + c));
+  $('#summary').innerHTML = `
+    <div class="sum-head"><div><span class="label">${esc(plan.coordinator || 'Coordinator')} · ${esc(divName())}</span><h3>${plan.agents.length} agent${plan.agents.length === 1 ? '' : 's'} picked</h3></div>
+      <p class="covers">${cov.setName ? `Covered by the <b>${esc(cov.setName)} set</b>${cov.addons.length ? ' plus ' + cov.addons.length + ' add-on' + (cov.addons.length > 1 ? 's' : '') : ''}` : cov.addons.length ? '<b>Add-ons only</b> so far' : 'Pick agents to see which set covers them'}</p></div>
+    ${agentsHtml}
+    <div class="sum-group"><span class="label">Their settings</span>${changes.length ? `<ul class="sum-changes">${changes.map((c) => `<li>${esc(c)}</li>`).join('')}</ul>` : '<p class="sum-empty">Starting values everywhere so far.</p>'}</div>
+    <div class="sum-group"><span class="label">Division</span><ul class="sum-changes">${divisionLines().map((c) => `<li>${esc(c)}</li>`).join('')}</ul></div>
+    <div class="sum-group"><div class="plan-actions"><button type="button" class="btn primary" id="copyPlan">Copy the plan</button><button type="button" class="btn" id="mailPlan">Email this plan to Alan</button><span class="savestate" style="margin:0" id="copyState"></span></div><textarea class="copybuf" id="copyBuf" readonly hidden aria-label="The plan as text"></textarea></div>`;
+}
+function planText() {
+  const cov = coverage(), out = [];
+  out.push(`Events team plan · ${divName()}${plan.coordinator ? ' · ' + plan.coordinator : ''}`);
+  out.push('');
+  out.push(`Agents (${plan.agents.length}):`);
+  plan.agents.forEach((id) => { const a = byId[id]; out.push(`- ${a.name} (${SETS[a.set][0]}${a.set === 'addon' ? '' : ' set'})`); changesFor(id).forEach((c) => out.push('    ' + c)); });
+  if (cov.setName) out.push('', `Covered by: ${cov.setName} set${cov.addons.length ? ', plus ' + cov.addons.map((a) => a.name).join(', ') : ''}`);
+  out.push('', 'Division:'); divisionLines().forEach((l) => out.push('- ' + l));
+  if (plan.notes.trim()) out.push('', 'Notes:', plan.notes.trim());
+  return out.join('\n');
+}
+function renderPlanPick() {
+  const sel = $('#planPick'); if (!sel) return;
+  const list = Object.values(plans).filter((p) => p.id !== plan.id).sort((a, b) => String(b.updatedAt).localeCompare(String(a.updatedAt)));
+  const label = (p) => [p.coordinator || 'Unnamed', p.division].filter(Boolean).join(' · ');
+  sel.innerHTML = `<option value="${esc(plan.id)}">${esc(hasContent(plan) ? label(plan) : 'This plan (not started)')}</option>` + list.map((p) => `<option value="${esc(p.id)}">${esc(label(p))}</option>`).join('');
+  sel.value = plan.id;
+}
+function renderPlanBits() {
+  const who = $('#barWho');
+  const has = plan.coordinator || plan.division;
+  who.innerHTML = has ? `<b>${esc(plan.coordinator || 'Coordinator')}</b><span>${esc(plan.division || 'Division not named yet')}</span>` : (plan.agents.length ? '<b>Plan started</b><span>Name it at the bottom</span>' : '<b>No plan yet</b><span>Tick an agent to start one</span>');
+  $('#barN').textContent = plan.agents.length;
+  $('#heroEyebrow').textContent = plan.division.trim() ? `All In Automation · set up for ${plan.division.trim()}` : 'All In Automation · proven at Rising Sun';
+  renderSummary(); renderPlanPick(); renderSaveState();
+  $('#delRow').hidden = !hasContent(plan) && !plans[plan.id];
+}
+function renderPlanFields() {
+  $('#planCoord').value = plan.coordinator; $('#planDiv').value = plan.division; $('#planNotes').value = plan.notes;
+}
+function renderAll() { renderGallery(); renderDivision(); renderPlanFields(); renderPlanBits(); if (current) openSheet(current, activeTab); }
+
+/* ---------- toast ---------- */
+let toastTimer = null;
+function toast(msg) {
+  let t = $('.toast'); if (!t) { t = document.createElement('div'); t.className = 'toast'; t.setAttribute('role', 'status'); document.body.appendChild(t); }
+  t.textContent = msg; t.hidden = false; clearTimeout(toastTimer); toastTimer = setTimeout(() => { t.hidden = true; }, 1800);
+}
+
+/* ---------- events ---------- */
+document.addEventListener('click', (e) => {
+  const t = e.target;
+  const pickBtn = t.closest('[data-pick]');
+  if (pickBtn) { e.stopPropagation(); togglePick(pickBtn.dataset.pick); return; }
+  const f = t.closest('[data-f]'); if (f) { filter = f.dataset.f; renderGallery(); return; }
+  const tile = t.closest('[data-open]'); if (tile) { openSheet(tile.dataset.open); return; }
+  const oa = t.closest('[data-open-agent]'); if (oa) { openSheet(oa.dataset.openAgent, 'yours'); return; }
+  if (t.closest('#sheetClose')) { closeSheet(); return; }
+  if (t === $('#scrim')) { closeSheet(); return; }
+  if (t.closest('#sheetPick')) { togglePick(current); return; }
+  const tab = t.closest('.tab'); if (tab) { showTab(tab.dataset.tab); return; }
+  const go = t.closest('[data-goto]'); if (go) { showTab(go.dataset.goto); return; }
+  if (t.closest('#runPlay')) { playRun(); return; }
+  const ap = t.closest('[data-approve]'); if (ap) { approveFrame(ap, true); return; }
+  const de = t.closest('[data-decline]'); if (de) { approveFrame(de, false); return; }
+  const tier = t.closest('[data-tier]'); if (tier) { pickTier = tier.dataset.tier; renderYours(byId['picking-order']); return; }
+  const yn = t.closest('[data-yn]'); if (yn) { setRule(current, yn.dataset.yn, yn.dataset.v === '1'); renderYours(byId[current]); return; }
+  if (t.closest('#resetRules')) { delete plan.rules[current]; touch(); renderYours(byId[current]); renderRun(byId[current]); return; }
+  if (t.closest('#copyPlan')) {
+    const text = planText(), buf = $('#copyBuf'), st = $('#copyState');
+    const fallback = () => { buf.hidden = false; buf.value = text; buf.focus(); buf.select(); st.textContent = 'Copy the selected text.'; };
+    try { navigator.clipboard.writeText(text).then(() => { st.textContent = 'Copied. Paste it into a text or email.'; buf.hidden = true; }, fallback); } catch (err) { fallback(); }
+    return;
+  }
+  if (t.closest('#mailPlan')) {
+    // Some mail apps cut a long mailto body short, so a long plan also goes on the clipboard and the note says so.
+    const text = planText(), st = $('#copyState');
+    const subject = 'Events team plan · ' + divName() + (plan.coordinator ? ' · ' + plan.coordinator : '');
+    const url = 'mailto:' + ALAN_EMAIL + '?subject=' + encodeURIComponent(subject) + '&body=' + encodeURIComponent(text);
+    if (url.length > 1800) {
+      try { navigator.clipboard.writeText(text).then(() => { st.textContent = 'Your email opened. If the plan looks cut off, paste it in: it is copied.'; }, () => { st.textContent = 'Your email opened. If the plan looks cut off, use Copy the plan and paste it in.'; }); } catch (err) { st.textContent = 'Your email opened. If the plan looks cut off, use Copy the plan and paste it in.'; }
+    } else st.textContent = 'Your email opened with the plan in it.';
+    location.href = url;
+    return;
+  }
+  if (t.closest('#planNew')) { if (dirty) saveNow(); plan = newPlan(); dirty = false; renderAll(); $('#planCoord').focus(); toast('New plan started'); return; }
+  if (t.closest('#planDel')) {
+    $('#delRow').innerHTML = '<span>Delete this plan for good?</span><button class="btn sm danger" type="button" id="planDelYes">Delete</button><button class="btn sm" type="button" id="planDelNo">Keep it</button>';
+    return;
+  }
+  if (t.closest('#planDelNo')) { $('#delRow').innerHTML = '<button class="btn sm quiet danger" type="button" id="planDel">Delete this plan</button>'; return; }
+  if (t.closest('#planDelYes')) {
+    const id = plan.id; clearTimeout(saveTimer);
+    chain = chain.then(() => ready).then(() => (plans[id] && backend.remove ? backend.remove(id) : null)).then(() => { delete plans[id]; toast('Plan deleted'); }, () => { saveErr = true; saveMsg = 'That plan didn\'t delete. Try again.'; renderSaveState(); });
+    plan = newPlan(); dirty = false; $('#delRow').innerHTML = '<button class="btn sm quiet danger" type="button" id="planDel">Delete this plan</button>'; renderAll();
+    return;
+  }
+});
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') closeSheet();
+  if ((e.key === 'Enter' || e.key === ' ') && e.target.matches && e.target.matches('.tile')) { e.preventDefault(); openSheet(e.target.dataset.open); }
+  if (e.key === 'Tab' && !$('#scrim').hidden) {
+    const items = $$('#sheet button:not([hidden]):not([disabled]), #sheet input, #sheet select, #sheet textarea, #sheet a[href]').filter((x) => x.offsetParent !== null);
+    if (!items.length) return;
+    const first = items[0], last = items[items.length - 1];
+    if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+    else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+  }
+});
+document.addEventListener('input', (e) => {
+  const t = e.target;
+  if (t.id === 'planCoord') { plan.coordinator = t.value; touch(); return; }
+  if (t.id === 'planDiv') { plan.division = t.value; touch(); if (current) renderPreview(byId[current]); return; }
+  if (t.id === 'planNotes') { plan.notes = t.value; touch(); return; }
+  if (t.dataset && t.dataset.dk) { plan.divisionSettings = Object.assign(divOf(), { [t.dataset.dk]: t.value }); touch(); return; }
+  if (!current) return;
+  if (t.dataset && t.dataset.wp != null) {
+    const r = rulesOf('picking-order'), w = clone(r.weights); w[pickTier] = clone(w[pickTier] || DEF_WEIGHTS[pickTier]); w[pickTier][+t.dataset.wp][1] = +t.value;
+    t.nextElementSibling.textContent = t.value + '%';
+    setRule('picking-order', 'weights', w);
+    const sum = w[pickTier].reduce((s, x) => s + Number(x[1]), 0), ws = $('#wsum');
+    ws.className = 'wsum ' + (sum === 100 ? 'ok' : 'bad'); ws.textContent = sum === 100 ? 'Weights add up to 100%' : 'Weights add up to ' + sum + '%. They need to make 100%.';
+    renderPreview(byId['picking-order']); return;
+  }
+  if (t.dataset && t.dataset.k && t.closest('#yoursForm')) { setRule(current, t.dataset.k, t.type === 'number' ? t.value : t.value); renderPreview(byId[current]); return; }
+});
+document.addEventListener('change', (e) => {
+  const t = e.target;
+  if (!current) return;
+  if (t.dataset && t.dataset.wm != null) {
+    const r = rulesOf('picking-order'), w = clone(r.weights); w[pickTier] = clone(w[pickTier] || DEF_WEIGHTS[pickTier]); w[pickTier][+t.dataset.wm][0] = t.value;
+    setRule('picking-order', 'weights', w); renderYours(byId['picking-order']); return;
+  }
+  if (t.dataset && t.dataset.pickK) {
+    const k = t.dataset.pickK, boxes = $$(`[data-pick-k="${k}"]`, $('#yoursForm'));
+    setRule(current, k, boxes.filter((b) => b.checked).map((b) => b.value)); renderPreview(byId[current]); return;
+  }
+  if (t.dataset && t.dataset.k && t.tagName === 'SELECT' && t.closest('#yoursForm')) {
+    setRule(current, t.dataset.k, t.value);
+    const spec = RULES[current]; if (spec && spec.fields && spec.fields.some((f) => f.show)) renderYours(byId[current]); else renderPreview(byId[current]);
+  }
+});
+$('#planPick').addEventListener('change', (e) => {
+  const id = e.target.value; if (id === plan.id || !plans[id]) return;
+  if (dirty) saveNow();
+  plan = normalize(plans[id]); dirty = false; ls.set(LS_CURRENT, id); renderAll(); toast('Opened ' + (plan.coordinator || 'the plan'));
+});
+
+/* ---------- start ---------- */
+renderAll();
+const h = (location.hash || '').slice(1);
+if (byId[h]) openSheet(h);
+initStore();
+})();
+</script>
+
+</body>
+</html>
