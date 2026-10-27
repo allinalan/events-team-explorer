@@ -3,7 +3,7 @@
 const fs = require('fs');
 const [CATALOG, OUT] = process.argv.slice(2);
 if (!CATALOG || !OUT) throw new Error('usage: build-lineup.js <catalog.json> <out.html>');
-const { AREAS, SETS, STATUS, AGENTS } = JSON.parse(fs.readFileSync(CATALOG, 'utf8'));
+const { AREAS, SETS, STATUS, AGENTS, OWN_QS } = JSON.parse(fs.readFileSync(CATALOG, 'utf8'));
 const EXPLORER = '{{EXPLORER_URL}}';
 const esc = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const setChip = (s) => `<span class="set-chip s-${s}">${esc(SETS[s][0])}${s === 'addon' ? '' : ' set'}</span>`;
@@ -182,6 +182,18 @@ section { padding-block: clamp(48px, 7vw, 80px) 0; }
 .get b { color: var(--sun-ink); font-family: var(--f-mono); font-size: 11px; letter-spacing: 0.07em; text-transform: uppercase; margin-right: 6px; }
 @media (max-width: 760px) { .agents { grid-template-columns: minmax(0, 1fr); } }
 
+/* Build your own: the explorer's four prompt words, and a way into its form */
+.own { border: 2px dashed color-mix(in srgb, var(--sun) 55%, var(--line)); border-radius: 18px; padding: clamp(18px, 3vw, 28px); background: var(--surface); display: grid; gap: 22px; }
+.own-head { display: flex; flex-wrap: wrap; gap: 16px 24px; align-items: end; justify-content: space-between; }
+.own-head h2 { font-size: clamp(34px, 4.6vw, 48px); margin-top: 8px; }
+.own-head p { color: var(--muted); max-width: 60ch; margin-top: 10px; }
+.own-words { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; }
+.own-words div { border-top: 3px solid var(--sun); padding-top: 10px; display: grid; gap: 4px; align-content: start; min-width: 0; }
+.own-words b { font-family: var(--f-display); text-transform: uppercase; font-weight: 800; font-size: 38px; line-height: 0.95; color: var(--sun-ink); }
+.own-words span { font-weight: 700; font-size: 15.5px; }
+.own-words i { color: var(--muted); font-size: 14.5px; }
+@media (max-width: 760px) { .own-words { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+
 /* Portal + helpers */
 .pair { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 16px; }
 .panel { background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 20px; display: grid; gap: 10px; align-content: start; min-width: 0; }
@@ -262,6 +274,22 @@ section { padding-block: clamp(48px, 7vw, 80px) 0; }
     <div class="wrap">
       <div class="sec-head"><p class="eyebrow">The lineup</p><h2>Every agent, by the job it does</h2><p>Basic, Team and Complete are the sets a division can start with. Add-ons go on any set.</p></div>
       ${areas}
+    </div>
+  </section>
+
+  <section>
+    <div class="wrap">
+      <div class="own">
+        <div class="own-head">
+          <div>
+            <p class="eyebrow">Don't see it?</p>
+            <h2>Build your own agent</h2>
+            <p>Answer four words in the explorer and it goes in your plan. I read every one and come back with what it would take.</p>
+          </div>
+          <a class="btn" href="${EXPLORER}#own">Build yours in the explorer</a>
+        </div>
+        <div class="own-words">${OWN_QS.map((q) => `<div><b>${esc(q.word)}</b><span>${esc(q.ask)}</span><i>${esc(q.ph.replace(/^Like: /, 'Like '))}</i></div>`).join('')}</div>
+      </div>
     </div>
   </section>
 

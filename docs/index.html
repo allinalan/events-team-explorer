@@ -604,7 +604,7 @@ const reduceMotion = () => window.matchMedia && window.matchMedia('(prefers-redu
 /* ---------- the catalog ---------- */
 const AREAS = [
   ['stats', 'Stats & rankings'], ['bookings', 'Schedule & bookings'], ['money', 'Charges & pay'],
-  ['meet', 'Meetings & texts'], ['reports', 'Dashboards & reports'], ['reps', 'Rep questions'],
+  ['meet', 'Meetings & texts'], ['reports', 'Dashboards & reports'], ['reps', 'Rep questions'], ['freshmen', 'Freshmen & training'],
 ];
 const SETS = { basic: ['Basic', 1], team: ['Team', 2], complete: ['Complete', 3], addon: ['Add-on', 0] };
 const STATUS = { live: ['live', 'Live at Rising Sun'], dev: ['dev', 'In development'], pilot: ['pilot', 'Pilot at Rising Sun'] };
@@ -681,6 +681,27 @@ const AGENTS = [
     steps: ['Pulls event sales for the campaign from VectorConnect\'s Eventalytics.', 'Sorts every event into its category. AI only for the few it can\'t place by rule.', 'Publishes the analyzer and a report for the coordinators.'],
     result: 'Real numbers on which shows pay off, for planning next season\'s bookings.',
     needs: ['VectorConnect access'] },
+  // brief: described in general terms only, so the sheet shows What it does and Make it yours, no run-through or screen.
+  { id: 'freshmen-onboarding', name: 'Freshmen Onboarding Agent', area: 'freshmen', set: 'addon', status: 'dev', brief: true,
+    job: 'Gets new freshmen onboarded with ease, tailored to your division.',
+    steps: ['A new freshman joins your team.', 'It walks them through getting started, the way your division does it.', 'You see who\'s ready and who needs a hand.'],
+    result: 'Every freshman starts the same easy way, without you chasing anyone.',
+    needs: ['Your onboarding steps, however you do them today'],
+    setNote: 'An add-on to any set. Built around your division\'s own onboarding.' },
+  { id: 'freshmen-training', name: 'Freshmen Training Agent', area: 'freshmen', set: 'addon', status: 'dev', brief: true,
+    job: 'Trains freshmen on how your division works events, at their own pace.',
+    steps: ['Each freshman gets training built around your division.', 'They work through it at their own pace.', 'You see where each one is before their first show.'],
+    result: 'Freshmen show up to their first show ready, trained your way.',
+    needs: ['Your training material, in any form'],
+    setNote: 'An add-on to any set. Built around your division\'s own training.' },
+];
+/* Build your own: the four prompt words a coordinator answers so Alan can scope a new agent. Here, inside the catalog,
+   because the lineup page shows the same four words (build.js reads everything from AREAS down to byId). */
+const OWN_QS = [
+  { k: 'when', word: 'When', ask: 'What starts it?', ph: 'Like: every Monday at 9am', ex: ['Every week', 'After every show', 'Before a team meeting', 'When a rep signs up'], max: 140 },
+  { k: 'checks', word: 'Checks', ask: 'Where does it look?', ph: 'Like: the shift schedule', ex: ['VectorConnect', 'The shift schedule', 'The stat tracker', 'My calendar', "Reps' texts"], max: 140 },
+  { k: 'does', word: 'Does', ask: "What's the job?", ph: "Like: finds reps who haven't confirmed their shift and asks them to", ex: [], max: 400, long: true },
+  { k: 'tells', word: 'Tells', ask: 'Who hears about it, and how?', ph: 'Like: texts me the list', ex: ['Me, by text', 'The reps, by text', 'My leaders', 'Me first, for a yes'], max: 140 },
 ];
 const byId = Object.fromEntries(AGENTS.map((a) => [a.id, a]));
 
@@ -964,13 +985,7 @@ function renderSaveState() {
   $('span', el).textContent = t;
 }
 
-/* ---------- build your own: four prompt words a coordinator answers so Alan can scope a new agent ---------- */
-const OWN_QS = [
-  { k: 'when', word: 'When', ask: 'What starts it?', ph: 'Like: every Monday at 9am', ex: ['Every week', 'After every show', 'Before a team meeting', 'When a rep signs up'], max: 140 },
-  { k: 'checks', word: 'Checks', ask: 'Where does it look?', ph: 'Like: the shift schedule', ex: ['VectorConnect', 'The shift schedule', 'The stat tracker', 'My calendar', "Reps' texts"], max: 140 },
-  { k: 'does', word: 'Does', ask: "What's the job?", ph: "Like: finds reps who haven't confirmed their shift and asks them to", ex: [], max: 400, long: true },
-  { k: 'tells', word: 'Tells', ask: 'Who hears about it, and how?', ph: 'Like: texts me the list', ex: ['Me, by text', 'The reps, by text', 'My leaders', 'Me first, for a yes'], max: 140 },
-];
+/* ---------- build your own (OWN_QS, the four prompt words, sits with the catalog above) ---------- */
 let ownEditing = null;   // the custom agent open in the form: its id, 'new', or null when the form is closed
 const ownName = (c, i) => (c.name || '').trim() || 'Your own agent ' + (i + 1);
 const andList = (xs) => xs.length < 2 ? xs.join('') : xs.slice(0, -1).join(', ') + ' and ' + xs[xs.length - 1];
@@ -983,7 +998,9 @@ function renderOwn() {
   $('#ownAdd').hidden = !!ownEditing;
   $('#ownAdd').textContent = plan.custom.length ? 'Add another' : 'Add your own agent';
 }
-function openOwn(id) {
+// arriving: opened by a #own link on page load. The browser's jump to #own takes focus anyway, and on a phone the
+// keyboard should not pop up before they have read the card, so only a click puts the cursor in When.
+function openOwn(id, arriving) {
   const c = plan.custom.find((x) => x.id === id);
   ownEditing = c ? c.id : 'new';
   $('#own-name').value = c ? c.name : '';
@@ -998,8 +1015,8 @@ function openOwn(id) {
   $('#ownErr').textContent = '';
   $('#ownForm').hidden = false;
   renderOwn();
-  $('#own').scrollIntoView({ block: 'start', behavior: 'smooth' });
-  $(c ? '#own-name' : '#own-when').focus({ preventScroll: true });
+  $('#own').scrollIntoView({ block: 'start', behavior: arriving ? 'auto' : 'smooth' });
+  if (!arriving) $(c ? '#own-name' : '#own-when').focus({ preventScroll: true });
 }
 function closeOwn() { ownEditing = null; $('#ownForm').hidden = true; renderOwn(); }
 function saveOwn() {
@@ -1055,8 +1072,9 @@ function openSheet(id, tab) {
   $('#sheetChips').innerHTML = setChip(a.set) + stChip(a.status);
   syncSheetPick();
   renderDoes(a); renderRun(a); renderYours(a); renderLook(a);
+  $('#tab-run').hidden = $('#tab-look').hidden = !!a.brief;
   $('#scrim').hidden = false; document.body.classList.add('sheet-open');
-  showTab(tab || 'does');
+  showTab(a.brief && (tab === 'run' || tab === 'look') ? 'does' : tab || 'does');
   $('#sheet').scrollTop = 0;
   $('#sheetClose').focus();
   try { history.replaceState(null, '', '#' + id); } catch (e) { /* framed */ }
@@ -1663,6 +1681,7 @@ $('#planPick').addEventListener('change', (e) => {
 renderAll();
 const h = (location.hash || '').slice(1);
 if (byId[h]) openSheet(h);
+else if (h === 'own') openOwn(null, true);
 initStore();
 })();
 </script>
