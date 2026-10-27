@@ -9,7 +9,7 @@ The page Alan sends coordinators to see what the events team agents do, set them
 
 ## Where a plan is saved
 
-- **GitHub copy:** in the visitor's own browser only. They can **Copy the plan**, or use **Email this plan to Alan**, which opens their mail app with the plan written out and addressed to ahernandez@allinknifeguy.com.
+- **GitHub copy:** in the visitor's own browser only. They can **Copy the plan**, or use **Email this plan to Alan**, which opens their mail app with the plan written out and addressed to ahernandez@allinknifeguy.com. The email button shows only outside Claude, because an artifact's sandboxed frame may not open a mail app.
 - **Claude copy:** when Alan is signed in, each plan is saved privately in the artifact's database (`data/users/me`), where Claude can read it back to draft a proposal. Use this copy on calls.
 
 ## Changing an agent

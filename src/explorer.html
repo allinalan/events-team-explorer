@@ -766,6 +766,9 @@ const newPlan = () => ({ id: 'p-' + Date.now().toString(36) + '-' + uid8(), kind
 let plan = newPlan();
 let plans = {};                 // id -> plan, from the store
 const ALAN_EMAIL = 'ahernandez@allinknifeguy.com';   // where "Email this plan to Alan" sends a plan
+// The email button shows only outside Claude: an artifact runs in a sandboxed frame that may not open a mail app,
+// and there plans are saved to Alan's account anyway.
+const mailOk = () => !(window.claude && typeof window.claude.use === 'function');
 let dirty = false;              // this plan has edits not yet saved
 const rulesOf = (id) => Object.assign(clone(RULES[id] ? RULES[id].defaults : {}), clone(plan.rules[id] || {}));
 const divOf = () => Object.assign(clone(DIV_DEFAULTS), clone(plan.divisionSettings || {}));
@@ -1367,7 +1370,7 @@ function renderSummary() {
     ${agentsHtml}
     <div class="sum-group"><span class="label">Their settings</span>${changes.length ? `<ul class="sum-changes">${changes.map((c) => `<li>${esc(c)}</li>`).join('')}</ul>` : '<p class="sum-empty">Starting values everywhere so far.</p>'}</div>
     <div class="sum-group"><span class="label">Division</span><ul class="sum-changes">${divisionLines().map((c) => `<li>${esc(c)}</li>`).join('')}</ul></div>
-    <div class="sum-group"><div class="plan-actions"><button type="button" class="btn primary" id="copyPlan">Copy the plan</button><button type="button" class="btn" id="mailPlan">Email this plan to Alan</button><span class="savestate" style="margin:0" id="copyState"></span></div><textarea class="copybuf" id="copyBuf" readonly hidden aria-label="The plan as text"></textarea></div>`;
+    <div class="sum-group"><div class="plan-actions"><button type="button" class="btn primary" id="copyPlan">Copy the plan</button>${mailOk() ? '<button type="button" class="btn" id="mailPlan">Email this plan to Alan</button>' : ''}<span class="savestate" style="margin:0" id="copyState"></span></div><textarea class="copybuf" id="copyBuf" readonly hidden aria-label="The plan as text"></textarea></div>`;
 }
 function planText() {
   const cov = coverage(), out = [];
