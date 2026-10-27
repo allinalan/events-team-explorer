@@ -12,6 +12,10 @@ The page Alan sends coordinators to see what the events team agents do, set them
 - **GitHub copy:** in the visitor's own browser only. They can **Copy the plan**, or use **Email this plan to Alan**, which opens their mail app with the plan written out and addressed to ahernandez@allinknifeguy.com. The email button shows only outside Claude, because an artifact's sandboxed frame may not open a mail app.
 - **Claude copy:** when Alan is signed in, each plan is saved privately in the artifact's database (`data/users/me`), where Claude can read it back to draft a proposal. Use this copy on calls.
 
+## Build your own agent
+
+Under the gallery, a coordinator can describe an agent that isn't on the list by answering four prompt words: **When** (what starts it), **Checks** (where it looks), **Does** (the job) and **Tells** (who hears about it). Tap-to-fill examples sit under three of the four. Each idea is saved with the plan (`plan.custom`: `name`, `when`, `checks`, `does`, `tells`). It shows as a card, in the summary under "Your own", and as four labeled lines in Copy the plan and the email, so Alan can scope it.
+
 ## Changing an agent
 
 1. Edit `src/explorer.html`. The `AGENTS` array is the catalog, and the Lineup is generated from it, so never edit the Lineup by hand. Layout changes to the Lineup go in `src/build-lineup.js`.

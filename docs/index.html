@@ -177,6 +177,40 @@ section { padding-block: clamp(48px, 7vw, 84px) 0; scroll-margin-top: calc(70px 
 .pick[aria-pressed="true"] { background: var(--sun); border-color: var(--sun); }
 .pick[aria-pressed="true"] svg { stroke: #FFFFFF; opacity: 1; }
 .empty-filter { grid-column: 1 / -1; padding: 28px; text-align: center; color: var(--muted); border: 1px dashed var(--line); border-radius: 14px; }
+/* Build your own: a dashed card under the gallery. Four big prompt words (When, Checks, Does, Tells) turn a coordinator's
+   idea into something Alan can scope; each saved idea is a card here and a line in the division plan. */
+.own { margin-top: 18px; border: 2px dashed color-mix(in srgb, var(--sun) 55%, var(--line)); border-radius: 18px; padding: 20px; display: grid; gap: 18px; background: var(--surface); min-width: 0; scroll-margin-top: calc(84px + env(safe-area-inset-top, 0px)); }
+#ownQs { display: grid; gap: 24px; }
+.own-head { display: flex; flex-wrap: wrap; gap: 12px 20px; align-items: center; justify-content: space-between; }
+.own-head h3 { font-family: var(--f-display); text-transform: uppercase; font-weight: 800; font-size: clamp(28px, 3.6vw, 36px); line-height: 0.95; margin: 6px 0 8px; }
+.own-head p { color: var(--muted); max-width: 62ch; }
+.own-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 320px), 1fr)); gap: 12px; }
+.own-list:empty { display: none; }
+.own-card { border: 2px solid var(--sun); border-radius: 14px; padding: 14px 16px; background: color-mix(in srgb, var(--sun-soft) 45%, var(--surface)); display: grid; gap: 10px; min-width: 0; }
+.own-card h4 { font-size: 19px; margin: 0; overflow-wrap: anywhere; }
+.own-lines { display: grid; gap: 6px; margin: 0; }
+.own-lines div { display: grid; grid-template-columns: 74px minmax(0, 1fr); gap: 10px; align-items: baseline; }
+.own-lines dt { font-family: var(--f-display); text-transform: uppercase; font-weight: 800; font-size: 18px; line-height: 1.2; color: var(--sun-ink); }
+.own-lines dd { margin: 0; font-size: 15.5px; overflow-wrap: anywhere; }
+.own-card .row { display: flex; flex-wrap: wrap; gap: 8px; }
+.own-form { display: grid; gap: 18px; border-top: 1px solid var(--line); padding-top: 18px; }
+.own-q { display: grid; grid-template-columns: 170px minmax(0, 1fr); gap: 8px 18px; align-items: start; }
+.own-q label b { display: block; font-family: var(--f-display); text-transform: uppercase; font-weight: 800; font-size: 40px; line-height: 0.9; color: var(--sun-ink); }
+.own-q label span { display: block; color: var(--muted); font-size: 15px; margin-top: 6px; }
+.own-in { display: grid; gap: 8px; min-width: 0; }
+.own-ex { display: flex; flex-wrap: wrap; gap: 6px; }
+.own-ex button { padding: 5px 12px; border-radius: 999px; border: 1px solid var(--line); background: var(--surface-2); color: var(--muted); font-size: 14px; font-weight: 600; cursor: pointer; }
+.own-ex button:hover { border-color: var(--sun); color: var(--ink); }
+.own-q.missing input, .own-q.missing textarea { outline: 2px solid var(--bad); outline-offset: 0; }
+.own-actions { display: flex; flex-wrap: wrap; gap: 8px 10px; align-items: center; }
+.own-err { color: var(--bad); font-size: 15px; font-weight: 600; }
+@media (max-width: 640px) {
+  .own { padding: 16px; }
+  .own-q { grid-template-columns: minmax(0, 1fr); }
+  .own-q label { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 12px; }
+  .own-q label b { font-size: 34px; }
+  .own-q label span { margin: 0; }
+}
 
 /* Sheet */
 .scrim { position: fixed; inset: 0; z-index: 40; background: var(--scrim); display: grid; place-items: center; padding: calc(env(safe-area-inset-top, 0px) + 16px) max(16px, env(safe-area-inset-right, 0px)) calc(env(safe-area-inset-bottom, 0px) + 16px) max(16px, env(safe-area-inset-left, 0px)); }
@@ -446,6 +480,22 @@ footer { padding-block: 40px 56px; color: var(--muted); font-size: 14.5px; }
       </div>
       <div class="filters" id="filters" role="group" aria-label="Show agents for"></div>
       <div class="gallery" id="gallery"></div>
+      <div class="own" id="own">
+        <div class="own-head">
+          <div>
+            <p class="eyebrow">Don't see it?</p>
+            <h3>Build your own agent</h3>
+            <p>Answer four words and it goes in your plan. I read every one and come back with what it would take.</p>
+          </div>
+          <button type="button" class="btn primary" id="ownAdd">Add your own agent</button>
+        </div>
+        <div class="own-list" id="ownList"></div>
+        <form class="own-form" id="ownForm" hidden autocomplete="off" novalidate>
+          <div class="field"><label for="own-name">Name it <span class="muted">(optional)</span></label><input type="text" id="own-name" maxlength="60" placeholder="Like: Shift Confirmer"></div>
+          <div id="ownQs"></div>
+          <div class="own-actions"><button type="submit" class="btn primary" id="ownSave">Add to my plan</button><button type="button" class="btn quiet" id="ownCancel">Cancel</button><span class="own-err" id="ownErr" role="alert"></span></div>
+        </form>
+      </div>
     </div>
   </section>
 
@@ -776,7 +826,7 @@ const DIV_DEFAULTS = { coordinator: '', tz: 'America/Chicago', weekStart: 'tue',
 
 /* ---------- plan state ---------- */
 const uid8 = () => Math.random().toString(36).slice(2, 10);
-const newPlan = () => ({ id: 'p-' + Date.now().toString(36) + '-' + uid8(), kind: 'plan', coordinator: '', division: '', agents: [], rules: {}, divisionSettings: clone(DIV_DEFAULTS), notes: '', updatedAt: '' });
+const newPlan = () => ({ id: 'p-' + Date.now().toString(36) + '-' + uid8(), kind: 'plan', coordinator: '', division: '', agents: [], rules: {}, divisionSettings: clone(DIV_DEFAULTS), notes: '', custom: [], updatedAt: '' });
 let plan = newPlan();
 let plans = {};                 // id -> plan, from the store
 const ALAN_EMAIL = 'ahernandez@allinknifeguy.com';   // where "Email this plan to Alan" sends a plan
@@ -789,7 +839,7 @@ const divOf = () => Object.assign(clone(DIV_DEFAULTS), clone(plan.divisionSettin
 const divName = () => plan.division.trim() || 'Your division';
 const coordName = () => (divOf().coordinator || plan.coordinator || '').trim() || 'your coordinator';
 const isPicked = (id) => plan.agents.includes(id);
-const hasContent = (p) => !!(p.coordinator || p.division || p.agents.length || Object.keys(p.rules).length || p.notes);
+const hasContent = (p) => !!(p.coordinator || p.division || p.agents.length || Object.keys(p.rules).length || p.notes || (p.custom && p.custom.length));
 
 function touch() {
   plan.updatedAt = new Date().toISOString();
@@ -868,6 +918,9 @@ function normalize(p) {
   n.agents = Array.isArray(n.agents) ? n.agents.filter((a) => byId[a]) : [];
   n.rules = n.rules && typeof n.rules === 'object' ? n.rules : {};
   n.divisionSettings = Object.assign(clone(DIV_DEFAULTS), n.divisionSettings || {});
+  n.custom = Array.isArray(n.custom) ? n.custom.filter((c) => c && typeof c === 'object').map((c) => Object.assign(
+    { id: String(c.id || 'c-' + uid8()), name: String(c.name || '').slice(0, 60) },
+    Object.fromEntries(OWN_QS.map((q) => [q.k, String(c[q.k] || '').slice(0, q.max)])))) : [];
   return n;
 }
 function scheduleSave() { clearTimeout(saveTimer); saveTimer = setTimeout(() => { saveNow(); }, 650); }
@@ -909,6 +962,65 @@ function renderSaveState() {
   else if (backend.mode === 'local') t = 'Saved in this browser only.';
   else t = 'Getting your saved plans…';
   $('span', el).textContent = t;
+}
+
+/* ---------- build your own: four prompt words a coordinator answers so Alan can scope a new agent ---------- */
+const OWN_QS = [
+  { k: 'when', word: 'When', ask: 'What starts it?', ph: 'Like: every Monday at 9am', ex: ['Every week', 'After every show', 'Before a team meeting', 'When a rep signs up'], max: 140 },
+  { k: 'checks', word: 'Checks', ask: 'Where does it look?', ph: 'Like: the shift schedule', ex: ['VectorConnect', 'The shift schedule', 'The stat tracker', 'My calendar', "Reps' texts"], max: 140 },
+  { k: 'does', word: 'Does', ask: "What's the job?", ph: "Like: finds reps who haven't confirmed their shift and asks them to", ex: [], max: 400, long: true },
+  { k: 'tells', word: 'Tells', ask: 'Who hears about it, and how?', ph: 'Like: texts me the list', ex: ['Me, by text', 'The reps, by text', 'My leaders', 'Me first, for a yes'], max: 140 },
+];
+let ownEditing = null;   // the custom agent open in the form: its id, 'new', or null when the form is closed
+const ownName = (c, i) => (c.name || '').trim() || 'Your own agent ' + (i + 1);
+const andList = (xs) => xs.length < 2 ? xs.join('') : xs.slice(0, -1).join(', ') + ' and ' + xs[xs.length - 1];
+function renderOwn() {
+  $('#ownList').innerHTML = plan.custom.map((c, i) => `
+    <article class="own-card"><h4>${esc(ownName(c, i))}</h4>
+      <dl class="own-lines">${OWN_QS.map((q) => `<div><dt>${q.word}</dt><dd>${esc(c[q.k])}</dd></div>`).join('')}</dl>
+      <div class="row"><button type="button" class="btn sm" data-own-edit="${esc(c.id)}">Edit</button><button type="button" class="btn sm quiet danger" data-own-del="${esc(c.id)}">Remove</button></div>
+    </article>`).join('');
+  $('#ownAdd').hidden = !!ownEditing;
+  $('#ownAdd').textContent = plan.custom.length ? 'Add another' : 'Add your own agent';
+}
+function openOwn(id) {
+  const c = plan.custom.find((x) => x.id === id);
+  ownEditing = c ? c.id : 'new';
+  $('#own-name').value = c ? c.name : '';
+  $('#ownQs').innerHTML = OWN_QS.map((q) => `
+    <div class="own-q" data-q="${q.k}">
+      <label for="own-${q.k}"><b>${q.word}</b><span>${esc(q.ask)}</span></label>
+      <div class="own-in">${q.long ? `<textarea id="own-${q.k}" maxlength="${q.max}" placeholder="${esc(q.ph)}"></textarea>` : `<input type="text" id="own-${q.k}" maxlength="${q.max}" placeholder="${esc(q.ph)}">`}
+        ${q.ex.length ? `<div class="own-ex" aria-label="Examples for ${q.word}">${q.ex.map((x) => `<button type="button" data-own-ex="${q.k}" data-v="${esc(x)}">${esc(x)}</button>`).join('')}</div>` : ''}</div>
+    </div>`).join('');
+  OWN_QS.forEach((q) => { $('#own-' + q.k).value = c ? c[q.k] : ''; });
+  $('#ownSave').textContent = c ? 'Save changes' : 'Add to my plan';
+  $('#ownErr').textContent = '';
+  $('#ownForm').hidden = false;
+  renderOwn();
+  $('#own').scrollIntoView({ block: 'start', behavior: 'smooth' });
+  $(c ? '#own-name' : '#own-when').focus({ preventScroll: true });
+}
+function closeOwn() { ownEditing = null; $('#ownForm').hidden = true; renderOwn(); }
+function saveOwn() {
+  const vals = Object.fromEntries(OWN_QS.map((q) => [q.k, $('#own-' + q.k).value.trim()]));
+  const missing = OWN_QS.filter((q) => !vals[q.k]);
+  $$('.own-q').forEach((el) => el.classList.toggle('missing', missing.some((q) => q.k === el.dataset.q)));
+  if (missing.length) { $('#ownErr').textContent = 'Fill in ' + andList(missing.map((q) => q.word)) + ' so I can follow it.'; $('#own-' + missing[0].k).focus(); return; }
+  const name = $('#own-name').value.trim();
+  let saved;
+  if (ownEditing === 'new' || !plan.custom.some((c) => c.id === ownEditing)) { saved = Object.assign({ id: 'c-' + uid8(), name }, vals); plan.custom = plan.custom.concat(saved); }
+  else plan.custom = plan.custom.map((c) => c.id === ownEditing ? (saved = Object.assign({}, c, { name }, vals)) : c);
+  const wasNew = ownEditing === 'new';
+  closeOwn(); touch();
+  toast(ownName(saved, plan.custom.indexOf(saved)) + (wasNew ? ' added to the plan' : ' saved'));
+}
+function removeOwn(id) {
+  const i = plan.custom.findIndex((c) => c.id === id); if (i < 0) return;
+  const name = ownName(plan.custom[i], i);
+  plan.custom = plan.custom.filter((c) => c.id !== id);
+  if (ownEditing === id) closeOwn(); else renderOwn();
+  touch(); toast(name + ' taken off the plan');
 }
 
 /* ---------- gallery ---------- */
@@ -1372,15 +1484,17 @@ function divisionLines() {
 function renderSummary() {
   const cov = coverage(), groups = ['basic', 'team', 'complete', 'addon'];
   const picked = plan.agents.map((id) => byId[id]);
+  const nAll = plan.agents.length + plan.custom.length;
+  const ownHtml = plan.custom.length ? `<div class="sum-group"><span class="label">Your own</span><ul class="sum-agents">${plan.custom.map((c, i) => `<li><button type="button" data-own-edit="${esc(c.id)}">${esc(ownName(c, i))}</button><span class="x">to scope with Alan</span></li>`).join('')}</ul></div>` : '';
   const agentsHtml = picked.length ? groups.filter((g) => picked.some((a) => a.set === g)).map((g) => `
     <div class="sum-group"><span class="label">${esc(SETS[g][0])}${g === 'addon' ? 's' : ' set'}</span><ul class="sum-agents">${picked.filter((a) => a.set === g).map((a) => {
       const ch = changesFor(a.id);
       return `<li><button type="button" data-open-agent="${a.id}">${esc(a.name)}</button><span class="x">${ch.length ? ch.length + ' setting' + (ch.length > 1 ? 's' : '') + ' changed' : 'starting values'}</span></li>`;
-    }).join('')}</ul></div>`).join('') : '<div class="sum-group"><p class="sum-empty">No agents ticked yet. Tick the check box on any agent above, or open one and choose Add to plan.</p></div>';
+    }).join('')}</ul></div>`).join('') + ownHtml : ownHtml || '<div class="sum-group"><p class="sum-empty">No agents ticked yet. Tick the check box on any agent above, or open one and choose Add to plan.</p></div>';
   const changes = plan.agents.flatMap((id) => changesFor(id).map((c) => byId[id].name + ' · ' + c));
   $('#summary').innerHTML = `
-    <div class="sum-head"><div><span class="label">${esc(plan.coordinator || 'Coordinator')} · ${esc(divName())}</span><h3>${plan.agents.length} agent${plan.agents.length === 1 ? '' : 's'} picked</h3></div>
-      <p class="covers">${cov.setName ? `Covered by the <b>${esc(cov.setName)} set</b>${cov.addons.length ? ' plus ' + cov.addons.length + ' add-on' + (cov.addons.length > 1 ? 's' : '') : ''}` : cov.addons.length ? '<b>Add-ons only</b> so far' : 'Pick agents to see which set covers them'}</p></div>
+    <div class="sum-head"><div><span class="label">${esc(plan.coordinator || 'Coordinator')} · ${esc(divName())}</span><h3>${nAll} agent${nAll === 1 ? '' : 's'} picked</h3></div>
+      <p class="covers">${cov.setName ? `Covered by the <b>${esc(cov.setName)} set</b>${cov.addons.length ? ' plus ' + cov.addons.length + ' add-on' + (cov.addons.length > 1 ? 's' : '') : ''}` : cov.addons.length ? '<b>Add-ons only</b> so far' : plan.custom.length ? '<b>Your own ideas</b> so far' : 'Pick agents to see which set covers them'}${plan.custom.length && picked.length ? `, and <b>${plan.custom.length} of your own</b> to scope` : ''}</p></div>
     ${agentsHtml}
     <div class="sum-group"><span class="label">Their settings</span>${changes.length ? `<ul class="sum-changes">${changes.map((c) => `<li>${esc(c)}</li>`).join('')}</ul>` : '<p class="sum-empty">Starting values everywhere so far.</p>'}</div>
     <div class="sum-group"><span class="label">Division</span><ul class="sum-changes">${divisionLines().map((c) => `<li>${esc(c)}</li>`).join('')}</ul></div>
@@ -1392,6 +1506,10 @@ function planText() {
   out.push('');
   out.push(`Agents (${plan.agents.length}):`);
   plan.agents.forEach((id) => { const a = byId[id]; out.push(`- ${a.name} (${SETS[a.set][0]}${a.set === 'addon' ? '' : ' set'})`); changesFor(id).forEach((c) => out.push('    ' + c)); });
+  if (plan.custom.length) {
+    out.push('', `Your own agents (${plan.custom.length}):`);
+    plan.custom.forEach((c, i) => { out.push('- ' + ownName(c, i)); OWN_QS.forEach((q) => out.push(`    ${q.word}: ${c[q.k]}`)); });
+  }
   if (cov.setName) out.push('', `Covered by: ${cov.setName} set${cov.addons.length ? ', plus ' + cov.addons.map((a) => a.name).join(', ') : ''}`);
   out.push('', 'Division:'); divisionLines().forEach((l) => out.push('- ' + l));
   if (plan.notes.trim()) out.push('', 'Notes:', plan.notes.trim());
@@ -1407,8 +1525,8 @@ function renderPlanPick() {
 function renderPlanBits() {
   const who = $('#barWho');
   const has = plan.coordinator || plan.division;
-  who.innerHTML = has ? `<b>${esc(plan.coordinator || 'Coordinator')}</b><span>${esc(plan.division || 'Division not named yet')}</span>` : (plan.agents.length ? '<b>Plan started</b><span>Name it at the bottom</span>' : '<b>No plan yet</b><span>Tick an agent to start one</span>');
-  $('#barN').textContent = plan.agents.length;
+  who.innerHTML = has ? `<b>${esc(plan.coordinator || 'Coordinator')}</b><span>${esc(plan.division || 'Division not named yet')}</span>` : (plan.agents.length || plan.custom.length ? '<b>Plan started</b><span>Name it at the bottom</span>' : '<b>No plan yet</b><span>Tick an agent to start one</span>');
+  $('#barN').textContent = plan.agents.length + plan.custom.length;
   $('#heroEyebrow').textContent = plan.division.trim() ? `All In Automation · set up for ${plan.division.trim()}` : 'All In Automation · proven at Rising Sun';
   renderSummary(); renderPlanPick(); renderSaveState();
   $('#delRow').hidden = !hasContent(plan) && !plans[plan.id];
@@ -1416,7 +1534,10 @@ function renderPlanBits() {
 function renderPlanFields() {
   $('#planCoord').value = plan.coordinator; $('#planDiv').value = plan.division; $('#planNotes').value = plan.notes;
 }
-function renderAll() { renderGallery(); renderDivision(); renderPlanFields(); renderPlanBits(); if (current) openSheet(current, activeTab); }
+function renderAll() {
+  if (ownEditing && ownEditing !== 'new' && !plan.custom.some((c) => c.id === ownEditing)) { ownEditing = null; $('#ownForm').hidden = true; }
+  renderGallery(); renderOwn(); renderDivision(); renderPlanFields(); renderPlanBits(); if (current) openSheet(current, activeTab);
+}
 
 /* ---------- toast ---------- */
 let toastTimer = null;
@@ -1430,6 +1551,18 @@ document.addEventListener('click', (e) => {
   const t = e.target;
   const pickBtn = t.closest('[data-pick]');
   if (pickBtn) { e.stopPropagation(); togglePick(pickBtn.dataset.pick); return; }
+  if (t.closest('#ownAdd')) { openOwn(null); return; }
+  if (t.closest('#ownCancel')) { closeOwn(); $('#ownAdd').focus(); return; }
+  const oe = t.closest('[data-own-edit]'); if (oe) { openOwn(oe.dataset.ownEdit); return; }
+  const od = t.closest('[data-own-del]'); if (od) { removeOwn(od.dataset.ownDel); return; }
+  const ox = t.closest('[data-own-ex]');
+  if (ox) {
+    // An example fills an empty answer, or is added to what they already typed.
+    const f = $('#own-' + ox.dataset.ownEx), v = ox.dataset.v, cur = f.value.trim();
+    if (!cur.toLowerCase().includes(v.toLowerCase())) f.value = (cur ? cur + ', ' + v : v).slice(0, +f.maxLength || 400);
+    f.closest('.own-q').classList.remove('missing'); f.focus();
+    return;
+  }
   const f = t.closest('[data-f]'); if (f) { filter = f.dataset.f; renderGallery(); return; }
   const tile = t.closest('[data-open]'); if (tile) { openSheet(tile.dataset.open); return; }
   const oa = t.closest('[data-open-agent]'); if (oa) { openSheet(oa.dataset.openAgent, 'yours'); return; }
@@ -1487,6 +1620,7 @@ document.addEventListener('keydown', (e) => {
 });
 document.addEventListener('input', (e) => {
   const t = e.target;
+  if (t.closest && t.closest('#ownForm')) { const q = t.closest('.own-q'); if (q && t.value.trim()) q.classList.remove('missing'); return; }
   if (t.id === 'planCoord') { plan.coordinator = t.value; touch(); return; }
   if (t.id === 'planDiv') { plan.division = t.value; touch(); if (current) renderPreview(byId[current]); return; }
   if (t.id === 'planNotes') { plan.notes = t.value; touch(); return; }
@@ -1518,6 +1652,7 @@ document.addEventListener('change', (e) => {
     const spec = RULES[current]; if (spec && spec.fields && spec.fields.some((f) => f.show)) renderYours(byId[current]); else renderPreview(byId[current]);
   }
 });
+$('#ownForm').addEventListener('submit', (e) => { e.preventDefault(); saveOwn(); });
 $('#planPick').addEventListener('change', (e) => {
   const id = e.target.value; if (id === plan.id || !plans[id]) return;
   if (dirty) saveNow();
