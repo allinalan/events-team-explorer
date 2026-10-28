@@ -1,5 +1,6 @@
 // Builds every copy of the two pages from src/:
 //   docs/index.html, docs/lineup.html   the GitHub Pages copy (public, noindex, works with no Claude account)
+//   docs/apply.html                     the application form (GitHub copy only), from src/apply.html
 //   build/claude/*.html                 the Claude artifact copy (published by hand with the Artifact tool)
 // Usage: node build.js. Nothing is written to docs/ unless the public check passes.
 const fs = require('fs'), path = require('path'), vm = require('vm'), { execFileSync } = require('child_process');
@@ -33,8 +34,9 @@ const fill = (html, links) => {
   return out;
 };
 
-// 2. Claude copy: the artifact form (no doctype; the Artifact tool wraps it), linking to the other artifact.
-const claudeLinks = { LINEUP_URL: CLAUDE_LINEUP, EXPLORER_URL: CLAUDE_EXPLORER };
+// 2. Claude copy: the artifact form (no doctype; the Artifact tool wraps it), linking to the other artifact. The
+// application form is public-only (Alan uses the Claude explorer on his own calls), so the Claude copies carry no link to it.
+const claudeLinks = { LINEUP_URL: CLAUDE_LINEUP, EXPLORER_URL: CLAUDE_EXPLORER, APPLY_LINK: '', APPLY_BTN: '' };
 fs.writeFileSync(path.join(BUILD, 'claude/agent-explorer.html'), fill(explorer, claudeLinks));
 fs.writeFileSync(path.join(BUILD, 'claude/agent-lineup.html'), fill(lineup, claudeLinks));
 
@@ -64,10 +66,16 @@ function pagesDoc(html, { description, file }) {
   ].join('\n');
   return `<!doctype html>\n<html lang="en">\n<head>\n${head}\n</head>\n<body>\n${html.slice(start)}\n</body>\n</html>\n`;
 }
-const pagesLinks = { LINEUP_URL: 'lineup.html', EXPLORER_URL: './' };
+const pagesLinks = {
+  LINEUP_URL: 'lineup.html', EXPLORER_URL: './',
+  APPLY_LINK: '<a href="apply.html">See if it fits your team</a>',
+  APPLY_BTN: '<a class="btn ghost" href="apply.html">See if it fits your team</a>',
+};
+const apply = fs.readFileSync(path.join(ROOT, 'src/apply.html'), 'utf8');
 const pages = {
   'index.html': pagesDoc(fill(explorer, pagesLinks), { file: 'index.html', description: 'Open each events team agent, watch it run, set it to your rules, and build your division plan.' }),
   'lineup.html': pagesDoc(fill(lineup, pagesLinks), { file: 'lineup.html', description: 'Every events team agent on one page: what it does, what you get, and which set it comes in.' }),
+  'apply.html': pagesDoc(fill(apply, pagesLinks), { file: 'apply.html', description: 'Five short steps: see what the admin costs your events team today, then pick a time with Alan.' }),
 };
 
 // 4. Fail closed: check the GitHub copy before it replaces what is in docs/.

@@ -1,0 +1,551 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<meta name="description" content="Five short steps: see what the admin costs your events team today, then pick a time with Alan.">
+<meta property="og:title" content="See if it fits your team">
+<meta property="og:description" content="Five short steps: see what the admin costs your events team today, then pick a time with Alan.">
+<meta property="og:image" content="https://allinalan.github.io/events-team-explorer/img/board.jpg">
+<meta property="og:url" content="https://allinalan.github.io/events-team-explorer/apply.html">
+<link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2064%2064%22%3E%3Crect%20width%3D%2264%22%20height%3D%2264%22%20rx%3D%2214%22%20fill%3D%22%2316213A%22%2F%3E%3Cpath%20d%3D%22M14%2044a18%2018%200%200%201%2036%200z%22%20fill%3D%22%23DD6B1A%22%2F%3E%3Crect%20x%3D%2210%22%20y%3D%2246%22%20width%3D%2244%22%20height%3D%224%22%20rx%3D%222%22%20fill%3D%22%23EEF1F6%22%2F%3E%3C%2Fsvg%3E">
+<style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style>
+<title>See if it fits your team</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@700;800&family=Source+Sans+3:ital,wght@0,400;0,600;0,700;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap">
+</head>
+<body>
+<style>
+/* The application form: five short steps, one on screen at a time, then what the admin costs the team today (from
+   their own answers) and a booked discovery call. Answers reach Alan by the visitor's own mail app (like the
+   explorer's plan button) and as a short summary inside the Calendly booking. Same look as the explorer. */
+:root {
+  --bg: #F3F4F7; --surface: #FFFFFF; --surface-2: #F7F8FB; --ink: #16213A; --muted: #56627A; --line: #DCE0E8;
+  --sun: #DD6B1A; --sun-ink: #B04F0B; --sun-soft: #FCEDE1; --bad: #B42318; --bad-bg: #FDECEA;
+  --navy: #111A2C; --navy-ink: #EEF1F6; --navy-muted: #AAB4C6; --navy-line: #2B3752;
+  --mark-bg: #16213A; --mark-fg: #FFFFFF; --mark-accent: #F07A22;
+  --shadow: 0 1px 2px rgba(17, 26, 44, 0.05), 0 10px 30px rgba(17, 26, 44, 0.10);
+  --f-display: "Big Shoulders Display", "Arial Narrow", "Helvetica Neue", Arial, sans-serif;
+  --f-body: "Source Sans 3", "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+  --f-mono: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0E1524; --surface: #162034; --surface-2: #1B2740; --ink: #E8ECF3; --muted: #A1ACBE; --line: #28334B;
+    --sun: #FF9A47; --sun-ink: #FFB173; --sun-soft: #33231A; --bad: #FF8A80; --bad-bg: #3A1A1A;
+    --navy: #0A101C; --navy-ink: #EEF1F6; --navy-muted: #A6B1C4; --navy-line: #26324A; --mark-bg: #24345A;
+    --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 10px 30px rgba(0, 0, 0, 0.35);
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0E1524; --surface: #162034; --surface-2: #1B2740; --ink: #E8ECF3; --muted: #A1ACBE; --line: #28334B;
+  --sun: #FF9A47; --sun-ink: #FFB173; --sun-soft: #33231A; --bad: #FF8A80; --bad-bg: #3A1A1A;
+  --navy: #0A101C; --navy-ink: #EEF1F6; --navy-muted: #A6B1C4; --navy-line: #26324A; --mark-bg: #24345A;
+  --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 10px 30px rgba(0, 0, 0, 0.35);
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--ink); font-family: var(--f-body); font-size: 17px; line-height: 1.55; -webkit-text-size-adjust: 100%; }
+a { color: var(--sun-ink); text-underline-offset: 3px; }
+:focus-visible { outline: 3px solid var(--sun); outline-offset: 2px; border-radius: 6px; }
+[hidden] { display: none !important; }
+p { margin: 0; }
+button, input, select, textarea { font: inherit; color: inherit; }
+.wrap { max-width: 760px; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+.muted { color: var(--muted); }
+.eyebrow { font-family: var(--f-mono); font-size: 12px; font-weight: 500; letter-spacing: 0.09em; text-transform: uppercase; color: var(--sun-ink); }
+h1, h2 { font-family: var(--f-display); text-transform: uppercase; letter-spacing: 0.005em; line-height: 0.95; text-wrap: balance; margin: 0; font-weight: 800; }
+h1 em, h2 em { font-style: normal; color: var(--sun); }
+
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 46px; padding: 9px 18px; border-radius: 12px; border: 1px solid var(--line); background: var(--surface); color: var(--ink); font-weight: 700; font-size: 16px; cursor: pointer; text-decoration: none; }
+.btn:hover { border-color: var(--ink); }
+.btn.primary { background: var(--sun); border-color: var(--sun); color: #FFFFFF; }
+.btn.primary:hover { filter: brightness(0.95); }
+.btn.quiet { background: transparent; }
+.btn.sm { min-height: 36px; padding: 6px 13px; font-size: 14.5px; border-radius: 10px; }
+
+.topbar { border-bottom: 1px solid var(--line); background: var(--surface); }
+.topbar .wrap { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 58px; }
+.brand { display: inline-flex; align-items: center; gap: 10px; text-decoration: none; color: var(--ink); font-family: var(--f-display); font-weight: 800; text-transform: uppercase; font-size: 21px; letter-spacing: 0.02em; white-space: nowrap; }
+.brand svg { width: 30px; height: 30px; flex: none; }
+.brand b { color: var(--sun); font-weight: 800; }
+
+.hero { padding-block: clamp(32px, 6vw, 60px) 10px; }
+.hero h1 { font-size: clamp(44px, 8vw, 76px); margin-top: 12px; }
+.lede { font-size: clamp(17.5px, 2vw, 20px); color: var(--muted); max-width: 58ch; margin-top: 16px; }
+
+.progress { list-style: none; padding: 0; margin: 26px 0 0; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 6px; }
+.progress li { font-family: var(--f-mono); font-size: 11.5px; letter-spacing: 0.05em; text-transform: uppercase; color: var(--muted); padding-top: 9px; border-top: 4px solid var(--line); min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.progress li.done { border-top-color: color-mix(in srgb, var(--sun) 45%, var(--line)); }
+.progress li.now { border-top-color: var(--sun); color: var(--ink); font-weight: 500; }
+@media (max-width: 520px) { .progress li { font-size: 0; } .progress li.now { font-size: 11.5px; overflow: visible; } }
+
+.card { margin-top: 18px; background: var(--surface); border: 1px solid var(--line); border-radius: 16px; box-shadow: var(--shadow); padding: clamp(18px, 4vw, 30px); }
+fieldset { border: 0; margin: 0; padding: 0; min-width: 0; }
+.step > legend { padding: 0; }
+.step h2 { font-size: clamp(30px, 5vw, 40px); }
+.step .why { color: var(--muted); margin-top: 8px; max-width: 60ch; }
+.q { margin-top: 24px; }
+.ql { display: block; font-weight: 700; font-size: 17px; line-height: 1.35; }
+.hint { display: block; color: var(--muted); font-size: 15px; margin-top: 2px; }
+.q > .ql + .opts, .q > .ql + .hint + .opts, .q > .ql + input, .q > .ql + .hint + input, .q > .ql + textarea, .q > .ql + .hint + textarea, .q > .ql + .row, .q > .ql + .hint + .row, .q > .ql + select { margin-top: 10px; }
+input[type="text"], input[type="number"], textarea, select { width: 100%; min-height: 48px; padding: 10px 14px; border: 1px solid var(--line); border-radius: 11px; background: var(--surface-2); font-size: 17px; }
+input:focus, textarea:focus, select:focus { outline: none; border-color: var(--sun); box-shadow: 0 0 0 3px color-mix(in srgb, var(--sun) 25%, transparent); }
+textarea { min-height: 96px; resize: vertical; line-height: 1.45; }
+.row { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+.row input[type="number"] { width: 9.5em; flex: none; }
+.row .unit { color: var(--muted); }
+.money { position: relative; display: inline-block; }
+.money::before { content: "$"; position: absolute; left: 13px; top: 50%; transform: translateY(-50%); color: var(--muted); }
+.money input[type="number"] { padding-left: 26px; }
+.opts { display: grid; gap: 8px; }
+.opts.wrap2 { display: flex; flex-wrap: wrap; }
+.opt { display: flex; align-items: center; gap: 11px; min-height: 48px; padding: 9px 14px; border: 1px solid var(--line); border-radius: 12px; background: var(--surface); cursor: pointer; line-height: 1.3; }
+.opt input { accent-color: var(--sun); width: 19px; height: 19px; margin: 0; flex: none; }
+.opt:has(input:checked) { border-color: var(--sun); background: var(--sun-soft); }
+.opt:hover { border-color: color-mix(in srgb, var(--sun) 60%, var(--line)); }
+.err { color: var(--bad); font-weight: 600; margin-top: 14px; }
+
+.nav { display: flex; align-items: center; gap: 12px; margin-top: 26px; padding-top: 18px; border-top: 1px solid var(--line); }
+.nav .of { margin-right: auto; color: var(--muted); font-family: var(--f-mono); font-size: 12.5px; letter-spacing: 0.05em; text-transform: uppercase; }
+
+.cost { background: var(--navy); color: var(--navy-ink); border-radius: 14px; padding: clamp(18px, 4vw, 26px); margin-top: 18px; }
+.cost .label { font-family: var(--f-mono); font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--navy-muted); }
+.cost .big { font-family: var(--f-display); font-weight: 800; font-size: clamp(52px, 10vw, 84px); line-height: 0.95; color: var(--mark-accent); margin-top: 6px; font-variant-numeric: tabular-nums; }
+.cost .big small { font-size: 0.42em; color: var(--navy-ink); margin-left: 6px; }
+.cost .sub { color: var(--navy-muted); margin-top: 6px; }
+.cost dl { margin: 16px 0 0; display: grid; grid-template-columns: 1fr auto; gap: 8px 16px; border-top: 1px solid var(--navy-line); padding-top: 14px; }
+.cost dt { color: var(--navy-ink); }
+.cost dd { margin: 0; text-align: right; font-variant-numeric: tabular-nums; font-weight: 700; white-space: nowrap; }
+.cost .fine { font-size: 14.5px; color: var(--navy-muted); margin-top: 14px; }
+.next { margin-top: 22px; display: grid; gap: 14px; }
+.next-step { border: 1px solid var(--line); border-radius: 14px; padding: 16px 18px; background: var(--surface-2); }
+.next-step h3 { margin: 0 0 4px; font-size: 19px; display: flex; gap: 10px; align-items: baseline; }
+.next-step h3 b { display: inline-grid; place-items: center; width: 26px; height: 26px; border-radius: 50%; background: var(--ink); color: var(--bg); font-size: 14px; flex: none; }
+.next-step .acts { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 12px; align-items: center; }
+.next-step .note { font-size: 15px; color: var(--muted); margin-top: 10px; }
+.state { font-size: 15px; color: var(--sun-ink); font-weight: 600; }
+.copybuf { width: 100%; min-height: 160px; margin-top: 10px; font-family: var(--f-mono); font-size: 13px; }
+.panel h2 { font-size: clamp(30px, 5vw, 40px); }
+.panel p { margin-top: 10px; max-width: 60ch; }
+.panel .acts { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 18px; }
+footer { color: var(--muted); font-size: 14.5px; padding-block: 28px 44px; }
+footer p + p { margin-top: 6px; }
+</style>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="aia-mark" viewBox="0 0 64 64">
+    <rect width="64" height="64" rx="15" style="fill:var(--mark-bg)"/>
+    <path d="M16 50 L32 13 L48 50" fill="none" stroke-width="7.5" stroke-linecap="round" stroke-linejoin="round" style="stroke:var(--mark-fg)"/>
+    <path d="M21.6 37 H42.4" fill="none" stroke-width="4.5" stroke-linecap="round" style="stroke:var(--mark-accent)"/>
+    <circle cx="21.6" cy="37" r="5.6" style="fill:var(--mark-accent)"/>
+    <circle cx="42.4" cy="37" r="5.6" style="fill:var(--mark-accent)"/>
+  </symbol>
+</svg>
+
+<header class="topbar">
+  <div class="wrap">
+    <a class="brand" href="./" aria-label="All In Automation, the agent explorer"><svg aria-hidden="true"><use href="#aia-mark"/></svg><span>All In <b>Automation</b></span></a>
+    <a class="btn sm" href="./">See the agents</a>
+  </div>
+</header>
+
+<main class="wrap">
+  <div class="hero">
+    <p class="eyebrow">Events Team Autopilot</p>
+    <h1>See if it fits <em>your team</em></h1>
+    <p class="lede">Five short steps, about five minutes. At the end you'll see what the admin costs your team today, worked out from your own answers. Then you can pick a time for a 40-minute call with Alan.</p>
+  </div>
+
+  <ol class="progress" id="progress" aria-label="Steps">
+    <li>You</li><li>Hours</li><li>What hurts</li><li>What you want</li><li>Your number</li>
+  </ol>
+
+  <form class="card" id="f" novalidate>
+    <fieldset class="step" data-step="1">
+      <legend><h2 tabindex="-1">You and <em>your team</em></h2></legend>
+      <p class="why">So the call is about your team, not a demo.</p>
+      <div class="q"><label class="ql" for="name">Your name</label><input type="text" id="name" name="name" autocomplete="name"></div>
+      <div class="q" role="radiogroup" aria-labelledby="l-role"><span class="ql" id="l-role">Your role</span>
+        <div class="opts">
+          <label class="opt"><input type="radio" name="role" value="coordinator">Coordinator</label>
+          <label class="opt"><input type="radio" name="role" value="co-coordinator">Co-coordinator</label>
+          <label class="opt"><input type="radio" name="role" value="staff">Staff or admin on an events team</label>
+          <label class="opt"><input type="radio" name="role" value="other">Something else (rep, manager, just curious)</label>
+        </div></div>
+      <div class="q" role="radiogroup" aria-labelledby="l-program"><span class="ql" id="l-program">Does your division work shows and events as a team?</span>
+        <div class="opts wrap2">
+          <label class="opt"><input type="radio" name="program" value="yes">Yes</label>
+          <label class="opt"><input type="radio" name="program" value="no">Not yet</label>
+        </div></div>
+      <div class="q" role="radiogroup" aria-labelledby="l-vc"><span class="ql" id="l-vc">Are your events booked through VectorConnect?</span>
+        <div class="opts wrap2">
+          <label class="opt"><input type="radio" name="vc" value="yes">Yes</label>
+          <label class="opt"><input type="radio" name="vc" value="no">No</label>
+        </div></div>
+      <div class="q"><label class="ql" for="division">Division name</label><input type="text" id="division" name="division"></div>
+      <div class="q" role="radiogroup" aria-labelledby="l-vcdivs"><span class="ql" id="l-vcdivs">How many VectorConnect divisions does your events team run on?</span>
+        <div class="opts wrap2">
+          <label class="opt"><input type="radio" name="vcdivs" value="1">One</label>
+          <label class="opt"><input type="radio" name="vcdivs" value="2">Two</label>
+          <label class="opt"><input type="radio" name="vcdivs" value="3+">Three or more</label>
+        </div></div>
+      <div class="q"><label class="ql" for="reps">Reps on the events team</label><div class="row"><input type="number" id="reps" name="reps" min="0" inputmode="numeric"></div></div>
+      <div class="q"><label class="ql" for="shows">Shows and events a year</label><span class="hint">A rough number is fine.</span><div class="row"><input type="number" id="shows" name="shows" min="0" inputmode="numeric"></div></div>
+    </fieldset>
+
+    <fieldset class="step" data-step="2" hidden>
+      <legend><h2 tabindex="-1">Where the <em>hours</em> go</h2></legend>
+      <p class="why">Bookings, charges, stats, scheduling, pay: the back end. Your best guess beats a blank.</p>
+      <div class="q" role="radiogroup" aria-labelledby="l-adminWho"><span class="ql" id="l-adminWho">Who does most of that admin today?</span>
+        <div class="opts">
+          <label class="opt"><input type="radio" name="adminWho" value="me">I do it myself</label>
+          <label class="opt"><input type="radio" name="adminWho" value="paid">A paid assistant or calendar manager</label>
+          <label class="opt"><input type="radio" name="adminWho" value="staff">A co-coordinator or staff member</label>
+          <label class="opt"><input type="radio" name="adminWho" value="spread">It's spread across a few people</label>
+        </div></div>
+      <div class="q" data-ifnot="adminWho:me"><label class="ql" for="adminHrs">Their hours a week on it, in season</label><span class="hint">Add everyone up if it's a few people.</span>
+        <div class="row"><input type="number" id="adminHrs" name="adminHrs" min="0" step="0.5" inputmode="decimal"><span class="unit">hours a week</span></div></div>
+      <div class="q" data-ifnot="adminWho:me"><label class="ql" for="adminPay">What that time costs you</label><span class="hint">Leave it blank or put 0 if they're not paid for it.</span>
+        <div class="row"><span class="money"><input type="number" id="adminPay" name="adminPay" min="0" inputmode="decimal"></span>
+          <select name="adminPayUnit" id="adminPayUnit" aria-label="Per hour or per month" style="width:auto"><option value="hour">an hour</option><option value="month">a month</option></select></div></div>
+      <div class="q"><label class="ql" for="myHrs">Your own hours a week on that admin</label><span class="hint">Not counting the picking order. That's next.</span>
+        <div class="row"><input type="number" id="myHrs" name="myHrs" min="0" step="0.5" inputmode="decimal"><span class="unit">hours a week</span></div></div>
+      <div class="q"><label class="ql" for="myRate">What an hour of your time is worth to you</label><span class="hint">Your number. Think about what you'd do with the hour instead.</span>
+        <div class="row"><span class="money"><input type="number" id="myRate" name="myRate" min="0" inputmode="decimal"></span><span class="unit">an hour</span></div></div>
+      <div class="q"><label class="ql" for="pickHrs">The picking order: hours to run one, start to finish</label>
+        <div class="row"><input type="number" id="pickHrs" name="pickHrs" min="0" step="0.5" inputmode="decimal"><span class="unit">hours a pick</span></div></div>
+      <div class="q"><label class="ql" for="picks">Picks a year</label>
+        <div class="row"><input type="number" id="picks" name="picks" min="0" inputmode="numeric"><span class="unit">picks</span></div></div>
+    </fieldset>
+
+    <fieldset class="step" data-step="3" hidden>
+      <legend><h2 tabindex="-1">What <em>hurts</em></h2></legend>
+      <p class="why">Tick everything that's true. Then pick the one you'd fix first.</p>
+      <div class="q" role="group" aria-labelledby="l-pains"><span class="ql" id="l-pains">What's eating your week?</span>
+        <div class="opts" id="painOpts"></div></div>
+      <div class="q"><label class="ql" for="top">Which one would you fix first?</label><select id="top" name="top"></select></div>
+      <div class="q"><label class="ql" for="slipped">What slipped through the cracks in the last year?</label><span class="hint">A show, a booth spot, a deadline, a talk with your DM.</span><textarea id="slipped" name="slipped"></textarea></div>
+      <div class="q"><label class="ql" for="lostShows">Shows or booth spots lost a year to a missed deadline or a booking that never went in</label>
+        <div class="row"><input type="number" id="lostShows" name="lostShows" min="0" step="0.5" inputmode="decimal"><span class="unit">a year</span></div></div>
+      <div class="q"><label class="ql" for="showSales">Average team sales at one show</label>
+        <div class="row"><span class="money"><input type="number" id="showSales" name="showSales" min="0" inputmode="decimal"></span></div></div>
+    </fieldset>
+
+    <fieldset class="step" data-step="4" hidden>
+      <legend><h2 tabindex="-1">What you <em>want</em></h2></legend>
+      <p class="why">The part that matters most.</p>
+      <div class="q"><label class="ql" for="dream">Picture it running itself by your deadline. What do you, or the person doing your admin, do with the time back?</label><textarea id="dream" name="dream"></textarea></div>
+      <div class="q" role="radiogroup" aria-labelledby="l-deadline"><span class="ql" id="l-deadline">When does it need to be working by?</span>
+        <div class="opts">
+          <label class="opt"><input type="radio" name="deadline" value="Our January team meeting">Our January team meeting</label>
+          <label class="opt"><input type="radio" name="deadline" value="The spring pick">The spring pick</label>
+          <label class="opt"><input type="radio" name="deadline" value="The Campaign 2 pick in February">The Campaign 2 pick in February</label>
+          <label class="opt"><input type="radio" name="deadline" value="other">Another date</label>
+        </div></div>
+      <div class="q" data-if="deadline:other"><label class="ql" for="deadlineOther">Which date?</label><input type="text" id="deadlineOther" name="deadlineOther"></div>
+      <div class="q" role="group" aria-labelledby="l-tried"><span class="ql" id="l-tried">What have you already tried?</span>
+        <div class="opts wrap2">
+          <label class="opt"><input type="checkbox" name="tried" value="Spreadsheets">Spreadsheets</label>
+          <label class="opt"><input type="checkbox" name="tried" value="Google Forms">Google Forms</label>
+          <label class="opt"><input type="checkbox" name="tried" value="Zapier">Zapier</label>
+          <label class="opt"><input type="checkbox" name="tried" value="ChatGPT or an AI-built tool">ChatGPT or an AI-built tool</label>
+          <label class="opt"><input type="checkbox" name="tried" value="A paid assistant">A paid assistant</label>
+          <label class="opt"><input type="checkbox" name="tried" value="Nothing yet">Nothing yet</label>
+        </div></div>
+      <div class="q"><label class="ql" for="triedNote">How did it go?</label><input type="text" id="triedNote" name="triedNote"></div>
+      <div class="q" role="radiogroup" aria-labelledby="l-build"><span class="ql" id="l-build">Do you want it built for you, or to learn to build it yourself?</span>
+        <div class="opts">
+          <label class="opt"><input type="radio" name="build" value="Have it built">Have it built</label>
+          <label class="opt"><input type="radio" name="build" value="Learn to build it myself">Learn to build it myself</label>
+          <label class="opt"><input type="radio" name="build" value="Both">Both</label>
+        </div></div>
+      <div class="q" role="radiogroup" aria-labelledby="l-who"><span class="ql" id="l-who">Who else weighs in on a decision like this?</span>
+        <div class="opts">
+          <label class="opt"><input type="radio" name="who" value="Just me">Just me</label>
+          <label class="opt"><input type="radio" name="who" value="My co-coordinator">My co-coordinator</label>
+          <label class="opt"><input type="radio" name="who" value="My DM or manager">My DM or manager</label>
+          <label class="opt"><input type="radio" name="who" value="My spouse or partner">My spouse or partner</label>
+          <label class="opt"><input type="radio" name="who" value="Someone else">Someone else</label>
+        </div></div>
+      <div class="q" role="radiogroup" aria-labelledby="l-join" data-ifnot="who:,Just me"><span class="ql" id="l-join">Can they be on the calls?</span><span class="hint">It's easier to decide together than to pass it along.</span>
+        <div class="opts">
+          <label class="opt"><input type="radio" name="join" value="yes">Yes</label>
+          <label class="opt"><input type="radio" name="join" value="second">Not the first call, but the second one</label>
+          <label class="opt"><input type="radio" name="join" value="no">No</label>
+        </div></div>
+    </fieldset>
+
+    <section class="step" data-step="5" hidden aria-live="polite">
+      <h2 tabindex="-1">Your <em>number</em></h2>
+      <div id="result"></div>
+    </section>
+
+    <p class="err" id="err" role="alert" hidden></p>
+    <div class="nav">
+      <span class="of" id="of"></span>
+      <button type="button" class="btn quiet" id="back">Back</button>
+      <button type="button" class="btn primary" id="next">Next</button>
+    </div>
+  </form>
+
+  <section class="card panel" id="notFit" hidden aria-live="polite">
+    <h2 tabindex="-1" id="nfTitle"></h2>
+    <p id="nfText"></p>
+    <div class="acts" id="nfActs"></div>
+  </section>
+
+  <footer>
+    <p>Your answers stay in this browser until you send them to Alan. Nothing is saved anywhere else.</p>
+    <p>Independent tooling built by a rep for reps, from All In Automation. It isn't a Vector or CUTCO product.</p>
+  </footer>
+</main>
+
+<script>
+const ALAN_EMAIL = 'ahernandez@allinknifeguy.com';   // where "Email my answers to Alan" sends them
+const BOOK_URL = 'https://calendly.com/allincutcoalan/events-team-autopilot-discovery-call';
+const EXPLORER = './', LINEUP = 'lineup.html';
+const KEY = 'eta-apply-v1';
+const WEEKS = 4.33;   // weeks in a month, the same as the proposal's value calculator
+
+const PAINS = [
+  ['pick', 'The picking order and stats math take hours'],
+  ['slip', 'Bookings and application dates slip through the cracks'],
+  ['admin', 'Someone is stuck doing admin they don\'t enjoy'],
+  ['charges', 'Charges and coordinator pay are done by hand'],
+  ['numbers', 'Reps can\'t see their own numbers'],
+  ['stats', 'Chasing stats every week'],
+  ['training', 'Onboarding and training new reps lives in seven different places'],
+  ['fires', 'Putting out fires, with no time to prevent them'],
+];
+const painName = Object.fromEntries(PAINS);
+const STEPS = 5;
+
+const $ = (s) => document.querySelector(s);
+const $$ = (s) => [...document.querySelectorAll(s)];
+const form = $('#f');
+let step = 1;
+
+$('#painOpts').innerHTML = PAINS.map(([v, t]) => `<label class="opt"><input type="checkbox" name="pains" value="${v}">${t}</label>`).join('');
+
+// ---- answers: read, save, restore (browser storage is a convenience only; the page works without it)
+function answers() {
+  const a = {};
+  for (const el of form.elements) {
+    if (!el.name) continue;
+    if (el.type === 'checkbox') { (a[el.name] = a[el.name] || []); if (el.checked) a[el.name].push(el.value); }
+    else if (el.type === 'radio') { if (el.checked) a[el.name] = el.value; else if (!(el.name in a)) a[el.name] = ''; }
+    else a[el.name] = el.value.trim();
+  }
+  return a;
+}
+function save() { try { localStorage.setItem(KEY, JSON.stringify({ a: answers(), step })); } catch (e) { /* private window: fine */ } }
+function restore() {
+  let saved = null;
+  try { saved = JSON.parse(localStorage.getItem(KEY) || 'null'); } catch (e) { saved = null; }
+  if (!saved || !saved.a) return;
+  for (const el of form.elements) {
+    if (!el.name || !(el.name in saved.a)) continue;
+    const v = saved.a[el.name];
+    if (el.type === 'checkbox') el.checked = Array.isArray(v) && v.includes(el.value);
+    else if (el.type === 'radio') el.checked = v === el.value;
+    else el.value = v;
+  }
+  step = Math.min(Math.max(1, saved.step || 1), STEPS);
+}
+
+const n = (v) => { const x = parseFloat(v); return Number.isFinite(x) && x > 0 ? x : 0; };
+const money = (x) => '$' + Math.round(x).toLocaleString('en-US');
+const hrs = (x) => (Math.round(x * 10) / 10).toLocaleString('en-US');
+
+// ---- show a field only when another answer calls for it: data-if="name:a,b" / data-ifnot="name:a,b"
+function conditions() {
+  const a = answers();
+  for (const el of $$('[data-if],[data-ifnot]')) {
+    const [name, list] = (el.dataset.if || el.dataset.ifnot).split(':');
+    const hit = list.split(',').includes(a[name] || '');
+    el.hidden = el.dataset.if ? !hit : hit;
+  }
+  const top = $('#top'), keep = top.value, chosen = a.pains || [];
+  top.innerHTML = chosen.length ? chosen.map((v) => `<option value="${v}">${painName[v]}</option>`).join('') : '<option value="">Tick at least one above</option>';
+  if (chosen.includes(keep)) top.value = keep;
+}
+
+// ---- what it costs today, from their own answers (no share taken, no price: that's for the call)
+function cost(a) {
+  const me = a.adminWho === 'me';
+  const adminHrs = me ? 0 : n(a.adminHrs);
+  const adminMo = me ? 0 : (a.adminPayUnit === 'month' ? n(a.adminPay) : adminHrs * WEEKS * n(a.adminPay));
+  const myMo = n(a.myHrs) * WEEKS * n(a.myRate);
+  const pickHrsMo = n(a.pickHrs) * n(a.picks) / 12;
+  const pickMo = pickHrsMo * n(a.myRate);
+  const showsMo = n(a.lostShows) * n(a.showSales) / 12;
+  const hoursMo = adminHrs * WEEKS + n(a.myHrs) * WEEKS + pickHrsMo;
+  const rows = [];
+  if (!me && (adminHrs || adminMo)) rows.push(['The person doing your admin', adminMo, adminHrs * WEEKS]);
+  if (n(a.myHrs)) rows.push(['Your own admin hours', myMo, n(a.myHrs) * WEEKS]);
+  if (pickHrsMo) rows.push(['The picking order', pickMo, pickHrsMo]);
+  if (showsMo) rows.push(['Shows and booth spots lost (team sales)', showsMo, 0]);
+  return { rows, total: adminMo + myMo + pickMo + showsMo, hoursMo, showsMo };
+}
+
+const deadlineText = (a) => a.deadline === 'other' ? (a.deadlineOther || 'another date') : (a.deadline || '');
+const ROLE = { coordinator: 'Coordinator', 'co-coordinator': 'Co-coordinator', staff: 'Staff or admin', other: 'Something else' };
+const WHO = { me: 'Me', paid: 'A paid assistant or calendar manager', staff: 'A co-coordinator or staff member', spread: 'Spread across a few people' };
+const JOIN = { yes: 'yes', second: 'the second call', no: 'no' };
+
+function plainText(a, c) {
+  const L = [];
+  L.push('EVENTS TEAM AUTOPILOT APPLICATION');
+  if (a.name) L.push('Name: ' + a.name);
+  L.push('Role: ' + (ROLE[a.role] || '-'));
+  L.push('Division: ' + (a.division || '-') + ' (' + (a.vcdivs || '?') + ' VectorConnect division' + (a.vcdivs === '1' ? '' : 's') + ')');
+  L.push('Reps: ' + (a.reps || '-') + ' · Shows a year: ' + (a.shows || '-'));
+  L.push('', 'WHERE THE HOURS GO');
+  L.push('Admin: ' + (WHO[a.adminWho] || '-') + (a.adminWho && a.adminWho !== 'me' ? ', ' + (a.adminHrs || '?') + ' h/week' + (n(a.adminPay) ? ', $' + a.adminPay + ' ' + (a.adminPayUnit === 'month' ? 'a month' : 'an hour') : '') : ''));
+  L.push('My own admin: ' + (a.myHrs || '?') + ' h/week · my hour is worth $' + (a.myRate || '?'));
+  L.push('Picking order: ' + (a.pickHrs || '?') + ' h a pick, ' + (a.picks || '?') + ' picks a year');
+  L.push('', 'WHAT HURTS');
+  for (const p of a.pains || []) L.push('- ' + painName[p]);
+  if (a.top) L.push('Fix first: ' + painName[a.top]);
+  if (a.slipped) L.push('What slipped: ' + a.slipped);
+  L.push('Shows lost a year: ' + (a.lostShows || '-') + ' · team sales per show: ' + (a.showSales ? '$' + a.showSales : '-'));
+  L.push('', 'WHAT I WANT');
+  if (a.dream) L.push('With the time back: ' + a.dream);
+  L.push('Deadline: ' + (deadlineText(a) || '-'));
+  L.push('Tried: ' + ((a.tried || []).join(', ') || '-') + (a.triedNote ? ' · how it went: ' + a.triedNote : ''));
+  L.push('Built or learn: ' + (a.build || '-'));
+  L.push('Decides with: ' + (a.who || '-') + (a.who && a.who !== 'Just me' ? ' · on the calls: ' + (JOIN[a.join] || '-') : ''));
+  L.push('', 'WHAT IT COSTS TODAY (from these answers)');
+  for (const [label, mo] of c.rows) L.push(label + ': ' + money(mo) + ' a month');
+  L.push('Total: about ' + money(c.total) + ' a month, ' + hrs(c.hoursMo) + ' hours a month');
+  return L.join('\n');
+}
+
+// The short version rides along in the Calendly booking (its first question), so Alan sees it even if the email never goes.
+function summary(a, c) {
+  const bits = [
+    'From the form: ' + (a.division || 'division ?') + ', ' + (a.reps || '?') + ' reps, ' + (a.shows || '?') + ' shows/yr',
+    'admin ' + (a.adminWho === 'me' ? 'by me' : (a.adminHrs || '?') + ' h/wk (' + (WHO[a.adminWho] || '?').toLowerCase() + ')') + ', mine ' + (a.myHrs || '?') + ' h/wk, picking ' + (a.pickHrs || '?') + ' h x ' + (a.picks || '?') + '/yr',
+    'about ' + money(c.total) + '/mo',
+    a.top ? 'fix first: ' + painName[a.top].toLowerCase() : '',
+    deadlineText(a) ? 'deadline: ' + deadlineText(a) : '',
+    a.who ? 'decides with: ' + a.who.toLowerCase() + (a.who !== 'Just me' ? ' (on calls: ' + (JOIN[a.join] || '?') + ')' : '') : '',
+  ].filter(Boolean);
+  return bits.join('; ').slice(0, 480);
+}
+
+function renderResult() {
+  const a = answers(), c = cost(a);
+  const fit = a.join !== 'no' || !a.who || a.who === 'Just me';
+  const bring = !a.who || a.who === 'Just me' ? '' : 'Bring ' + (a.who === 'Someone else' ? 'them' : a.who.replace(/^My /, 'your ')) + ' if you can.';
+  const big = c.total
+    ? `<p class="big">${money(c.total)}<small>a month</small></p><p class="sub">About ${money(c.total * 12)} a year, and ${hrs(c.hoursMo)} hours a month.</p>`
+    : (c.hoursMo ? `<p class="big">${hrs(c.hoursMo)}<small>hours a month</small></p><p class="sub">Add what those hours are worth in step 2 to see the dollars.</p>`
+      : `<p class="sub" style="margin-top:8px">Add a few numbers in step 2 to see this.</p>`);
+  const rows = c.rows.map(([label, mo, h]) => `<dt>${label}${h ? ` <span style="color:var(--navy-muted)">· ${hrs(h)} h</span>` : ''}</dt><dd>${money(mo)}</dd>`).join('');
+  const book = fit
+    ? `<div class="next-step"><h3><b>2</b>Pick a time for your call</h3>
+         <p>40 minutes with Alan on Zoom: how your team runs, what slips, and whether this fits. ${bring}</p>
+         <div class="acts"><a class="btn primary" id="book" href="${BOOK_URL}?a1=${encodeURIComponent(summary(a, c))}" target="_blank" rel="noopener">Pick a time</a></div>
+         <p class="note">Alan builds each team by hand, so he takes on a few coordinators a season.</p></div>`
+    : `<div class="next-step"><h3><b>2</b>The call, once they can join</h3>
+         <p>The call is where you decide, so it works best with whoever weighs in on it. Send Alan your answers now, and book when they can be on.</p>
+         <div class="acts"><a class="btn" href="${EXPLORER}">Look around the agents meanwhile</a></div></div>`;
+  $('#result').innerHTML = `
+    <div class="cost"><p class="label">What the admin costs your team today</p>${big}
+      ${rows ? `<dl>${rows}</dl>` : ''}
+      <p class="fine">Worked out from your answers only. Team sales aren't income, and hours back aren't payroll saved unless you'd hire. On the call, you and Alan check these numbers together.</p></div>
+    <div class="next">
+      <div class="next-step"><h3><b>1</b>Send Alan your answers</h3>
+        <p>So the call starts from your numbers instead of a demo.</p>
+        <div class="acts"><button type="button" class="btn primary" id="mail">Email my answers to Alan</button><button type="button" class="btn" id="copy">Copy my answers</button><span class="state" id="state"></span></div>
+        <p class="note">Your email app opens with everything filled in. Your answers reach Alan only when you press Send there. If nothing opened, copy them and text or email them to Alan.</p>
+        <textarea class="copybuf" id="copyBuf" readonly hidden aria-label="Your answers as text"></textarea></div>
+      ${book}
+    </div>`;
+}
+
+// ---- screening: the call is for coordinators running an events team in VectorConnect
+function screenOut(a) {
+  if (a.role === 'staff') return ['Send this to <em>your coordinator</em>', 'The call is where your coordinator decides, so this form is for them. Send them this page. You can look around the agents in the meantime, and your coordinator can bring you on the call.', true];
+  if (a.role === 'other' || a.program === 'no' || a.vc === 'no') return ['Not a fit <em>yet</em>', 'This is built for coordinators running an events team booked through VectorConnect. You can still look around: every agent, what it does, and a run of each one.', false];
+  return null;
+}
+function showNotFit(t) {
+  form.hidden = true; $('#progress').hidden = true;
+  const p = $('#notFit'); p.hidden = false;
+  $('#nfTitle').innerHTML = t[0]; $('#nfText').textContent = t[1];
+  $('#nfActs').innerHTML = (t[2] ? '<button type="button" class="btn primary" id="shareLink">Copy this page\'s link</button>' : '')
+    + `<a class="btn${t[2] ? '' : ' primary'}" href="${EXPLORER}">See the agents</a><a class="btn" href="${LINEUP}">Every agent on one page</a><button type="button" class="btn quiet" id="fixAnswers">Change my answers</button>`;
+  $('#nfTitle').focus();
+}
+
+function show(s, focus) {
+  step = s;
+  for (const el of $$('.step')) el.hidden = +el.dataset.step !== s;
+  $$('#progress li').forEach((li, i) => { li.className = i + 1 < s ? 'done' : i + 1 === s ? 'now' : ''; li.setAttribute('aria-current', i + 1 === s ? 'step' : 'false'); });
+  $('#of').textContent = s < STEPS ? `Step ${s} of ${STEPS - 1}` : 'Done';
+  $('#back').hidden = s === 1;
+  $('#next').hidden = s === STEPS;
+  $('#next').textContent = s === STEPS - 1 ? 'See my number' : 'Next';
+  $('#err').hidden = true;
+  if (s === STEPS) renderResult();
+  save();
+  if (focus) { const h = document.querySelector(`.step[data-step="${s}"] h2`); h.focus({ preventScroll: true }); form.scrollIntoView({ behavior: 'smooth', block: 'start' }); }
+}
+
+function next() {
+  const a = answers();
+  if (step === 1) {
+    if (!a.role || !a.program || !a.vc) { $('#err').textContent = 'Answer the role, events team and VectorConnect questions to go on.'; $('#err').hidden = false; return; }
+    const out = screenOut(a); if (out) { save(); showNotFit(out); return; }
+  }
+  show(step + 1, true);
+}
+
+form.addEventListener('input', () => { conditions(); save(); });
+form.addEventListener('change', () => { conditions(); save(); });
+form.addEventListener('submit', (e) => e.preventDefault());
+$('#next').addEventListener('click', next);
+$('#back').addEventListener('click', () => show(Math.max(1, step - 1), true));
+
+document.addEventListener('click', (e) => {
+  const t = e.target;
+  if (t.closest('#fixAnswers')) { $('#notFit').hidden = true; form.hidden = false; $('#progress').hidden = false; show(1, true); return; }
+  if (t.closest('#shareLink')) {
+    const b = t.closest('#shareLink');
+    try { navigator.clipboard.writeText(location.href.split('#')[0]).then(() => { b.textContent = 'Link copied'; }, () => { b.textContent = location.href.split('#')[0]; }); } catch (err) { b.textContent = location.href.split('#')[0]; }
+    return;
+  }
+  if (t.closest('#copy')) {
+    const a = answers(), text = plainText(a, cost(a)), buf = $('#copyBuf'), st = $('#state');
+    const fallback = () => { buf.hidden = false; buf.value = text; buf.focus(); buf.select(); st.textContent = 'Copy the selected text.'; };
+    try { navigator.clipboard.writeText(text).then(() => { st.textContent = 'Copied. Paste it into a text or email to Alan.'; buf.hidden = true; }, fallback); } catch (err) { fallback(); }
+    return;
+  }
+  if (t.closest('#mail')) {
+    // Some mail apps cut a long mailto body short, so a long one also goes on the clipboard and the note says so.
+    const a = answers(), text = plainText(a, cost(a)), st = $('#state');
+    const subject = 'Events Team Autopilot application · ' + (a.division || 'my division') + (a.name ? ' · ' + a.name : '');
+    const url = 'mailto:' + ALAN_EMAIL + '?subject=' + encodeURIComponent(subject) + '&body=' + encodeURIComponent(text);
+    if (url.length > 1800) {
+      try { navigator.clipboard.writeText(text).then(() => { st.textContent = 'Your email opened. If it looks cut off, paste: your answers are copied. Then press Send.'; }, () => { st.textContent = 'Your email opened. If it looks cut off, use Copy my answers and paste. Then press Send.'; }); } catch (err) { st.textContent = 'Your email opened. If it looks cut off, use Copy my answers and paste. Then press Send.'; }
+    } else st.textContent = 'Your email opened. Press Send there.';
+    location.href = url;
+    return;
+  }
+});
+
+restore();
+conditions();
+const out0 = screenOut(answers());
+if (out0 && step > 1) showNotFit(out0); else show(step, false);
+</script>
+
+</body>
+</html>

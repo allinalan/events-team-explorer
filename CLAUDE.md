@@ -1,6 +1,6 @@
 # events-team-explorer
 
-A showcase only: two static pages (the Agent Explorer and the Agent Lineup) published two ways from `src/`. No agent code, no data feed, nothing scheduled. See README.md for the URLs and the change steps.
+A showcase only: two static pages (the Agent Explorer and the Agent Lineup) published two ways from `src/`, plus the application form (`src/apply.html`, GitHub copy only). No agent code, no data feed, nothing scheduled. See README.md for the URLs and the change steps.
 
 Where it lives: `~/automations/All in Automations/Events Team Autopilot/events-team-explorer` (since 2026-10-27; the path has
 spaces, so quote it). It sits inside the private All in Automations workspace (allinalan/all-in-automations-hq), whose
@@ -12,4 +12,5 @@ reads it, so editing in place on either Mac is fine.
 - **Agents described only:** `brief: true` on a catalog agent (the two Freshmen agents, 2026-10-27) hides Watch it run and What it looks like, so the page never stages a run of something not built. Give it a `setNote` (the add-on default line says it is running at Rising Sun). Alan wants those descriptions kept vague.
 - **Build your own:** the four prompt words live in `OWN_QS` inside the catalog block, and the explorer form and the lineup section both read them. A link to `<explorer>#own` opens the form.
 - **Saved plans** live only in the Claude copy's database (`data/users/me` on https://claude.ai/artifact/3UVCingGLjGF3amYnHuso1). The GitHub copy keeps picks in the visitor's browser, and "Email this plan to Alan" is how they reach him.
+- **The application form** (`src/apply.html` -> `docs/apply.html`, 2026-10-28) is the first step of the sales funnel in the private workspace (`../sales/FUNNEL.md`, `../sales/intake-questions.md`). It stores nothing anywhere: answers go out by the visitor's own mail app and as a short summary in the Calendly link (`a1`, never a name or e-mail). The explorer and lineup link to it only in the GitHub copy (`APPLY_LINK` / `APPLY_BTN` are empty for Claude), so adding it left the Claude copies byte-identical.
 - Registered in `~/ai-system/REGISTRY.yaml` (projects.events-team-explorer, deployments, public_repo_audit). Change those entries if the URL or the repo's contents change.

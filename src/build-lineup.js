@@ -330,7 +330,7 @@ section { padding-block: clamp(48px, 7vw, 80px) 0; }
 
   <div class="wrap cta">
     <p class="big">Want these for <em>your division?</em></p>
-    <a class="btn" href="${EXPLORER}">Open the agent explorer</a>
+    <a class="btn" href="${EXPLORER}">Open the agent explorer</a>{{APPLY_BTN}}
     <p class="sign">Alan Hernandez · All In Automation · Rising Sun Events Team</p>
   </div>
 </main>

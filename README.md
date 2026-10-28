@@ -7,6 +7,8 @@ The page Alan sends coordinators to see what the events team agents do, set them
 | GitHub Pages (public, not listed on Google) | https://allinalan.github.io/events-team-explorer/ | https://allinalan.github.io/events-team-explorer/lineup.html | anyone, no account needed |
 | Claude artifacts (private until shared) | https://claude.ai/artifact/3UVCingGLjGF3amYnHuso1 | https://claude.ai/artifact/8MMufvYYEWhENMJ7ox6maA | Alan on his own calls |
 
+**The application form**, https://allinalan.github.io/events-team-explorer/apply.html, is GitHub-only. Five short steps: the coordinator's team, where the hours go, what hurts, what they want, and what the admin costs them today from their own answers. It screens out anyone who isn't a coordinator running an events team in VectorConnect, then offers "Email my answers to Alan" (their mail app; it arrives only when they press Send), "Copy my answers", and "Pick a time" (Alan's Calendly discovery call, with a short summary in the booking's first question). It keeps answers in the visitor's browser only. Source: `src/apply.html`. The GitHub explorer and lineup link to it; the Claude copies don't.
+
 ## Where a plan is saved
 
 - **GitHub copy:** in the visitor's own browser only. They can **Copy the plan**, or use **Email this plan to Alan**, which opens their mail app with the plan written out and addressed to ahernandez@allinknifeguy.com. The email button shows only outside Claude, because an artifact's sandboxed frame may not open a mail app.
