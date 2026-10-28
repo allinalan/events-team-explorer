@@ -2,6 +2,11 @@
 
 A showcase only: two static pages (the Agent Explorer and the Agent Lineup) published two ways from `src/`. No agent code, no data feed, nothing scheduled. See README.md for the URLs and the change steps.
 
+Where it lives: `~/automations/All in Automations/Events Team Autopilot/events-team-explorer` (since 2026-10-27; the path has
+spaces, so quote it). It sits inside the private All in Automations workspace (allinalan/all-in-automations-hq), whose
+`.gitignore` leaves this folder out. This folder is still its own PUBLIC repo, so commit and push here, not there. No job
+reads it, so editing in place on either Mac is fine.
+
 - **Public repo, public site.** Never add real rep or customer names, phones, emails (only Alan's is allowed), rep-level sales or screenshots with real people in them. The one real-data screen is `docs/img/analyzer.jpg`: Rising Sun's team totals, already public on the event-analyzer site, and labeled real on both pages. Run `node build.js`, which refuses to write `docs/` unless `check-public.js` passes, and never hand-edit `docs/*.html`.
 - **One source.** `src/explorer.html` is in artifact form (no doctype; the Artifact tool wraps it). The Lineup is generated from its `AGENTS` catalog by `src/build-lineup.js`. Change an agent in one place, build, push, then republish both Claude artifacts from `build/claude/`. Republishing the explorer must leave `capabilities` out, or Alan's saved plans (db) are dropped.
 - **Agents described only:** `brief: true` on a catalog agent (the two Freshmen agents, 2026-10-27) hides Watch it run and What it looks like, so the page never stages a run of something not built. Give it a `setNote` (the add-on default line says it is running at Rising Sun). Alan wants those descriptions kept vague.
