@@ -1373,8 +1373,8 @@ function renderYours(a) {
   if (a.id === 'picking-order') left = pickingFields(r);
   else left = `<p class="intro">${esc(spec.intro)}</p>` + spec.fields.map((f) => fieldHtml(a.id, f, r)).join('');
   el.innerHTML = `<div class="yours"><form class="fields" id="yoursForm" autocomplete="off" novalidate>${left}
-      <p class="also">Starting values are how Rising Sun runs it. Everything you change here is saved to the division plan.</p>
-      <div><button type="button" class="btn sm quiet" id="resetRules">Back to the starting values</button></div></form>
+      <p class="also">These start the way Rising Sun runs it. Everything you change here is saved to the division plan.</p>
+      <div><button type="button" class="btn sm quiet" id="resetRules">Back to Rising Sun's settings</button></div></form>
     <div class="preview" id="preview" aria-live="polite"></div></div>`;
   renderPreview(a);
 }
@@ -1555,14 +1555,14 @@ function renderSummary() {
   const agentsHtml = picked.length ? groups.filter((g) => picked.some((a) => a.set === g)).map((g) => `
     <div class="sum-group"><span class="label">${esc(SETS[g][0])}${g === 'addon' ? 's' : ' set'}</span><ul class="sum-agents">${picked.filter((a) => a.set === g).map((a) => {
       const ch = changesFor(a.id);
-      return `<li><button type="button" data-open-agent="${a.id}">${esc(a.name)}</button><span class="x">${ch.length ? ch.length + ' setting' + (ch.length > 1 ? 's' : '') + ' changed' : 'starting values'}</span></li>`;
+      return `<li><button type="button" data-open-agent="${a.id}">${esc(a.name)}</button><span class="x">${ch.length ? ch.length + ' setting' + (ch.length > 1 ? 's' : '') + ' changed' : esc(STATUS[a.status][1])}</span></li>`;
     }).join('')}</ul></div>`).join('') + ownHtml : ownHtml || '<div class="sum-group"><p class="sum-empty">No agents ticked yet. Tick the check box on any agent above, or open one and choose Add to plan.</p></div>';
   const changes = plan.agents.flatMap((id) => changesFor(id).map((c) => byId[id].name + ' · ' + c));
   $('#summary').innerHTML = `
     <div class="sum-head"><div><span class="label">${esc(plan.coordinator || 'Coordinator')} · ${esc(divName())}</span><h3>${nAll} agent${nAll === 1 ? '' : 's'} picked</h3></div>
       <p class="covers">${cov.setName ? `Covered by the <b>${esc(cov.setName)} set</b>${cov.addons.length ? ' plus ' + cov.addons.length + ' add-on' + (cov.addons.length > 1 ? 's' : '') : ''}` : cov.addons.length ? '<b>Add-ons only</b> so far' : plan.custom.length ? '<b>Your own ideas</b> so far' : 'Pick agents to see which set covers them'}${plan.custom.length && picked.length ? `, and <b>${plan.custom.length} of your own</b> to scope` : ''}</p></div>
     ${agentsHtml}
-    <div class="sum-group"><span class="label">Their settings</span>${changes.length ? `<ul class="sum-changes">${changes.map((c) => `<li>${esc(c)}</li>`).join('')}</ul>` : '<p class="sum-empty">Starting values everywhere so far.</p>'}</div>
+    <div class="sum-group"><span class="label">Your settings</span>${changes.length ? `<ul class="sum-changes">${changes.map((c) => `<li>${esc(c)}</li>`).join('')}</ul><p class="sum-empty">Everything else stays as Rising Sun runs it.</p>` : '<p class="sum-empty">Rising Sun\'s settings until you change one under Make it yours.</p>'}</div>
     <div class="sum-group"><span class="label">Division</span><ul class="sum-changes">${divisionLines().map((c) => `<li>${esc(c)}</li>`).join('')}</ul></div>
     <div class="sum-group"><div class="plan-actions"><button type="button" class="btn primary" id="copyPlan">Copy the plan</button>${mailOk() ? '<button type="button" class="btn" id="mailPlan">Email this plan to Alan</button>' : ''}<span class="savestate" style="margin:0" id="copyState"></span></div><textarea class="copybuf" id="copyBuf" readonly hidden aria-label="The plan as text"></textarea></div>`;
 }
