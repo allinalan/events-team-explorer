@@ -1,0 +1,1394 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex, nofollow"></head><body><title>Coordinator Portal Prototype</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@700;800&family=Source+Sans+3:wght@400;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* The live portal's own stylesheet (the-block src/app/globals.css at main 16542be), so the prototype looks like
+   block.allinknifeguy.com, plus a thin prototype bar on top and the texting screens that aren't built yet.
+   This copy is the Agent Explorer's portal example (events-team-explorer src/portal.html): a sample coordinator, and
+   what The Block gained through main 9521d2a (What your agents need, Notes for Claude, Freshmen Onboarding and its page).
+   Phone first: header, content, a bottom tab bar. From 900px wide: a navy sidebar and a wider content column. */
+:root {
+  --bg: #f4f5f8; --surface: #ffffff; --ink: #16213a; --muted: #56627a; --line: #dde1ea;
+  --sun: #dd6b1a; --sun-ink: #b04f0b; --sun-soft: #fcede1;
+  --navy: #111a2c; --navy-2: #1a2540; --navy-line: #2b3752; --navy-ink: #eef1f6; --navy-muted: #aab4c6; --gold: #f5be45;
+  --ok: #1f7139; --ok-bg: #e2f3e7; --wip: #8a5300; --wip-bg: #fbefd7; --bad: #9b2c24; --bad-bg: #fbeaea;
+  --mark-bg: #16213a; --mark-fg: #ffffff; --mark-accent: #f07a22; --on-sun: #ffffff; --scrim: rgba(10, 16, 28, 0.45);
+  --shadow: 0 1px 2px rgba(17, 26, 44, 0.05), 0 8px 24px rgba(17, 26, 44, 0.07);
+  --f-display: "Big Shoulders Display", "Arial Narrow", Impact, sans-serif;
+  --f-body: "Source Sans 3", -apple-system, "Segoe UI", Roboto, sans-serif;
+  --f-mono: "IBM Plex Mono", ui-monospace, Menlo, Consolas, monospace;
+  --ph: 48px;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0e1524; --surface: #162034; --ink: #e8ecf3; --muted: #a1acbe; --line: #28334b;
+    --sun: #ff9a47; --sun-ink: #ffb173; --sun-soft: #33231a; --navy: #0a101c; --navy-2: #141d30; --navy-line: #26324a;
+    --ok: #7dd99d; --ok-bg: #173325; --wip: #f5c46a; --wip-bg: #3a2c12; --bad: #f19a92; --bad-bg: #3a1b19;
+    --mark-bg: #24345a; --on-sun: #111a2c; --shadow: 0 1px 2px rgba(0, 0, 0, 0.35); --scrim: rgba(0, 0, 0, 0.6);
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0e1524; --surface: #162034; --ink: #e8ecf3; --muted: #a1acbe; --line: #28334b;
+  --sun: #ff9a47; --sun-ink: #ffb173; --sun-soft: #33231a; --navy: #0a101c; --navy-2: #141d30; --navy-line: #26324a;
+  --ok: #7dd99d; --ok-bg: #173325; --wip: #f5c46a; --wip-bg: #3a2c12; --bad: #f19a92; --bad-bg: #3a1b19;
+  --mark-bg: #24345a; --on-sun: #111a2c; --shadow: 0 1px 2px rgba(0, 0, 0, 0.35); --scrim: rgba(0, 0, 0, 0.6);
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body { background: var(--bg); color: var(--ink); font-family: var(--f-body); font-size: 16px; line-height: 1.5; -webkit-text-size-adjust: 100%; }
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 50; background: var(--navy); }
+button, input, select, textarea { font: inherit; color: inherit; }
+button { cursor: pointer; }
+a { color: var(--sun-ink); text-underline-offset: 3px; }
+:focus-visible { outline: 3px solid var(--sun); outline-offset: 2px; border-radius: 6px; }
+h1, h2, h3, p { margin: 0; }
+h1 { font-family: var(--f-display); font-weight: 800; text-transform: uppercase; font-size: 34px; line-height: 1; letter-spacing: 0.01em; text-wrap: balance; }
+h2 { font-size: 19px; font-weight: 700; line-height: 1.25; text-wrap: balance; }
+h3 { font-size: 16.5px; font-weight: 700; line-height: 1.3; }
+.mono { font-family: var(--f-mono); font-size: 11.5px; letter-spacing: 0.07em; text-transform: uppercase; color: var(--muted); }
+.muted { color: var(--muted); }
+.hint { font-size: 13.5px; color: var(--muted); }
+.stack { display: grid; gap: 16px; align-content: start; min-width: 0; }
+.row { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
+.spread { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 10px; }
+.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+/* Buttons and fields */
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 44px; padding: 10px 18px; border-radius: 12px; border: 1px solid var(--line); background: var(--surface); font-weight: 700; font-size: 15.5px; text-decoration: none; color: var(--ink); }
+.btn:hover { border-color: var(--ink); }
+.btn:disabled { opacity: 0.55; cursor: default; }
+.btn.primary { background: var(--sun); border-color: var(--sun); color: var(--on-sun); }
+.btn.primary:hover { filter: brightness(0.95); }
+.btn.quiet { background: transparent; border-color: transparent; color: var(--sun-ink); padding-inline: 8px; }
+.btn.danger { color: var(--bad); }
+.btn.full { width: 100%; }
+.field { display: grid; gap: 6px; min-width: 0; }
+.field label, .label { font-weight: 600; font-size: 14.5px; }
+.field input, .field select, .field textarea { min-height: 46px; padding: 10px 12px; border: 1px solid var(--line); border-radius: 10px; background: var(--bg); width: 100%; }
+.field textarea { min-height: 110px; resize: vertical; }
+.field input[type="file"] { padding: 9px 10px; }
+.code-input { font-family: var(--f-mono); font-size: 28px !important; letter-spacing: 0.45em; text-align: center; }
+.grid2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+@media (max-width: 560px) { .grid2 { grid-template-columns: minmax(0, 1fr); } }
+.check { display: flex; gap: 10px; align-items: center; padding: 10px 12px; border: 1px solid var(--line); border-radius: 10px; font-size: 15px; }
+.check input { width: 20px; height: 20px; accent-color: var(--sun); flex: none; }
+.message { font-size: 14.5px; padding: 10px 12px; border-radius: 10px; }
+.message.ok { background: var(--ok-bg); color: var(--ok); }
+.message.error { background: var(--bad-bg); color: var(--bad); }
+.callout { display: flex; gap: 10px; align-items: flex-start; background: var(--sun-soft); border-radius: 12px; padding: 12px 14px; font-size: 14.5px; color: var(--ink); text-decoration: none; }
+.callout.warn { background: var(--wip-bg); }
+.callout.bad { background: var(--bad-bg); }
+.callout svg { flex: none; margin-top: 2px; color: var(--sun-ink); }
+
+/* Cards, lists, pills */
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; min-width: 0; }
+.pad { padding: 18px; }
+.sect-h { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; padding: 14px 16px 6px; }
+.list { display: grid; }
+.item { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 4px 12px; align-items: center; padding: 14px 16px; border-top: 1px solid var(--line); color: inherit; text-decoration: none; }
+.list > .item:first-child { border-top: 0; }
+a.item:hover { background: var(--bg); }
+.item b { font-size: 15.5px; overflow-wrap: anywhere; }
+.item .sub { grid-column: 1; color: var(--muted); font-size: 14px; overflow-wrap: anywhere; }
+.item .right { grid-column: 2; grid-row: 1 / span 2; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; justify-content: flex-end; }
+.empty { padding: 14px 16px; color: var(--muted); }
+.pill { display: inline-flex; align-items: center; gap: 6px; font-family: var(--f-mono); font-size: 11px; letter-spacing: 0.05em; text-transform: uppercase; padding: 4px 10px; border-radius: 999px; white-space: nowrap; }
+.pill::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: currentColor; }
+.pill.on { color: var(--ok); background: var(--ok-bg); }
+.pill.wait { color: var(--wip); background: var(--wip-bg); }
+.pill.hold { color: var(--sun-ink); background: var(--sun-soft); }
+.pill.bad { color: var(--bad); background: var(--bad-bg); }
+.pill.off, .pill.sched { color: var(--muted); box-shadow: inset 0 0 0 1.5px var(--line); }
+.pill.off::before { background: transparent; box-shadow: inset 0 0 0 1.5px currentColor; }
+.tiles { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+.tile { padding: 16px; display: grid; gap: 4px; text-decoration: none; color: inherit; }
+.tile .n { font-family: var(--f-display); font-weight: 800; font-size: 40px; line-height: 1; font-variant-numeric: tabular-nums; }
+.tile.alert .n { color: var(--sun-ink); }
+.tile.bad .n { color: var(--bad); }
+.links { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; }
+.links .card { padding: 16px; display: grid; gap: 4px; text-decoration: none; color: inherit; }
+.links .card:hover { border-color: var(--ink); }
+.reply { white-space: pre-wrap; background: var(--bg); border-radius: 10px; padding: 10px 12px; font-size: 15px; }
+
+/* Wordmark */
+.wordmark { display: inline-flex; align-items: center; gap: 10px; color: inherit; text-decoration: none; }
+.wordmark .mark { width: 40px; height: 40px; flex: none; }
+.wordmark b { display: block; font-family: var(--f-display); font-weight: 800; text-transform: uppercase; font-size: 26px; line-height: 0.9; letter-spacing: 0.02em; }
+.wordmark small { display: block; font-family: var(--f-mono); font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--sun-ink); margin-top: 3px; }
+
+/* Sign-in and setup pages */
+.auth { min-height: calc(100dvh - var(--ph)); display: grid; place-items: center; align-content: center; gap: 14px; padding-block: 32px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+.auth .card { width: 100%; max-width: 420px; padding: 28px 24px; display: grid; gap: 18px; box-shadow: var(--shadow); }
+.auth .demo { max-width: 420px; text-align: center; }
+.fine-box { background: var(--bg); border-radius: 10px; padding: 12px 14px; font-size: 14px; color: var(--muted); }
+.wiz { max-width: 640px; margin: 0 auto; padding-block: 28px 48px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); display: grid; gap: 18px; }
+.steps { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 6px; }
+.steps span { height: 6px; border-radius: 3px; background: var(--line); }
+.steps span.done { background: var(--sun); }
+
+/* App shell */
+.app { display: grid; grid-template-columns: 240px minmax(0, 1fr); min-height: calc(100dvh - var(--ph)); }
+.side { background: var(--navy); color: var(--navy-ink); padding: 20px 14px; display: flex; flex-direction: column; gap: 20px; position: sticky; top: calc(var(--ph) + env(safe-area-inset-top, 0px)); height: calc(100dvh - var(--ph)); }
+.side .wordmark b { color: #fff; }
+.side .wordmark small { color: var(--gold); }
+.side nav { display: grid; gap: 2px; }
+.side nav a { display: flex; align-items: center; gap: 10px; color: var(--navy-muted); padding: 10px 12px; border-radius: 10px; font-weight: 600; font-size: 15px; text-decoration: none; }
+.side nav a:hover { color: #fff; background: var(--navy-2); }
+.side nav a[aria-current="page"] { color: #fff; background: var(--navy-2); box-shadow: inset 3px 0 0 var(--gold); }
+.side .who { margin-top: auto; font-size: 13.5px; color: var(--navy-muted); border-top: 1px solid var(--navy-line); padding-top: 14px; display: grid; gap: 8px; }
+.side .who b { display: block; color: #fff; font-size: 14.5px; }
+.switcher select { width: 100%; min-height: 40px; border-radius: 10px; border: 1px solid var(--navy-line); background: var(--navy-2); color: #fff; padding: 6px 10px; }
+.main { min-width: 0; padding-block: 24px 40px; padding-left: max(24px, env(safe-area-inset-left, 0px)); padding-right: max(24px, env(safe-area-inset-right, 0px)); display: grid; gap: 18px; align-content: start; max-width: 1040px; }
+.topline { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: end; gap: 12px; }
+.topline .mono a { color: inherit; }
+.tabbar, .mhead { display: none; }
+@media (max-width: 900px) {
+  .app { grid-template-columns: minmax(0, 1fr); }
+  .side { display: none; }
+  .mhead { display: flex; justify-content: space-between; align-items: center; gap: 10px; padding-block: 12px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); background: var(--navy); color: #fff; }
+  .mhead .wordmark b { color: #fff; font-size: 22px; }
+  .mhead .wordmark small { color: var(--gold); }
+  .mhead .mark { width: 32px; height: 32px; }
+  .mhead .switcher select { max-width: 46vw; }
+  .main { padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-bottom: calc(96px + env(safe-area-inset-bottom, 0px)); }
+  .tabbar { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); position: fixed; left: 0; right: 0; bottom: 0; z-index: 30; background: var(--surface); border-top: 1px solid var(--line); padding-bottom: env(safe-area-inset-bottom, 0px); padding-left: env(safe-area-inset-left, 0px); padding-right: env(safe-area-inset-right, 0px); }
+  .tabbar a { padding: 8px 1px 10px; display: grid; justify-items: center; gap: 2px; font-size: 11px; font-weight: 600; color: var(--muted); text-decoration: none; }
+  .tabbar a[aria-current="page"] { color: var(--sun-ink); }
+  .tiles { grid-template-columns: minmax(0, 1fr); }
+  h1 { font-size: 30px; }
+}
+
+/* Agents' rules and Jarvis's documents */
+.tabs { display: flex; flex-wrap: wrap; gap: 6px; }
+.tabs a, .tabs button { padding: 9px 14px; min-height: 40px; border-radius: 999px; border: 1px solid var(--line); background: var(--surface); color: var(--ink); text-decoration: none; font-weight: 600; font-size: 14.5px; }
+.tabs a[aria-current="page"], .tabs button[aria-current="page"] { background: var(--ink); border-color: var(--ink); color: var(--surface); }
+.select, .pct { min-height: 44px; padding: 8px 10px; border: 1px solid var(--line); border-radius: 10px; background: var(--bg); color: var(--ink); max-width: 100%; }
+.pct { width: 76px; text-align: right; }
+.affix { display: flex; align-items: center; gap: 6px; }
+.affix input { flex: 1; min-width: 0; }
+.weights { border: 0; padding: 0; margin: 0; }
+.src { display: grid; gap: 8px; background: var(--sun-soft); border-radius: 10px; padding: 10px 12px; font-size: 14px; }
+.src.ok { background: var(--ok-bg); }
+.src q { font-style: italic; }
+.src .check { background: var(--surface); }
+.diff-wrap { overflow-x: auto; }
+.diff { width: 100%; border-collapse: collapse; font-size: 14.5px; }
+.diff th, .diff td { text-align: left; vertical-align: top; padding: 8px 6px; border-top: 1px solid var(--line); overflow-wrap: anywhere; }
+.diff thead th { border-top: 0; color: var(--muted); font-size: 13px; font-weight: 600; }
+.diff td:last-child { font-weight: 700; }
+.doc-text { white-space: pre-wrap; overflow-wrap: anywhere; max-height: 420px; overflow-y: auto; margin-top: 10px; padding: 12px 14px; border-radius: 10px; background: var(--bg); font-size: 14px; }
+details > summary { cursor: pointer; font-weight: 600; color: var(--sun-ink); }
+@media (max-width: 560px) { .diff thead { display: none; } .diff tr { display: grid; border-top: 1px solid var(--line); padding: 8px 0; } .diff th, .diff td { border-top: 0; padding: 2px 0; } }
+
+/* The roster */
+.search { flex: 1; min-width: min(220px, 100%); min-height: 46px; padding: 10px 12px; border: 1px solid var(--line); border-radius: 10px; background: var(--surface); }
+.item .name { color: inherit; text-decoration: none; }
+.item .name:hover b { text-decoration: underline; text-underline-offset: 3px; }
+.item .sub a { color: var(--muted); }
+.item.pickable { grid-template-columns: auto minmax(0, 1fr); align-items: start; cursor: pointer; }
+.item.pickable input { width: 22px; height: 22px; margin-top: 2px; accent-color: var(--sun); }
+.item.pickable > span { display: grid; gap: 2px; }
+.item.pickable .sub { grid-column: auto; }
+.item.stuck { cursor: default; }
+.item.stuck b { color: var(--muted); }
+.sub.problem { color: var(--bad); }
+.bulkbar { position: sticky; bottom: 12px; z-index: 20; box-shadow: var(--shadow); }
+@media (max-width: 900px) { .bulkbar { bottom: calc(76px + env(safe-area-inset-bottom, 0px)); } }
+
+/* Example only: the bar on top and toasts. Then Texts: approvals, the team message, conversations */
+.proto { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 40; min-height: var(--ph); background: var(--navy); color: var(--navy-ink); border-bottom: 1px solid var(--navy-line); display: flex; flex-wrap: wrap; align-items: center; gap: 8px 14px; padding-block: 7px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+.proto .tag { font-family: var(--f-mono); font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--gold); }
+.proto nav { display: flex; gap: 4px; flex-wrap: wrap; }
+.proto nav:first-of-type { margin-left: auto; }
+.proto button { background: transparent; border: 1px solid var(--navy-line); color: var(--navy-muted); border-radius: 999px; padding: 4px 12px; font-size: 13.5px; font-weight: 600; }
+.proto button[aria-pressed="true"] { background: var(--gold); border-color: var(--gold); color: #111a2c; }
+@media (max-width: 700px) { .proto { position: static; } .proto nav:first-of-type { margin-left: 0; } }
+.toast { position: fixed; left: 50%; bottom: calc(84px + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%); z-index: 70; background: var(--navy); color: var(--navy-ink); padding: 12px 16px; border-radius: 12px; width: max-content; max-width: min(520px, calc(100vw - 32px)); font-size: 14.5px; box-shadow: var(--shadow); }
+@media (min-width: 901px) { .toast { bottom: 24px; } }
+.scrim { position: fixed; inset: 0; background: var(--scrim); z-index: 60; display: grid; place-items: end center; }
+.sheet { width: 100%; max-width: 560px; max-height: 88vh; overflow: auto; background: var(--surface); border-radius: 18px 18px 0 0; padding: 22px 20px calc(22px + env(safe-area-inset-bottom, 0px)); display: grid; gap: 14px; }
+@media (min-width: 901px) { .scrim { place-items: center; } .sheet { border-radius: 18px; } }
+.preview { background: var(--bg); border-radius: 12px; padding: 14px; font-size: 15px; white-space: pre-wrap; }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.chip { font-size: 13px; padding: 3px 10px; border-radius: 999px; background: var(--bg); border: 1px solid var(--line); }
+.thread { display: grid; grid-template-columns: 280px minmax(0, 1fr); min-height: 380px; }
+.thread > .list { border-right: 1px solid var(--line); align-content: start; }
+.bubbles { display: flex; flex-direction: column; gap: 10px; padding: 16px; }
+.bub { max-width: 78%; padding: 10px 14px; border-radius: 16px; font-size: 15px; }
+.bub.in { background: var(--bg); align-self: flex-start; border-bottom-left-radius: 4px; }
+.bub.out { background: var(--sun); color: var(--on-sun); align-self: flex-end; border-bottom-right-radius: 4px; }
+.bub small { display: block; font-size: 12px; opacity: 0.8; margin-top: 4px; }
+@media (max-width: 900px) { .thread { grid-template-columns: minmax(0, 1fr); } .thread > .list { border-right: 0; border-bottom: 1px solid var(--line); } }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+
+<div class="proto" role="region" aria-label="Example controls">
+  <span class="tag">Example portal · invented data · nothing is sent</span>
+  <nav aria-label="Jump to">
+    <button type="button" data-jump="signin">1 Sign in</button>
+    <button type="button" data-jump="setup">2 Setup</button>
+    <button type="button" data-jump="app">3 The portal</button>
+  </nav>
+</div>
+<div id="root"></div>
+
+<script>
+(function () {
+  'use strict';
+  var root = document.getElementById('root');
+  var esc = function (s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); };
+  var clone = function (x) { return JSON.parse(JSON.stringify(x)); };
+  var plural = function (n, one, many) { return n === 1 ? one : (many || one + 's'); };
+
+  // ---- Icons and the mark (src/components/brand.tsx) ----
+  var ICONS = {
+    home: '<path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/>',
+    agents: '<rect x="4" y="7" width="16" height="12" rx="3"/><path d="M12 3v4M9 16h6"/><circle cx="9" cy="12" r="0.6"/><circle cx="15" cy="12" r="0.6"/>',
+    links: '<path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/>',
+    roster: '<circle cx="9" cy="8" r="3.2"/><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6"/><circle cx="17" cy="9" r="2.4"/><path d="M16.5 14.1c2.6.2 4.5 2.4 4.5 5.9"/>',
+    help: '<circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.6.3-1 .8-1 1.5V14M12 17.5h.01"/>',
+    settings: '<circle cx="12" cy="12" r="3.2"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1L7 17M17 7l2.1-2.1"/>',
+    lock: '<rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/>',
+    alert: '<path d="M12 3l10 18H2zM12 10v5M12 18h.01"/>',
+    bell: '<path d="M6 16v-5a6 6 0 0 1 12 0v5l2 2H4zM10 21a2 2 0 0 0 4 0"/>',
+    text: '<path d="M4 5h16v11H9l-5 4z"/>'
+  };
+  var icon = function (n, s) { s = s || 20; return '<svg width="' + s + '" height="' + s + '" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + ICONS[n] + '</svg>'; };
+  var MARK = '<svg class="mark" viewBox="0 0 64 64" aria-hidden="true"><rect width="64" height="64" rx="15" style="fill:var(--mark-bg)"/><path d="M16 50 L32 13 L48 50" fill="none" stroke-width="7.5" stroke-linecap="round" stroke-linejoin="round" style="stroke:var(--mark-fg)"/><path d="M21.6 37 H42.4" fill="none" stroke-width="4.5" stroke-linecap="round" style="stroke:var(--mark-accent)"/><circle cx="21.6" cy="37" r="5.6" style="fill:var(--mark-accent)"/><circle cx="42.4" cy="37" r="5.6" style="fill:var(--mark-accent)"/></svg>';
+  var wordmark = function (go) { var inner = MARK + '<span><b>The Block</b><small>by All In Automation</small></span>'; return go ? '<a class="wordmark" href="#today" data-go="today">' + inner + '</a>' : '<span class="wordmark">' + inner + '</span>'; };
+  var pill = function (p) { return '<span class="pill ' + p[1] + '">' + esc(p[0]) + '</span>'; };
+  var msg = function (r) { return r && r.text ? '<p class="message ' + (r.ok ? 'ok' : 'error') + '" role="status">' + esc(r.text) + '</p>' : ''; };
+
+  // ---- Words the portal uses (src/lib/format.ts, src/lib/rules/status.ts) ----
+  var STATE = { on: ['On', 'on'], waiting: ['Waiting', 'wait'], paused: ['Paused', 'off'], hold: ['Fill and hold', 'hold'], scheduled: ['Scheduled', 'sched'], failed: ['Needs a look', 'bad'], by_hand: ['By hand', 'sched'] };
+  var RULES_PILL = { needed: ['Rules needed', 'hold'], draft: ['Draft', 'sched'], waiting: ['With Alan', 'wait'], sent_back: ['Sent back', 'bad'], set: ['Rules set', 'on'] };
+  var VLABEL = { draft: ['Draft', 'sched'], waiting: ['With Alan', 'wait'], sent_back: ['Sent back', 'bad'], live: ['Live', 'on'], replaced: ['Replaced', 'off'], discarded: ['Thrown away', 'off'] };
+  var AREAS = [['bookings', 'Schedule and bookings'], ['stats', 'Stats and charges'], ['money', 'Money (pay and charges)']];
+  var KIND = { policy: 'Policy and standards', faq: 'Questions reps ask', dates: 'Important dates', other: 'Other' };
+  var DOC_STATUS = { live: ['Jarvis reads it', 'on'], waiting: ['With Alan', 'wait'], sent_back: ['Sent back', 'bad'] };
+  var HELP_STATUS = { new: ['Sending to Alan', 'sched'], sent: ['With Alan', 'wait'], answered: ['Answered', 'on'], closed: ['Closed', 'off'] };
+  var EVENTS = [
+    ['agent_failed', 'An agent needs a look', 'When one of your agents fails. One ping per change, at most one per agent every 12 hours.'],
+    ['agent_waiting', 'An agent is waiting on a person', 'When an agent stops to wait for someone to act.'],
+    ['help_answered', 'Alan answered your help request', 'Only for requests you sent.'],
+    ['rules_decided', 'Alan approved or sent back your rules or a document', 'While Alan checks your changes.'],
+    ['agents_quiet', 'Your agents went quiet', 'When they haven’t checked in for 3 hours. Once each time.'],
+    ['rep_replied', 'A rep texted your events line', 'So someone on your team answers it the same day.']
+  ];
+  var CAMPAIGNS = [['2026-fall', 'Fall 2026'], ['2027-spring', 'Spring 2027'], ['2027-fall', 'Fall 2027']];
+
+  // ---- What each agent's rules are made of (src/lib/rules/schema.ts) ----
+  var WEEKDAYS = [['mon', 'Monday'], ['tue', 'Tuesday'], ['wed', 'Wednesday'], ['thu', 'Thursday'], ['fri', 'Friday'], ['sat', 'Saturday'], ['sun', 'Sunday']];
+  var METRICS = [['last12Sales', 'Last 12 months sales'], ['shiftAverage', 'Weighted shift average'], ['campaignSales', 'Campaign event sales'], ['careerSales', 'Career sales'], ['ytdSales', 'Year-to-date sales']];
+  var TIER_FIELDS = [
+    { key: 'name', label: 'Tier name', kind: 'text', required: true },
+    { key: 'ranked', label: 'Ranked at the picking meeting', kind: 'yesno' },
+    { key: 'minShifts', label: 'Shifts worked, at least', kind: 'int' },
+    { key: 'shiftAvgKey', label: 'Shift average at Key shows, at least', kind: 'money' },
+    { key: 'shiftAvgTraditional', label: 'Shift average at Traditional shows, at least', kind: 'money' },
+    { key: 'careerSales', label: 'Career sales, at least', kind: 'money' },
+    { key: 'careerSalesOrLast12', label: '…or last 12 months sales of at least', kind: 'money', help: 'Leave empty if there’s no “or”.' },
+    { key: 'last12Sales', label: 'Last 12 months sales, at least', kind: 'money' },
+    { key: 'campaignsOnTeam', label: 'Campaigns on the team, at least', kind: 'int' },
+    { key: 'prevCampaignBooth', label: 'Last campaign’s booth sales, at least', kind: 'money' },
+    { key: 'prevCampaignTotal', label: '…or last campaign’s total sales', kind: 'money' },
+    { key: 'checks', label: 'Requirements a person confirms', kind: 'list', help: 'One per line: owning the booth, meetings attended, marketing. The agent lists these for you to tick; it never guesses them.' }
+  ];
+  var RULES = {
+    'picking-order': { intro: 'How reps qualify for each tier and how each tier is ranked before a picking meeting.', tiers: true, fields: [
+      { key: 'tieBreak', label: 'When two reps tie, the higher one goes first on', kind: 'choice', required: true, options: METRICS },
+      { key: 'traditionalFactor', label: 'Traditional show sales count as many times', kind: 'decimal', required: true, help: 'Levels Traditional shows against Key shows in the shift average. 1 counts them the same.' },
+      { key: 'credibilityShifts', label: 'Team-average shifts blended into each rep’s average', kind: 'int', required: true, help: 'Keeps a rep with two great shifts from topping the list. 0 turns it off.' },
+      { key: 'shiftsPerDrop', label: 'One worst shift dropped for every … shifts worked', kind: 'int', required: true, help: '0 drops none.' }
+    ] },
+    'stat-reminder': { intro: 'When stats are due, which shows need them, and the text a rep gets when theirs are missing.', fields: [
+      { key: 'reportedFrom', label: 'A rep’s stats count as in when they’re', kind: 'choice', required: true, options: [['vectorconnect', 'Entered in VectorConnect under the show'], ['form', 'Sent through a Google Form']] },
+      { key: 'formLink', label: 'The Google Form’s link', kind: 'url', help: 'Only if stats come through a form.' },
+      { key: 'weekStarts', label: 'The stat week starts on', kind: 'weekday', required: true },
+      { key: 'dueDay', label: 'Stats are due on', kind: 'weekday', required: true },
+      { key: 'dueTime', label: '…by', kind: 'time', required: true },
+      { key: 'remindDay', label: 'Reminder texts go out on', kind: 'weekday', required: true },
+      { key: 'remindTime', label: '…at', kind: 'time', required: true },
+      { key: 'noStatsNeeded', label: 'Shows that never need stats', kind: 'list', help: 'One per line. A word in the show’s name is enough, like golf or mall.' },
+      { key: 'message', label: 'The reminder text', kind: 'longtext', required: true, help: '{first} is the rep’s first name, {shows} the shows missing stats, {due} when they’re due.' }
+    ] },
+    'shift-cost': { intro: 'What reps are charged for the shifts they work, and who pays the leader rate.', fields: [
+      { key: 'overagePerShift', label: 'Overage charge per shift', kind: 'money', required: true },
+      { key: 'leaderOveragePerShift', label: 'Overage charge per shift for leaders', kind: 'money' },
+      { key: 'leaders', label: 'Leaders (pay the leader rate)', kind: 'list', help: 'One per line, as each name is spelled on your roster.' },
+      { key: 'installmentWeeks', label: 'An event charge is split over at most … weeks', kind: 'int', required: true },
+      { key: 'neverChargedTypes', label: 'VectorConnect event types never charged here', kind: 'list', help: 'Type codes, one per line, like SERV for service events.' }
+    ] },
+    'coordinator-pay': { intro: 'Your coordinator pay: the rate, which sales count, and who is never charged.', fields: [
+      { key: 'rate', label: 'Coordinator pay, as a share of each rep’s event sales', kind: 'bps', required: true },
+      { key: 'paidTypes', label: 'VectorConnect event types that count', kind: 'list', required: true, help: 'Type codes, one per line, like FAIR.' },
+      { key: 'excludedTypes', label: 'Event types that never count', kind: 'list' },
+      { key: 'minCharge', label: 'A charge under this is listed, not entered', kind: 'money' },
+      { key: 'neverCharge', label: 'Rep numbers never charged', kind: 'list', help: 'One per line.' }
+    ] },
+    'booking-request': { intro: 'What the Booking Request form is filled with, and which shows you book yourself.', fields: [
+      { key: 'eventType', label: 'Event type', kind: 'text', required: true, help: 'As VectorConnect’s form shows it, like Traditional.' },
+      { key: 'payment', label: 'Payment', kind: 'text', required: true, help: 'Like Company Pay.' },
+      { key: 'boothSize', label: 'Booth size', kind: 'text', required: true, help: 'Like 10 X 10.' },
+      { key: 'corner', label: 'Ask for a corner', kind: 'yesno' },
+      { key: 'electric', label: 'Ask for electric', kind: 'yesno' },
+      { key: 'leadsOnly', label: 'Leads only', kind: 'yesno' },
+      { key: 'negotiated', label: 'Negotiated', kind: 'yesno' },
+      { key: 'skipTiers', label: 'Tiers that book their own shows', kind: 'list', help: 'One per line.' },
+      { key: 'skipShows', label: 'Shows you book yourself', kind: 'list', help: 'One per line. A word in the name is enough.' }
+    ] },
+    'show-research': { intro: 'Which shows the research agent leaves alone, and what it looks up for your booking requests.', fields: [
+      { key: 'skipTiers', label: 'Tiers whose shows aren’t researched', kind: 'list', help: 'One per line.' },
+      { key: 'skipShows', label: 'Shows never researched', kind: 'list', help: 'One per line. A word in the name is enough, like golf.' },
+      { key: 'researchAppDates', label: 'Look up when applications open and close', kind: 'yesno', required: true, help: 'From the show’s or the promoter’s own page, with the page’s words. Never last year’s date passed off as this year’s.' },
+      { key: 'submissionNotesToVc', label: 'Put Submission Notes in the Booking Request comments', kind: 'yesno', required: true, help: 'What you write on a show for Cutco’s events team goes first in the request’s comments, then the application dates.' },
+      { key: 'manualWins', label: 'A date typed in by hand beats research', kind: 'yesno', required: true, help: 'Research never changes it. If research finds a different date, the show says so and the date stays yours.' }
+    ] },
+    'freshmen-onboarding': { intro: 'Your next freshmen class: its training and meeting dates, its sign-up form, who hears after each meeting, and what each freshman needs by when.', fields: [
+      { key: 'trainingMonths', label: 'Your training months', kind: 'list', required: true, help: 'One per line, like August and January.' },
+      { key: 'nextTraining', label: 'The next class’s training date', kind: 'text', required: true, help: 'Like Sat, Jan 9. Put “Freshmen Training” on your calendar and the agent finds it.' },
+      { key: 'meetings', label: 'That class’s meeting dates', kind: 'list', required: true, help: 'One per line, in order: the five meetings after training.' },
+      { key: 'signupForm', label: 'That class’s sign-up form (its responses sheet)', kind: 'url', required: true, help: 'Shared as “Anyone with the link, Viewer”. It needs name, rep number and phone; a “Your DM / manager” question helps.' },
+      { key: 'checklist', label: 'What each freshman needs, and by which meeting', kind: 'list', required: true, help: 'One per line. Rename, drop or move any of the five.' },
+      { key: 'vcTeam', label: 'Whose VectorConnect events team they join', kind: 'text', required: true },
+      { key: 'groupChat', label: 'Your group chat', kind: 'choice', required: true, options: [['groupme', 'GroupMe: added by phone once you say yes'], ['none', 'We don’t use one']] },
+      { key: 'dvm', label: 'Your DVM', kind: 'text', required: true, help: 'Their update goes out after each meeting, from your own Gmail, once you say yes.' },
+      { key: 'dmUpdate', label: 'DMs get the update too', kind: 'yesno' }
+    ] },
+    jarvis: { intro: 'Jarvis answers your reps from your documents. These notes cover what the documents don’t.', fields: [
+      { key: 'notes', label: 'Notes for Jarvis', kind: 'longtext', help: 'How reps should reach you, who handles money questions, anything your policy doesn’t say.' }
+    ] }
+  };
+  // What "Read my notes" finds in each agent's sample note, with the words it found each value in.
+  var NOTES = {
+    'stat-reminder': { text: 'Stats are due Monday by 9 PM. The reminder goes out Tuesday at 10 AM.', found: [
+      ['dueDay', 'mon', 'Stats are due Monday by 9 PM.'], ['dueTime', '21:00', 'Stats are due Monday by 9 PM.'],
+      ['remindDay', 'tue', 'The reminder goes out Tuesday at 10 AM.'], ['remindTime', '10:00', 'The reminder goes out Tuesday at 10 AM.']] },
+    'freshmen-onboarding': { text: 'Meeting 3 is Zoom only. Our DVM wants the update after every meeting, but leave the DMs off it.', found: [
+      ['meetings', 'Tue, Jan 12 · 7 PM\nTue, Jan 19 · 7 PM\nTue, Jan 26 · 7 PM · Zoom only\nTue, Feb 2 · 7 PM\nTue, Feb 9 · 7 PM', 'Meeting 3 is Zoom only.'],
+      ['dmUpdate', 'no', 'leave the DMs off it.']] }
+  };
+  // Today's "What your agents need" (src/app/(app)/needs.tsx): each setting an agent can't run without.
+  var NEEDS = [
+    { key: 'nextTraining', label: 'The spring training date', by: 'Fri, Dec 11', days: 1, detail: '', drafted: true },
+    { key: 'meetings', label: 'The spring class’s meeting dates', by: 'Fri, Dec 11', days: 1, detail: '', drafted: true },
+    { key: 'signupForm', label: 'The spring sign-up form', by: 'Fri, Dec 11', days: 1, detail: 'a link to its responses sheet', drafted: false },
+    { key: 'dvm', label: 'Your DVM for the spring class', by: 'Sat, Jan 9', days: 30, detail: 'the same one, or a new name', drafted: false }
+  ];
+  var NO_RULES = 'Alan sets this one up with you. There’s nothing to fill in.';
+  var POLICY = '2027 Policy and Standards';
+  // What "Draft from your policy" finds in the invented policy, with the words it found each value in.
+  var DRAFTS = {
+    'picking-order': [
+      ['traditionalFactor', '1.5', 3, 'Traditional show sales count one and a half times toward a shift average.'],
+      ['shiftsPerDrop', '6', 3, 'For every six shifts worked, your lowest shift is dropped.'],
+      ['tiers.0.shiftAvgKey', '1,800', 5, 'Varsity reps hold an $1,800 shift average at Key shows.'],
+      ['tiers.1.minShifts', '6', 6, 'JV reps need at least 6 shifts worked in the campaign.']
+    ],
+    'stat-reminder': [
+      ['weekStarts', 'mon', 2, 'The stat week runs Monday through Sunday.'],
+      ['dueDay', 'sun', 2, 'Stats are due Sunday by 11:59 PM.'],
+      ['dueTime', '23:59', 2, 'Stats are due Sunday by 11:59 PM.'],
+      ['noStatsNeeded', 'golf\nmall', 4, 'Golf tournaments and mall kiosks don’t need stats.']
+    ],
+    'shift-cost': [
+      ['overagePerShift', '15', 7, 'Each shift carries a $15 overage charge.'],
+      ['installmentWeeks', '4', 7, 'Event charges can be split over up to four weeks.']
+    ],
+    'coordinator-pay': [['rate', '1', 8, 'Coordinator pay is 1% of each rep’s event sales.']]
+  };
+
+  // ---- Invented data: a sample coordinator's block on Thursday, Dec 10. On a coordinator's own copy of the explorer,
+  // build.js swaps Taylor Reese (and treese, Taylor) for their name. ----
+  var T = { name: 'North + South', set: 'Complete', tz: 'Central', divs: ['North', 'South'], reviewUntil: '2026-12-22', reviewWords: 'Tue, Dec 22', pushAsk: true, vc: 'treese' };
+  var AGENTS = [
+    { key: 'vc-pull', name: 'Weekly VectorConnect pull', grp: 'team', state: 'on', note: '41 North reps, 33 South', ran: 'Mon, Dec 7, 6:02 AM', next: 'Mon, Dec 14, 6:00 AM', nextOrder: 1, desc: 'Reads your VectorConnect once a week for each division. Feeds the agents below.' },
+    { key: 'dashboard-agent', name: 'Event Team Dashboard', grp: 'team', state: 'failed', note: 'South’s total didn’t match VectorConnect twice, so nothing was published', ran: 'Mon, Dec 7, 6:40 AM', desc: 'Updates the season scoreboard once a campaign, straight from VectorConnect.' },
+    { key: 'rep-dashboard-agent', name: 'Rep Dashboard', grp: 'team', state: 'scheduled', note: 'Next update at fall close-out', desc: 'Updates every rep’s page once a campaign.' },
+    { key: 'picking-order', name: 'Picking Order', grp: 'team', state: 'scheduled', note: 'Ranks before your Jan 12 team meeting', next: 'Fri, Jan 8, 7:00 AM', nextOrder: 3, desc: 'Ranks every rep before each team meeting on your tiers and weights.' },
+    { key: 'booking-check', name: 'Booking Check', grp: 'team', state: 'waiting', note: '2 staffed shows have no booking · waiting on Casey', ran: 'Wed, Dec 9, 7:30 AM', desc: 'Flags staffed shows with no booking, and shows whose dates changed.' },
+    { key: 'show-research', name: 'Show Research', grp: 'team', state: 'on', note: '3 shows opened 2027 applications · 2 deadlines found, 1 not posted yet', ran: 'Wed, Dec 9, 7:05 AM', next: 'Wed, Dec 16, 7:00 AM', nextOrder: 2, desc: 'Tracks next year’s show dates and starts the booking request when applications open.' },
+    { key: 'shift-cost', name: 'Shift Cost', grp: 'team', state: 'waiting', note: 'Week of Nov 30 · $1,240 in charges · waiting on Morgan', ran: 'Mon, Dec 7, 8:15 AM', desc: 'Monday charges split by hours worked, with late-return penalties.' },
+    { key: 'coordinator-pay', name: 'Coordinator Pay', grp: 'team', state: 'scheduled', note: 'Next run at fall close-out', desc: 'Every rep charged and the coordinator credited, each campaign.' },
+    { key: 'booking-request', name: 'Booking Request', grp: 'team', state: 'hold', note: 'Filled for Valley Home Show · a person presses Submit', ran: 'Wed, Dec 9, 9:12 AM', desc: 'Files the VectorConnect Booking Request, kiosks and service events included.' },
+    { key: 'stat-reminder', name: 'Stat Reminder', grp: 'complete', state: 'waiting', note: 'Monday texts for 38 North reps · waiting on Morgan', ran: 'Mon, Dec 7, 8:00 AM', desc: 'Monday texts with each rep’s events, orders and CPO.' },
+    { key: 'team-text', name: 'Team Text', grp: 'complete', state: 'on', note: 'Write to a tier or the whole team from Texts', desc: 'One message to a tier or the whole team from your events line.' },
+    { key: 'freshmen-onboarding', name: 'Freshmen Onboarding', grp: 'addon', state: 'on', note: 'Fall class: 16 still with us after meeting 3 · meeting 4 is Tue, Dec 15', ran: 'Thu, Dec 10, 6:00 AM', next: 'Tue, Dec 15, 6:30 PM', nextOrder: 0, desc: 'Takes each freshmen class from sign-up through training and five meetings.' },
+    { key: 'rep-updates', name: 'Show updates to reps', grp: 'complete', state: 'waiting', note: '“It’s booked” for Valley Home Show, 3 reps · waiting on Casey', ran: 'Wed, Dec 9, 9:15 AM', desc: '“It’s booked”, “your show day moved”: the reps a change affects hear about it.' }
+  ];
+  var tierQ = function (o) { var v = { name: '', ranked: 'no', minShifts: '', shiftAvgKey: '', shiftAvgTraditional: '', careerSales: '', careerSalesOrLast12: '', last12Sales: '', campaignsOnTeam: '', prevCampaignBooth: '', prevCampaignTotal: '', checks: '' }; for (var k in o) v[k] = o[k]; return v; };
+  var W = function (m, p) { return { metric: m, percent: String(p) }; };
+  var PICK_V1 = { values: { tieBreak: 'last12Sales', traditionalFactor: '1.5', credibilityShifts: '3', shiftsPerDrop: '6' }, tiers: [
+    { values: tierQ({ name: 'Varsity', ranked: 'yes', minShifts: '10', shiftAvgKey: '1,600', shiftAvgTraditional: '1,100', careerSales: '50,000', last12Sales: '25,000', campaignsOnTeam: '3', checks: 'Owns a booth kit\nAt every team meeting this campaign' }), weights: [W('last12Sales', 20), W('shiftAverage', 40), W('campaignSales', 40)] },
+    { values: tierQ({ name: 'JV', ranked: 'yes', minShifts: '4', shiftAvgKey: '900', careerSales: '10,000', campaignsOnTeam: '1', checks: 'At the January training' }), weights: [W('careerSales', 20), W('ytdSales', 40), W('campaignSales', 40)] },
+    { values: tierQ({ name: 'Freshmen', ranked: 'no' }), weights: [] }
+  ] };
+  var PICK_V2 = clone(PICK_V1); PICK_V2.tiers[0].values.shiftAvgKey = '1,800'; PICK_V2.tiers[1].values.minShifts = '6';
+  var V = {
+    'picking-order': [
+      { v: 2, status: 'waiting', when: 'Wed, Dec 9, 4:12 PM', note: 'Varsity’s Key show average goes up to $1,800 for 2027, and JV needs 6 shifts.', data: PICK_V2 },
+      { v: 1, status: 'live', when: 'Tue, Dec 1, 10:04 AM', data: PICK_V1 }
+    ],
+    'stat-reminder': [],
+    'shift-cost': [{ v: 1, status: 'live', when: 'Fri, Nov 20, 2:30 PM', data: { values: { overagePerShift: '15', leaderOveragePerShift: '10', leaders: 'Chris Delgado\nTasha Reed', installmentWeeks: '4', neverChargedTypes: 'SERV' } } }],
+    'coordinator-pay': [{ v: 1, status: 'live', when: 'Fri, Nov 20, 2:41 PM', data: { values: { rate: '1', paidTypes: 'FAIR\nHOME\nKIOSK', excludedTypes: 'SERV', minCharge: '5', neverCharge: '' } } }],
+    'booking-request': [{ v: 1, status: 'draft', when: 'Wed, Dec 9, 11:20 AM', data: { values: { eventType: 'Traditional', payment: 'Company Pay', boothSize: '10 X 10', corner: 'no', electric: 'yes', leadsOnly: 'no', negotiated: 'no', skipTiers: '', skipShows: 'County Rodeo' } } }],
+    'show-research': [{ v: 1, status: 'live', when: 'Wed, Dec 9, 6:58 AM', data: { values: { skipTiers: '', skipShows: 'golf\nbuilder', researchAppDates: 'yes', submissionNotesToVc: 'yes', manualWins: 'yes' } } }],
+    'freshmen-onboarding': [
+      { v: 2, status: 'draft', when: 'Thu, Dec 10, 6:00 AM', data: { values: { trainingMonths: 'August\nJanuary', nextTraining: 'Sat, Jan 9', meetings: 'Tue, Jan 12 · 7 PM\nTue, Jan 19 · 7 PM\nTue, Jan 26 · 7 PM\nTue, Feb 2 · 7 PM\nTue, Feb 9 · 7 PM', signupForm: '', checklist: 'Calendar · meeting 1\nRep assistant · meeting 1\nGroup chat · meeting 1\nVectorConnect team · meeting 2\nContract · meeting 2', vcTeam: 'Taylor Reese', groupChat: 'groupme', dvm: 'Pat Lane', dmUpdate: 'yes' } } },
+      { v: 1, status: 'live', when: 'Mon, Jul 13, 4:20 PM', data: { values: { trainingMonths: 'August\nJanuary', nextTraining: 'Sat, Aug 8', meetings: 'Tue, Sep 15 · 7 PM\nTue, Oct 13 · 7 PM\nTue, Nov 17 · 7 PM\nTue, Dec 15 · 7 PM\nTue, Jan 19 · 7 PM', signupForm: 'https://docs.google.com/spreadsheets/d/…', checklist: 'Calendar · meeting 1\nRep assistant · meeting 1\nGroup chat · meeting 1\nVectorConnect team · meeting 2\nContract · meeting 2', vcTeam: 'Taylor Reese', groupChat: 'groupme', dvm: 'Pat Lane', dmUpdate: 'yes' } } }
+    ],
+    jarvis: [{ v: 1, status: 'live', when: 'Thu, Nov 26, 9:15 AM', data: { values: { notes: 'Schedule questions: text Taylor (Events).\nMoney and charges: Morgan.\nBookings: Casey.' } } }]
+  };
+  var START = { 'stat-reminder': { values: { reportedFrom: 'vectorconnect', message: 'Hi {first}, your stats for {shows} aren’t in yet. They’re due {due}.' } } };
+  var TIERS = [
+    { id: 't1', name: 'Varsity', picks: true, share: true },
+    { id: 't2', name: 'JV', picks: true, share: true },
+    { id: 't3', name: 'Freshmen', picks: true, share: false },
+    { id: 't4', name: 'Leaders', picks: false, share: true }
+  ];
+  var rep = function (id, name, tier, div, phone, email, num, extra) {
+    var r = { id: id, name: name, goes: '', tier: tier, div: div, phone: phone, email: email, num: num, city: '', aliases: [], status: 'active', since: 'Fall 2025', history: [['Fall 2025', TIERS.filter(function (t) { return t.id === tier; })[0].name, 'Tue, Sep 9, 2025']] };
+    for (var k in (extra || {})) r[k] = extra[k];
+    return r;
+  };
+  var REPS = [
+    rep('r1', 'Maria Lopez', 't1', 'North', '••• ••• 0141', '', '4471203', { city: 'Northgate', since: 'Fall 2023', history: [['Fall 2023', 'Freshmen', 'Tue, Sep 12, 2023'], ['Spring 2025', 'JV', 'Mon, Jan 13, 2025'], ['Fall 2026', 'Varsity', 'Tue, Sep 8']] }),
+    rep('r2', 'Jordan Pierce', 't1', 'South', '••• ••• 0188', '', '4459918'),
+    rep('r3', 'Destiny Okafor', 't1', 'North', '••• ••• 0123', '', '4480377'),
+    rep('r4', 'Sam Tran', 't2', 'South', '••• ••• 0164', '', '4502261'),
+    rep('r5', 'Riley Moore', 't2', 'South', '••• ••• 0109', '', '4511094'),
+    rep('r6', 'Alexis Grant', 't2', 'North', '••• ••• 0172', '', '4498810'),
+    rep('r7', 'Marcus Bell', 't2', 'South', '••• ••• 0135', '', ''),
+    rep('r8', 'Kayla Brooks', 't3', 'North', '', '', '4531172'),
+    rep('r9', 'Ethan Vargas', 't3', 'South', '••• ••• 0152', '', '4530458'),
+    rep('r10', 'Priya Shah', 't3', 'North', '••• ••• 0118', '', '4532206'),
+    rep('r11', 'Noah Kim', 't3', 'South', '••• ••• 0197', '', '4533391'),
+    rep('r12', 'Isabella Cruz', 't3', 'North', '••• ••• 0186', '', '4534025'),
+    rep('r13', 'Chris Delgado', 't4', 'North', '••• ••• 0100', '', '4410556', { goes: 'CD', aliases: ['C. Delgado'] }),
+    rep('r14', 'Tasha Reed', 't4', 'South', '••• ••• 0120', '', '4421870'),
+    rep('r15', 'Devin Hart', 't2', 'South', '••• ••• 0143', '', '4490012', { status: 'left' }),
+    rep('r16', 'Lauren Fox', 't3', 'North', '••• ••• 0158', '', '4529930', { status: 'left' })
+  ];
+  var MEMBERS = [
+    { id: 'm1', name: 'Taylor Reese', email: '', role: 'owner', areas: [], signed: true },
+    { id: 'm2', name: 'Casey', email: '', role: 'approver', areas: ['bookings'], signed: true },
+    { id: 'm3', name: 'Morgan', email: '', role: 'approver', areas: ['stats', 'money'], signed: true },
+    { id: 'm4', name: 'Jamie', email: '', role: 'viewer', areas: [], signed: false }
+  ];
+  var DOCS = [
+    { id: 1, kind: 'policy', title: POLICY, source: 'gdoc', read: 'Wed, Dec 9, 7:00 AM', status: 'live', div: null,
+      body: '2027 POLICY AND STANDARDS · NORTH + SOUTH\n\nTiers. Varsity reps hold an $1,800 shift average at Key shows. JV reps need at least 6 shifts worked in the campaign. Freshmen are new this campaign.\n\nShift averages. Traditional show sales count one and a half times toward a shift average. For every six shifts worked, your lowest shift is dropped.\n\nStats. The stat week runs Monday through Sunday. Stats are due Sunday by 11:59 PM. Golf tournaments and mall kiosks don’t need stats.\n\nCharges. Each shift carries a $15 overage charge. Event charges can be split over up to four weeks.\n\nCoordinator pay is 1% of each rep’s event sales.' },
+    { id: 2, kind: 'faq', title: 'South show FAQ', source: 'upload', read: 'Thu, Dec 10, 8:41 AM', status: 'waiting', div: 'South',
+      body: 'Where do I park at the Harbor Boat Show? Lot C, behind the convention center. Bring your badge.\nWho do I call if my booth partner is late? Tasha, then the events line.' }
+  ];
+  var TICKETS = [
+    { id: 2, author: 'Taylor Reese', body: 'Can Show Research add the Spring Bridal Expo? It isn’t on the board yet.', status: 'sent', when: '2 hr ago' },
+    { id: 3, author: 'Casey', body: 'Could an agent text reps the night before a shift to confirm they’re coming?', status: 'answered', when: 'Mon, Dec 7, 11:02 AM', reply: 'Yes. Other coordinators could use it too, so building it costs you nothing. Here’s what it would do: at 5 PM it reads the board, texts each rep working tomorrow, and lists who hasn’t answered by 8 PM. I’ll show you what it adds to your monthly before you say yes.', replied: 'Tue, Dec 8, 9:40 AM' },
+    { id: 1, author: 'Morgan', body: 'South charges look off for the week of Nov 23.', status: 'answered', when: 'Tue, Nov 24, 4:10 PM', reply: 'Fixed. Riley’s Nov 21 shift was counted twice; the agent now checks for that.', replied: 'Tue, Nov 24, 6:02 PM' }
+  ];
+  var LINKS = [
+    ['Show Shift Board', 'Both divisions · Submission Notes and application dates on every show'],
+    ['Jarvis', 'Rep questions, answered from your documents'],
+    ['Event Team Dashboard', 'Season scoreboard per division'],
+    ['Rep Dashboard', 'A page for every rep'],
+    ['Picking Order', 'Last published Tue, Nov 10']
+  ];
+
+  var S = {
+    stage: 'signin', auth: 'email', email: '', authNote: null, step: 1, vc: 'verified', files: ['North roster.csv · North', POLICY + '.pdf'],
+    page: 'today', agent: null, div: null, rep: null, added: false, done: null,
+    forms: {}, err: {}, res: {}, notes: {}, genNotes: 'We run one events program across both divisions. The calendar manager handles bookings.', reading: null,
+    src: { 'freshmen-onboarding': {
+      nextTraining: { from: 'your calendar', quote: '“Freshmen Training”, Sat, Jan 9, 9 AM', confirmed: false },
+      meetings: { from: 'your calendar', quote: '“Freshmen meeting 1” to “Freshmen meeting 5”, Tuesdays Jan 12 to Feb 9, 7 PM', confirmed: false } } },
+    pushHere: 'none', nudge: true, pushRes: null, prefs: EVENTS.map(function (e) { return e[0]; }),
+    q: '', show: 'all', picking: false, picked: {}, bulkTo: 't3', bulkCampaign: '2026-fall', rosterRes: null,
+    tiersDraft: null, tiersRes: null, imp: null, docRes: null, helpRes: null, teamRes: null,
+    thread: 'x1', reply: {}, compose: { tiers: { t1: true, t2: true, t3: true, t4: true }, div: '', text: 'Hi {first}, the January team meeting moved to Tuesday at 7 PM, same Zoom link. – Taylor' }
+  };
+  var who = function () { return { name: 'Taylor Reese', first: 'Taylor', role: 'Coordinator', email: 'your email' }; };
+  // While a coordinator is new, Alan checks each rules change and document before the agents use it.
+  var waits = function () { return true; };
+  var tierName = function (id) { var t = TIERS.filter(function (x) { return x.id === id; })[0]; return t ? t.name : 'On the team'; };
+  var phone = function (p) { return p && /^\d{10}$/.test(p) ? p.slice(0, 3) + '-' + p.slice(3, 6) + '-' + p.slice(6) : (p || ''); };
+  var agentBy = function (k) { return k === 'jarvis' ? { key: 'jarvis', name: 'Jarvis', desc: 'Answers your reps from your documents.', state: 'on' } : AGENTS.filter(function (a) { return a.key === k; })[0]; };
+  var policyDocs = function () { return DOCS.filter(function (d) { return d.kind === 'policy' && (d.status === 'live' || d.status === 'waiting'); }); };
+  var openOf = function (k) { return (V[k] || []).filter(function (x) { return x.status === 'draft' || x.status === 'waiting' || x.status === 'sent_back'; })[0]; };
+  var liveOf = function (k) { return (V[k] || []).filter(function (x) { return x.status === 'live'; })[0]; };
+  function rulesState(k) {
+    if (!RULES[k]) return 'none';
+    var vs = V[k] || [], has = function (s) { return vs.some(function (x) { return x.status === s; }); };
+    return has('sent_back') ? 'sent_back' : has('draft') ? 'draft' : has('waiting') ? 'waiting' : has('live') ? 'set' : 'needed';
+  }
+  function toast(text) {
+    document.querySelectorAll('.toast').forEach(function (x) { x.remove(); });
+    var t = document.createElement('div'); t.className = 'toast'; t.setAttribute('role', 'status'); t.textContent = text;
+    document.body.appendChild(t); setTimeout(function () { t.remove(); }, 3800);
+  }
+
+  // =============================================================================================
+  // 1. Sign in (src/app/login)
+  // =============================================================================================
+  function signin() {
+    var note = S.authNote ? '<p role="status" class="message ok">' + esc(S.authNote) + '</p>' : '';
+    var form = S.auth === 'email'
+      ? '<form class="stack" id="f-email" novalidate><div><h1>Sign in</h1><p class="muted" style="margin-top:6px">No password. We email you a 6-digit code.</p></div>' +
+        '<div class="field"><label for="email">Email</label><input id="email" type="email" inputmode="email" autocomplete="email" autocapitalize="none" spellcheck="false" placeholder="you@yourteam" value="' + esc(S.email) + '"></div>' +
+        '<button type="submit" class="btn primary full">Email me a code</button><p class="fine-box">Only people Alan or your coordinator added can sign in.</p>' + note + '</form>'
+      : '<form class="stack" id="f-code" novalidate><div><h1>Check your email</h1><p class="muted" style="margin-top:6px">If <b style="color:var(--ink);overflow-wrap:anywhere">' + esc(S.email) + '</b> is on a list, a 6-digit code is on its way. It works for 10 minutes.</p></div>' +
+        '<div class="field"><label for="code">Code</label><input id="code" class="code-input" inputmode="numeric" autocomplete="one-time-code" maxlength="10" value="482913"></div>' +
+        '<button type="submit" class="btn primary full">Sign in</button><div class="spread"><button type="button" class="btn quiet" data-act="resend">Send a new code</button><button type="button" class="btn quiet" data-act="restart">Use a different email</button></div>' +
+        '<p class="fine-box">You stay signed in on this device for 30 days. On a phone, tap Share, then Add to Home Screen, and The Block opens like an app.</p></form>';
+    return '<main class="auth"><div class="card">' + wordmark() + form +
+      '<p class="fine-box"><b>On your iPhone?</b> Add The Block to your Home Screen first (Share, then Add to Home Screen), open it from there and sign in. The app keeps its own sign-in, so it stays signed in.</p></div>' +
+      '<p class="hint demo">Example: the tip above shows only in Safari on an iPhone or iPad. <button type="button" class="btn quiet" data-act="app-open">See the Home Screen app’s first open</button></p></main>';
+  }
+
+  // =============================================================================================
+  // 2. First-time setup (src/app/setup)
+  // =============================================================================================
+  var STEPS = ['Your team', 'Your staff', 'Your files', 'VectorConnect', 'Finish'];
+  function setup() {
+    var s = S.step, body = '';
+    if (s === 1) body = '<h2>Is this your team?</h2><div class="grid2"><div class="field"><label for="w-name">Coordinator</label><input id="w-name" value="Taylor Reese"></div>' +
+      '<div class="field"><label for="w-tz">Time zone</label><select id="w-tz"><option>Eastern</option><option selected>Central</option><option>Mountain</option><option>Arizona</option><option>Pacific</option></select></div></div>' +
+      '<fieldset class="stack" style="border:0;padding:0;margin:0;gap:8px"><legend class="label" style="margin-bottom:8px">Divisions</legend>' +
+      '<div class="field"><label for="w-d0" class="sr-only">Division 1</label><input id="w-d0" value="North" placeholder="Division name"></div>' +
+      '<div class="field"><label for="w-d1" class="sr-only">Division 2</label><input id="w-d1" value="South" placeholder="Another division (optional)"></div>' +
+      '<div class="field"><label for="w-d2" class="sr-only">Division 3</label><input id="w-d2" placeholder="Another division (optional)"></div></fieldset>' +
+      '<p class="hint">Alan filled these in from your call. Change anything that’s off.</p>';
+    if (s === 2) body = '<h2>Who else signs in?</h2><p class="muted">Approvers say yes for their area. Viewers see everything and approve nothing. Each person signs in with their own email and a code.</p>' + team(true);
+    if (s === 3) body = '<h2>Your rosters, policies and schedule</h2><p class="muted">Rosters hold your reps’ phone numbers. Only your team and your agents can open them.</p>' +
+      '<div class="list card">' + S.files.map(function (f, i) { return '<div class="item"><b>' + esc(f) + '</b><span class="sub">Uploaded Mon, Dec 7</span><span class="right"><button class="btn quiet danger" type="button" data-act="file-remove" data-i="' + i + '">Remove</button></span></div>'; }).join('') + '</div>' +
+      '<div class="grid2"><div class="field"><label for="w-roster">Roster (CSV or Excel)</label><input id="w-roster" type="file" accept=".csv,.xlsx"></div><div class="field"><label for="w-rdiv">Division</label><select id="w-rdiv"><option>North</option><option selected>South</option></select></div></div>' +
+      '<div class="field"><label for="w-policy">Team policies (PDF, Word or text)</label><input id="w-policy" type="file" accept=".pdf,.docx,.txt"></div>' +
+      '<div class="field"><label for="w-sched">Show schedule (link to your Google Sheet)</label><input id="w-sched" type="url" placeholder="https://docs.google.com/spreadsheets/…"></div><p class="hint">Share the sheet with Alan as a viewer so the board can be built from it.</p>';
+    if (s === 4) body = '<h2>Your VectorConnect login</h2><p class="muted">Your agents sign in with it, one session at a time, at normal hours. You can replace it any time.</p>' +
+      (S.vc !== 'empty' ? '<p class="hint">Saved for <b>treese</b> · ' + (S.vc === 'verified' ? 'verified' : 'locked, waiting for its first sign-in') + '</p>' : '') +
+      '<div class="grid2"><div class="field"><label for="vc-user">VectorConnect username</label><input id="vc-user" autocomplete="off" value="treese"></div><div class="field"><label for="vc-pass">Password</label><input id="vc-pass" type="password" autocomplete="off" value="prototype"></div></div>' +
+      '<p class="callout">' + icon('lock', 18) + '<span>Your password is locked on this screen before it leaves your device. Only your own agents can unlock it, and Alan never sees it.</span></p>' +
+      '<div class="row"><button class="btn" type="button" data-act="vc-save">Lock and save</button></div>';
+    if (s === 5) body = '<h2>That’s it</h2><p>Your read-only agents start with the next scheduled run, and everything shows up on Today.</p>' +
+      '<p class="callout"><span><b>Your events line</b> is registered in your name with the carriers. They text a code to your phone to confirm it’s you; Alan will ask for it. Approval takes 2 to 4 weeks, and texts start once your reps opt in at the January meeting.</span></p>';
+    return '<div class="wiz">' + wordmark() + '<div><p class="mono">Step ' + s + ' of 5 · ' + STEPS[s - 1] + '</p><h1 style="margin-top:6px">Set up your block</h1></div>' +
+      '<div class="steps" aria-hidden="true">' + STEPS.map(function (_, i) { return '<span class="' + (i < s ? 'done' : '') + '"></span>'; }).join('') + '</div>' +
+      '<div class="card pad stack">' + body + '<div class="spread"><button class="btn" type="button" data-act="back"' + (s === 1 ? ' disabled' : '') + '>Back</button>' +
+      '<button class="btn primary" type="button" data-act="next">' + (s === 5 ? 'Open The Block' : 'Save and continue') + '</button></div></div>' +
+      '<p class="hint"><a href="#today" data-act="skip">Skip for now</a> · Everything here can be changed later in Settings.</p></div>';
+  }
+
+  // =============================================================================================
+  // 3. The portal: shell and navigation (src/app/(app)/layout.tsx, nav.tsx)
+  // =============================================================================================
+  var NAV = [['today', 'Today', 'home'], ['agents', 'Agents', 'agents'], ['texts', 'Texts', 'text'], ['roster', 'Roster', 'roster'], ['dashboards', 'Dashboards', 'links', 'Links'], ['help', 'Help', 'help'], ['settings', 'Settings', 'settings']];
+  function section(p) {
+    if (p === 'agent') return S.agent === 'jarvis' ? 'dashboards' : 'agents';
+    if (['rep', 'rep-new', 'tiers', 'import', 'freshmen'].indexOf(p) > -1) return 'roster';
+    if (p === 'jarvis') return 'dashboards';
+    return p;
+  }
+  function app() {
+    var cur = section(S.page), w = who();
+    var nav = function (tabs) {
+      return '<nav' + (tabs ? ' class="tabbar"' : '') + ' aria-label="The Block">' + NAV.map(function (n) {
+        return '<a href="#' + n[0] + '" data-go="' + n[0] + '"' + (cur === n[0] ? ' aria-current="page"' : '') + '>' + icon(n[2], tabs ? 22 : 20) + (tabs && n[3] ? n[3] : n[1]) + '</a>';
+      }).join('') + '</nav>';
+    };
+    return '<div class="app"><aside class="side">' + wordmark(true) + nav(false) + '<div class="who"><span><b>' + esc(w.name) + '</b>' + esc(w.role) + ' · ' + esc(T.name) + '</span></div></aside>' +
+      '<div><header class="mhead">' + wordmark(true) + '</header><main class="main" id="main">' + page() + '</main></div>' + nav(true) + '</div>';
+  }
+  function head(eyebrow, title, right) { return '<div class="topline"><div><p class="mono">' + eyebrow + '</p><h1 style="margin-top:6px">' + esc(title) + '</h1></div>' + (right || '') + '</div>'; }
+  function crumb(go, label) { return '<a href="#' + go + '" data-go="' + go + '">' + esc(label) + '</a> · ' + esc(T.name); }
+  function page() {
+    switch (S.page) {
+      case 'today': return today();
+      case 'agents': return agents();
+      case 'agent': return agentPage(S.agent);
+      case 'roster': return roster();
+      case 'rep': return repPage();
+      case 'rep-new': return repNew();
+      case 'tiers': return tiersPage();
+      case 'import': return importPage();
+      case 'dashboards': return dashboards();
+      case 'jarvis': return jarvis();
+      case 'help': return help();
+      case 'settings': return settings();
+      case 'texts': return texts();
+      case 'freshmen': return freshmen();
+    }
+    return '';
+  }
+
+  // ---- Today (src/app/(app)/page.tsx) ----
+  function agentRow(a) {
+    var to = a.grp === 'complete' ? 'texts' : 'agent:' + a.key;
+    return '<a class="item" href="#agents" data-go="' + to + '"><b>' + esc(a.name) + '</b><span class="sub">' + esc(a.note || 'No note') + (a.ran ? ' · ran ' + esc(a.ran) : '') + '</span><span class="right">' + pill(STATE[a.state]) + '</span></a>';
+  }
+  function today() {
+    var w = who(), needsLook = AGENTS.filter(function (a) { return a.state === 'failed'; });
+    var waiting = AGENTS.filter(function (a) { return a.state === 'waiting' || a.state === 'hold'; });
+    var coming = AGENTS.filter(function (a) { return a.next; }).sort(function (a, b) { return a.nextOrder - b.nextOrder; }).slice(0, 4);
+    var ruleAgents = AGENTS.filter(function (a) { return RULES[a.key]; }).concat([{ key: 'jarvis', name: 'Jarvis' }]);
+    var todo = ruleAgents.filter(function (a) { return ['needed', 'draft', 'sent_back'].indexOf(rulesState(a.key)) > -1; });
+    var withAlan = ruleAgents.filter(function (a) { return rulesState(a.key) === 'waiting'; });
+    var asks = ASKS.filter(function (x) { return !x.done; }), replies = THREADS.filter(function (x) { return x.state[0] === 'Reply'; });
+    var h = head('Thursday, Dec 10 · ' + esc(T.name), 'Good morning, ' + w.first);
+    if (T.pushAsk && S.pushHere === 'none' && S.nudge) {
+      h += '<section class="card pad stack" style="gap:12px"><p><b>Get a ping on this phone when something needs you.</b> An agent that needs a look, or Alan’s answer to your help request. You choose which in Settings.</p>' +
+        '<div class="row"><button class="btn primary" type="button" data-act="push-on">Turn on</button><button class="btn quiet" type="button" data-act="push-later">Not now</button></div></section>';
+    }
+    if (S.pushRes && S.page === 'today') h += '<p class="message ok" role="status">' + esc(S.pushRes) + ' Choose what you get in Settings.</p>';
+    var needs = NEEDS.filter(function (n) { return !n.done; });
+    if (needs.length) {
+      var late = needs.filter(function (n) { return n.days < 0; }).length;
+      h += '<section class="card"><div class="sect-h"><h2>What your agents need</h2><span class="hint">' + needs.length + ' ' + plural(needs.length, 'thing') + (late ? ', ' + late + ' late' : '') + '</span></div><div class="list">' + needs.map(function (n) {
+        var tone = n.days < 0 ? 'bad' : n.days <= 7 ? 'wait' : n.days <= 30 ? 'hold' : 'off';
+        var when = n.days < 0 ? (-n.days) + ' ' + plural(-n.days, 'day') + ' late' : n.days === 0 ? 'Today' : n.days <= 30 ? 'In ' + n.days + ' ' + plural(n.days, 'day') : 'By ' + n.by;
+        return '<a class="item" href="#agents" data-go="agent:freshmen-onboarding"><b>' + esc(n.label) + '</b><span class="sub">Freshmen Onboarding · needed by ' + esc(n.by) + (n.drafted ? ' · Claude drafted it: check it and send' : ' · ' + esc(n.detail)) + '</span><span class="right">' + pill([when, tone]) + '</span></a>';
+      }).join('') + '</div></section>';
+    }
+    if (asks.length || replies.length) {
+      h += '<section class="card"><div class="sect-h"><h2>Texts</h2><span class="mono">' + (asks.length + replies.length) + '</span></div><div class="list">' +
+        asks.map(function (x) { return '<a class="item" href="#texts" data-open="' + x.id + '"><b>' + esc(x.title) + '</b><span class="sub">' + esc(x.summary) + '</span><span class="right">' + pill(x.who === 'You' ? ['Yours', 'hold'] : [x.who + '’s to approve', 'wait']) + '</span></a>'; }).join('') +
+        replies.map(function (x) { return '<a class="item" href="#texts" data-go="texts" data-thread="' + x.id + '"><b>' + esc(x.name) + ' texted back</b><span class="sub">“' + esc(x.msgs[x.msgs.length - 1][1]) + '”</span><span class="right">' + pill(['Reply', 'wait']) + '</span></a>'; }).join('') + '</div></section>';
+    }
+    if (todo.length || withAlan.length) {
+      h += '<section class="card"><div class="sect-h"><h2>Your rules</h2><span class="mono">' + (ruleAgents.length - todo.length - withAlan.length) + ' of ' + ruleAgents.length + ' set</span></div><div class="list">' +
+        todo.map(function (a) { return '<a class="item" href="#agents" data-go="agent:' + a.key + '"><b>' + esc(a.name) + '</b><span class="sub">' + (rulesState(a.key) === 'sent_back' ? 'Alan sent these back with a note' : 'Needs your rules before it can run') + '</span></a>'; }).join('') +
+        withAlan.map(function (a) { return '<a class="item" href="#agents" data-go="agent:' + a.key + '"><b>' + esc(a.name) + '</b><span class="sub">With Alan</span></a>'; }).join('') + '</div></section>';
+    }
+    h += '<div class="tiles"><a class="card tile ' + (needsLook.length ? 'bad' : '') + '" href="#agents" data-go="agents"><span class="n">' + needsLook.length + '</span><span>' + (needsLook.length === 1 ? 'agent needs a look' : 'agents need a look') + '</span></a>' +
+      '<a class="card tile ' + (waiting.length ? 'alert' : '') + '" href="#agents" data-go="agents"><span class="n">' + waiting.length + '</span><span>waiting on a person</span></a>' +
+      '<a class="card tile" href="#agents" data-go="agents"><span class="n">14</span><span>runs in the last 7 days</span></a></div>';
+    h += '<section class="card"><div class="sect-h"><h2>Needs a look</h2><span class="mono">' + needsLook.length + '</span></div><div class="list">' + (needsLook.map(agentRow).join('') || '<p class="empty">Nothing failed. Every agent that ran this week checked out.</p>') + '</div></section>';
+    h += '<section class="card"><div class="sect-h"><h2>Waiting on a person</h2><span class="mono">' + waiting.length + '</span></div><div class="list">' + (waiting.map(agentRow).join('') || '<p class="empty">Nothing is waiting on anyone.</p>') + '</div></section>';
+    h += '<section class="card"><div class="sect-h"><h2>Coming up</h2></div><div class="list">' + coming.map(function (a) { return '<div class="item"><b>' + esc(a.name) + '</b><span class="sub">' + esc(a.next) + '</span></div>'; }).join('') + '</div></section>';
+    var open = TICKETS.filter(function (t) { return t.status === 'new' || t.status === 'sent'; }).length;
+    h += '<p class="hint">' + (open ? open + ' help ' + plural(open, 'request') + ' with Alan. ' : '') + 'Last update from your agents: 4 min ago.</p>';
+    return h;
+  }
+
+  // ---- Agents (src/app/(app)/agents/page.tsx) ----
+  function agents() {
+    var h = head(esc(T.name) + ' · ' + T.set + ' set', 'Agents') +
+      '<p class="muted">Every agent asks a person before it texts anyone or files anything in VectorConnect, and stops by itself when a number doesn’t check out. Open an agent to see or set its rules, or to pause it.</p>';
+    [['team', 'Agents that run on my servers'], ['complete', 'Agents that text your reps'], ['addon', 'Add-ons']].forEach(function (g) {
+      var rows = AGENTS.filter(function (a) { return a.grp === g[0]; });
+      h += '<section class="card"><div class="sect-h"><h2>' + g[1] + '</h2><span class="mono">' + rows.length + '</span></div><div class="list">' + rows.map(function (a) {
+        var when = [a.ran && 'ran ' + a.ran, a.next && 'next ' + a.next].filter(Boolean).join(' · ');
+        var r = rulesState(a.key);
+        return '<a class="item" href="#agents" data-go="agent:' + a.key + '"><b>' + esc(a.name) + '</b><span class="sub">' + esc(a.note || a.desc) + (when ? ' · ' + esc(when) : '') + '</span><span class="right">' + (r !== 'none' ? pill(RULES_PILL[r]) : '') + pill(STATE[a.state]) + '</span></a>';
+      }).join('') + '</div></section>';
+    });
+    return h;
+  }
+
+  // ---- One agent and its rules (src/app/(app)/agents/[key]) ----
+  function formFor(k) {
+    if (!S.forms[k]) { var o = openOf(k) || liveOf(k); S.forms[k] = clone(o ? o.data : (START[k] || { values: {} })); }
+    return S.forms[k];
+  }
+  function fieldDef(k, path) {
+    var m = path.match(/^tiers\.(\d+)\.(.+)$/);
+    if (m) return TIER_FIELDS.filter(function (f) { return f.key === m[2]; })[0];
+    return RULES[k].fields.filter(function (f) { return f.key === path; })[0];
+  }
+  function getVal(F, path) { var m = path.match(/^tiers\.(\d+)\.(.+)$/); return m ? (F.tiers[+m[1]].values[m[2]] || '') : (F.values[path] || ''); }
+  function setVal(F, path, v) { var m = path.match(/^tiers\.(\d+)\.(.+)$/); if (m) F.tiers[+m[1]].values[m[2]] = v; else F.values[path] = v; }
+  function labelFor(k, path) { var m = path.match(/^tiers\.(\d+)\.(.+)$/), f = fieldDef(k, path); return m ? formFor(k).tiers[+m[1]].values.name + ': ' + f.label : f.label; }
+  function words(f, v) {
+    if (!v) return '';
+    if (f.kind === 'money') return '$' + v;
+    if (f.kind === 'bps') return v + '%';
+    if (f.kind === 'list') return v.split('\n').filter(Boolean).join(', ');
+    if (f.kind === 'yesno') return v === 'yes' ? 'Yes' : 'No';
+    if (f.kind === 'weekday' || f.kind === 'choice') { var o = (f.options || WEEKDAYS).filter(function (x) { return x[0] === v; })[0]; return o ? o[1] : v; }
+    return v;
+  }
+  function summarize(k, data) {
+    var def = RULES[k], out = def.fields.map(function (f) { return { label: f.label, text: words(f, (data.values || {})[f.key]) }; });
+    (data.tiers || []).forEach(function (t) {
+      var n = t.values.name;
+      out.push({ label: n + ': ranked on', text: t.values.ranked === 'yes' ? t.weights.map(function (w) { return METRICS.filter(function (m) { return m[0] === w.metric; })[0][1] + ' ' + w.percent + '%'; }).join(' · ') : 'Not ranked' });
+      TIER_FIELDS.slice(2).forEach(function (f) { out.push({ label: n + ': ' + f.label, text: words(f, t.values[f.key]) }); });
+    });
+    return out;
+  }
+  function fieldHtml(k, f, path, value, source, error) {
+    var id = 'f-' + k + '-' + path.replace(/\./g, '-'), a = ' id="' + id + '" data-rk="' + k + '" data-path="' + path + '"' + (error ? ' aria-invalid="true"' : '') + (f.help ? ' aria-describedby="' + id + '-help"' : '');
+    var input;
+    if (f.kind === 'longtext' || f.kind === 'list') input = '<textarea' + a + ' rows="' + (f.kind === 'list' ? 4 : 5) + '">' + esc(value) + '</textarea>';
+    else if (f.kind === 'weekday' || f.kind === 'choice' || f.kind === 'yesno') {
+      var opts = f.kind === 'yesno' ? [['yes', 'Yes'], ['no', 'No']] : (f.options || WEEKDAYS);
+      input = '<select' + a + '><option value="">Pick one</option>' + opts.map(function (o) { return '<option value="' + o[0] + '"' + (o[0] === value ? ' selected' : '') + '>' + esc(o[1]) + '</option>'; }).join('') + '</select>';
+    } else if (f.kind === 'time') input = '<input' + a + ' type="time" value="' + esc(value) + '">';
+    else {
+      var num = ['money', 'int', 'decimal', 'percent', 'bps'].indexOf(f.kind) > -1;
+      input = '<span class="affix">' + (f.kind === 'money' ? '<span aria-hidden="true">$</span>' : '') + '<input' + a + (num ? ' inputmode="decimal"' : '') + ' type="' + (f.kind === 'url' ? 'url' : 'text') + '" value="' + esc(value) + '">' + (f.kind === 'bps' || f.kind === 'percent' ? '<span aria-hidden="true">%</span>' : '') + '</span>';
+    }
+    return '<div class="field"><label for="' + id + '">' + esc(f.label) + (f.required ? '' : '<span class="muted"> (optional)</span>') + '</label>' + input +
+      (f.help ? '<span id="' + id + '-help" class="hint">' + esc(f.help) + '</span>' : '') +
+      (error ? '<span class="message error">' + esc(error) + '</span>' : '') +
+      (source ? '<div class="src' + (source.confirmed ? ' ok' : '') + '"><span>' + (source.from ? 'From ' + esc(source.from) : 'From “' + esc(source.doc) + '”, page ' + source.page) + ': <q>' + esc(source.quote) + '</q></span><label class="check"><input type="checkbox" data-confirm="' + path + '" data-rk="' + k + '"' + (source.confirmed ? ' checked' : '') + '> This is right</label></div>' : '') + '</div>';
+  }
+  function editor(k) {
+    var def = RULES[k], F = formFor(k), src = S.src[k] || {}, err = S.err[k] || {}, res = S.res[k], docs = policyDocs(), h = '';
+    if (docs.length) h += '<div class="card pad stack"><div><h3>Draft from your policy</h3><p class="hint">Claude reads your policy and fills in the values it states, each with the words it found them in. Nothing is used until you tick “This is right” on every one.</p></div>' +
+      '<div class="row"><select class="select" aria-label="Policy document">' + docs.map(function (d) { return '<option>' + esc(d.title) + '</option>'; }).join('') + '</select><button class="btn" type="button" data-act="draft" data-rk="' + k + '">' + (S.drafting === k ? 'Reading your policy…' : 'Draft from your policy') + '</button></div>' +
+      (S.drafting === k ? '<p class="hint">This takes up to a minute.</p>' : '') + '</div>';
+    if (k !== 'jarvis') {
+      var nt = S.notes[k] !== undefined ? S.notes[k] : (NOTES[k] ? NOTES[k].text : '');
+      h += '<div class="card pad stack"><div><h3>Notes for Claude</h3><p class="hint">Anything special about how you run this, in your own words: “January training is a Saturday”, “meeting 3 is Zoom only”. Claude reads them with your general notes from Settings and drafts the settings they state, each with your words. Nothing changes until you tick “This is right” and send.</p></div>' +
+        '<textarea class="search" style="min-height:96px" aria-label="Notes for Claude" maxlength="4000" data-notes="' + k + '" placeholder="Like: we skip stats for golf tournaments">' + esc(nt) + '</textarea>' +
+        '<div class="row"><button class="btn" type="button" data-act="notes" data-rk="' + k + '">' + (S.reading === k ? 'Claude is reading…' : 'Read my notes') + '</button><span class="hint">Saves them too. Up to 10 reads a day.</span></div></div>';
+    }
+    h += '<div class="card pad stack">' + def.fields.map(function (f) { return fieldHtml(k, f, f.key, F.values[f.key] || '', src[f.key], err[f.key]); }).join('') + '</div>';
+    if (def.tiers) {
+      var names = TIERS.filter(function (t) { return t.picks; }).map(function (t) { return t.name; });
+      h += '<p class="hint">Tiers come from your <a href="#roster" data-go="tiers">roster</a>: ' + esc(names.join(', ')) + '. Rename or reorder them there.</p>';
+      F.tiers.forEach(function (t, i) {
+        var tv = t.values;
+        h += '<div class="card pad stack"><h3>' + esc(tv.name) + '</h3><label class="check"><input type="checkbox" data-ranked="' + i + '" data-rk="' + k + '"' + (tv.ranked === 'yes' ? ' checked' : '') + '> Ranked at the picking meeting</label>';
+        if (tv.ranked === 'yes') {
+          h += '<fieldset class="stack weights"><legend class="label">Ranked on (adds up to 100%)</legend>' + t.weights.map(function (w, j) {
+            return '<div class="row"><select class="select" aria-label="Measure ' + (j + 1) + '" data-w="' + i + '.' + j + '.metric" data-rk="' + k + '"><option value="">Pick a measure</option>' + METRICS.map(function (m) { return '<option value="' + m[0] + '"' + (m[0] === w.metric ? ' selected' : '') + '>' + m[1] + '</option>'; }).join('') + '</select>' +
+              '<input class="pct" aria-label="Weight ' + (j + 1) + ', percent" inputmode="numeric" value="' + esc(w.percent) + '" data-w="' + i + '.' + j + '.percent" data-rk="' + k + '"><span class="muted">%</span><button class="btn quiet" type="button" data-act="w-remove" data-i="' + i + '" data-j="' + j + '" data-rk="' + k + '">Remove</button></div>';
+          }).join('') + (err['tiers.' + i + '.weights'] ? '<p class="message error">' + esc(err['tiers.' + i + '.weights']) + '</p>' : '') +
+            (t.weights.length < 4 ? '<button class="btn quiet" type="button" data-act="w-add" data-i="' + i + '" data-rk="' + k + '">Add a measure</button>' : '') + '</fieldset>';
+        }
+        h += '<p class="label">To qualify for ' + esc(tv.name) + '</p><div class="grid2">' + TIER_FIELDS.slice(2, -1).map(function (f) { var p = 'tiers.' + i + '.' + f.key; return fieldHtml(k, f, p, tv[f.key] || '', src[p], err[p]); }).join('') + '</div>' +
+          fieldHtml(k, TIER_FIELDS[TIER_FIELDS.length - 1], 'tiers.' + i + '.checks', tv.checks || '', src['tiers.' + i + '.checks'], err['tiers.' + i + '.checks']) + '</div>';
+      });
+    }
+    var unconfirmed = Object.keys(src).filter(function (p) { return !src[p].confirmed; });
+    h += '<div class="card pad stack">' +
+      (unconfirmed.length ? '<p class="callout warn"><span><b>' + unconfirmed.length + ' drafted ' + plural(unconfirmed.length, 'value') + ' to check:</b> ' + esc(unconfirmed.slice(0, 4).map(function (p) { return labelFor(k, p); }).join('; ')) + (unconfirmed.length > 4 ? '…' : '') + '</span></p>' : '') +
+      (waits() ? '<div class="field"><label for="note-' + k + '">Note for Alan (optional)</label><textarea id="note-' + k + '" maxlength="1000" placeholder="“South uses the same tiers; only JV differs”"></textarea></div>' : '') +
+      '<div class="row"><button class="btn primary" type="button" data-act="send" data-rk="' + k + '">' + (waits() ? 'Send to Alan' : 'Make these live') + '</button><button class="btn" type="button" data-act="save" data-rk="' + k + '">Save draft</button></div>' + msg(res) +
+      '<p class="hint">' + (waits() ? 'While you’re new, Alan checks every change before your agent uses it. Usually the same day.' : 'Sending makes these live: your agent uses them from its next run.') + '</p></div>';
+    return h;
+  }
+  function agentPage(k) {
+    var a = agentBy(k), def = RULES[k], isJ = k === 'jarvis';
+    var right = isJ ? '' : '<div class="row">' + pill(STATE[a.state]) + '<button class="btn" type="button" data-act="pause" data-rk="' + k + '">' + (a.state === 'paused' ? 'Turn back on' : 'Pause') + '</button></div>';
+    var h = head(isJ ? crumb('jarvis', 'Jarvis') : crumb('agents', 'Agents'), a.name, right);
+    h += '<p class="muted">' + esc(def ? def.intro : a.desc) + (a.ran ? ' Last ran ' + esc(a.ran) + '.' : '') + '</p>';
+    if (k === 'show-research') h += '<p class="callout"><span><b>On your Show Shift Board,</b> every show has Submission Notes, Application Opens and Application Deadline. Each date says where it came from: Research, with the page it was found on, or Manual, with who typed it and when.</span></p>';
+    if (!def) return h + '<p class="card pad muted">' + NO_RULES + '</p>';
+    h += '<nav class="tabs" aria-label="Division"><button type="button" data-div=""' + (!S.div ? ' aria-current="page"' : '') + '>Every division</button>' + T.divs.map(function (d) { return '<button type="button" data-div="' + d + '"' + (S.div === d ? ' aria-current="page"' : '') + '>' + d + '</button>'; }).join('') + '</nav>';
+    if (S.div) return h + '<div class="card pad stack"><p><b>' + esc(S.div) + '</b> uses the rules for every division.</p><form onsubmit="return false"><button class="btn" type="button" data-act="split">Set different rules for ' + esc(S.div) + '</button></form></div>';
+    var open = openOf(k), live = liveOf(k);
+    if (live) h += '<p class="callout" role="status"><span><b>Version ' + live.v + ' is live</b> since ' + esc(live.when) + '.' + (open ? ' The changes below aren’t live yet.' : '') + '</span></p>';
+    else h += '<p class="callout warn" role="status"><span><b>No rules are live yet.</b> This agent waits until they are.</span></p>';
+    if (open && open.status === 'waiting') {
+      h += '<section class="card pad stack"><h2>Version ' + open.v + ' is with Alan</h2><p class="hint">Sent ' + esc(open.when) + '.' + (open.note ? ' Note: “' + esc(open.note) + '”' : '') + ' Changing anything below takes it back from him.</p></section>';
+    }
+    if (open && open.status === 'sent_back') h += '<p class="callout bad" role="status"><span><b>Alan sent version ' + open.v + ' back.</b> “' + esc(open.review) + '” Change what he asked, then send it again.</span></p>';
+    h += '<div class="stack">' + editor(k) + '</div>';
+    var vs = V[k] || [];
+    if (vs.length) h += '<section class="card"><div class="sect-h"><h2>Versions</h2></div><div class="list">' + vs.map(function (v) {
+      return '<div class="item"><b>Version ' + v.v + '</b><span class="sub">' + (v.status === 'live' ? 'Live since ' : 'Saved ') + esc(v.when) + '</span><span class="right">' + pill(VLABEL[v.status]) +
+        ((v.status === 'replaced' || v.status === 'discarded' || (v.status === 'live' && open)) ? '<button class="btn quiet" type="button" data-act="restore" data-v="' + v.v + '" data-rk="' + k + '">Start from this one</button>' : '') +
+        (open && open.v === v.v ? '<button class="btn quiet danger" type="button" data-act="discard" data-rk="' + k + '">Throw away</button>' : '') + '</span></div>';
+    }).join('') + '</div></section>';
+    return h;
+  }
+
+  // ---- Roster (src/app/(app)/roster) ----
+  function roster() {
+    var active = REPS.filter(function (r) { return r.status === 'active'; });
+    var h = head(esc(T.name), 'Roster', '<div class="row"><button class="btn" type="button" data-go="import">Bring in a class</button><button class="btn primary" type="button" data-go="rep-new">Add a rep</button></div>');
+    h += '<p class="muted">' + active.length + ' reps on the team. Everyone on your staff sees this; only you and Alan change it.</p>';
+    h += '<a class="card pad" href="#roster" data-go="freshmen" style="text-decoration:none;color:inherit"><b>Freshmen · fall class</b><span class="hint" style="display:block">19 trained · 16 still with us after meeting 3 · 2 need a hand</span></a>';
+    h += '<div class="stack"><div class="row"><input class="search" id="roster-q" type="search" placeholder="Find a rep: name, phone or rep number" aria-label="Find a rep" value="' + esc(S.q) + '"><button class="btn" type="button" data-act="pick-toggle">' + (S.picking ? 'Done picking' : 'Pick several') + '</button></div><div id="roster-list" class="stack">' + rosterList() + '</div></div>';
+    h += '<section class="card"><div class="sect-h"><h2>Your tiers</h2><a href="#roster" data-go="tiers">Change them</a></div><div class="list">' + TIERS.map(function (t) {
+      return '<div class="item"><b>' + esc(t.name) + '</b><span class="sub">' + (t.picks ? 'Picks shows' : 'Doesn’t pick') + ' · ' + (t.share ? 'Jarvis shares their phone with reps' : 'Jarvis keeps their phone to itself') + '</span><span class="right muted">' + active.filter(function (r) { return r.tier === t.id; }).length + '</span></div>';
+    }).join('') + '</div></section>';
+    h += '<p class="hint">Read by Jarvis (Thu, Dec 10, 7:02 AM) and Picking Order (Tue, Dec 8, 7:00 AM).</p>';
+    return h;
+  }
+  function nameKey(s) { return String(s || '').toLowerCase().replace(/[^a-z0-9 ]/g, '').trim(); }
+  function rosterList() {
+    var words = nameKey(S.q), digits = S.q.replace(/\D/g, '');
+    var found = REPS.filter(function (r) {
+      if (!words && !digits) return true;
+      return (words && [r.name, r.goes].concat(r.aliases).some(function (n) { return nameKey(n).indexOf(words) > -1; })) || (digits.length >= 3 && [r.phone, r.num].some(function (v) { return v && v.indexOf(digits) > -1; }));
+    });
+    var active = found.filter(function (r) { return r.status === 'active'; }), left = found.filter(function (r) { return r.status === 'left'; });
+    var row = function (r) {
+      var goes = r.goes ? ' (' + esc(r.goes) + ')' : '';
+      var where = [r.status === 'left' ? 'was ' + tierName(r.tier) : null, r.div].filter(Boolean).join(' · ');
+      if (S.picking) return '<label class="item pickable"><input type="checkbox" data-pick="' + r.id + '"' + (S.picked[r.id] ? ' checked' : '') + ' aria-label="Pick ' + esc(r.name) + '"><span><b>' + esc(r.name) + goes + '</b><span class="sub">' + esc([phone(r.phone), r.num && '#' + r.num, where].filter(Boolean).join(' · ')) + '</span></span></label>';
+      return '<div class="item"><a href="#roster" class="name" data-go="rep:' + r.id + '"><b>' + esc(r.name) + goes + '</b></a><span class="sub">' + esc([phone(r.phone), r.email, r.num && '#' + r.num, where].filter(Boolean).join(' · ')) + '</span><span class="right">' +
+        (r.status === 'active' && !r.phone ? '<span class="pill wait">No phone</span>' : '') + (r.status === 'active' && !r.num ? '<span class="pill sched">No rep #</span>' : '') + '</span></div>';
+    };
+    var h = '<nav class="tabs" aria-label="Tier"><button type="button" data-show="all"' + (S.show === 'all' ? ' aria-current="page"' : '') + '>Everyone ' + active.length + '</button>' +
+      TIERS.map(function (t) { return '<button type="button" data-show="' + t.id + '"' + (S.show === t.id ? ' aria-current="page"' : '') + '>' + esc(t.name) + ' ' + active.filter(function (r) { return r.tier === t.id; }).length + '</button>'; }).join('') +
+      '<button type="button" data-show="left"' + (S.show === 'left' ? ' aria-current="page"' : '') + '>Left ' + left.length + '</button></nav>';
+    if (S.rosterRes && !S.picking) h += msg(S.rosterRes);
+    if (S.show !== 'left') {
+      var groups = TIERS.filter(function (t) { return S.show === 'all' || S.show === t.id; }).map(function (t) { return { t: t, reps: active.filter(function (r) { return r.tier === t.id; }) }; }).filter(function (g) { return g.reps.length || S.show === g.t.id; });
+      h += groups.map(function (g) { return '<section class="card"><div class="sect-h"><h2>' + esc(g.t.name) + '</h2><span class="muted">' + g.reps.length + '</span></div><div class="list">' + (g.reps.map(row).join('') || '<p class="empty">Nobody in ' + esc(g.t.name) + '.</p>') + '</div></section>'; }).join('');
+      if (!groups.length) h += '<p class="card pad muted">' + (S.q ? 'Nobody on the team matches that.' : 'Nobody on the team yet.') + '</p>';
+    }
+    if (S.show === 'left' || (S.show === 'all' && left.length)) h += '<section class="card"><div class="sect-h"><h2>Left</h2><span class="muted">' + left.length + '</span></div><p class="hint" style="padding:0 16px 8px">Off the team, kept so old schedules, pay and Rep of Record still find them.</p><div class="list">' + (left.map(row).join('') || '<p class="empty">Nobody has left.</p>') + '</div></section>';
+    if (S.picking) {
+      var n = Object.keys(S.picked).filter(function (id) { return S.picked[id]; }).length;
+      h += '<div class="bulkbar card pad stack" role="region" aria-label="Change the reps you picked"><p><b>' + n + '</b> picked</p><div class="row"><select class="select" aria-label="Move to tier" id="bulk-to">' + TIERS.map(function (t) { return '<option value="' + t.id + '"' + (S.bulkTo === t.id ? ' selected' : '') + '>' + esc(t.name) + '</option>'; }).join('') + '</select>' +
+        '<button class="btn primary" type="button" data-act="bulk" data-v="move"' + (n ? '' : ' disabled') + '>Move</button><button class="btn" type="button" data-act="bulk" data-v="left"' + (n ? '' : ' disabled') + '>Mark left</button><button class="btn" type="button" data-act="bulk" data-v="active"' + (n ? '' : ' disabled') + '>Bring back</button></div>' +
+        '<div class="row"><label for="bulk-campaign" class="label">Record it under</label><select id="bulk-campaign" class="select">' + CAMPAIGNS.map(function (c) { return '<option value="' + c[0] + '"' + (c[0] === S.bulkCampaign ? ' selected' : '') + '>' + c[1] + '</option>'; }).join('') + '</select></div>' + msg(S.rosterRes) + '</div>';
+    }
+    return h;
+  }
+  function repForm(r) {
+    var v = function (x) { return esc(r ? x : ''); };
+    return '<form class="card pad stack" id="rep-form" novalidate>' +
+      '<div class="grid2"><div class="field"><label for="r-name">Name</label><input id="r-name" required maxlength="80" value="' + v(r && r.name) + '" autocomplete="off"><span class="hint">As schedules and VectorConnect spell it.</span></div>' +
+      '<div class="field"><label for="r-goes">Goes by <span class="muted">(optional)</span></label><input id="r-goes" maxlength="40" value="' + v(r && r.goes) + '" placeholder="JP" autocomplete="off"></div></div>' +
+      '<div class="grid2"><div class="field"><label for="r-tier">Tier</label><select id="r-tier">' + TIERS.map(function (t) { return '<option value="' + t.id + '"' + ((r ? r.tier : 't3') === t.id ? ' selected' : '') + '>' + esc(t.name) + '</option>'; }).join('') + '</select></div>' +
+      '<div class="field"><label for="r-div">Division</label><select id="r-div"><option value=""' + (r ? '' : ' selected') + ' disabled>Pick one</option>' + T.divs.map(function (d) { return '<option' + (r && r.div === d ? ' selected' : '') + '>' + d + '</option>'; }).join('') + '</select></div></div>' +
+      '<div class="grid2"><div class="field"><label for="r-phone">Phone <span class="muted">(optional)</span></label><input id="r-phone" type="tel" inputmode="tel" maxlength="20" value="' + v(r && phone(r.phone)) + '" placeholder="Their cell" autocomplete="off"></div>' +
+      '<div class="field"><label for="r-email">Email <span class="muted">(optional)</span></label><input id="r-email" type="email" maxlength="120" value="' + v(r && r.email) + '" autocapitalize="none" spellcheck="false" autocomplete="off"></div></div>' +
+      '<div class="grid2"><div class="field"><label for="r-num">VectorConnect rep number <span class="muted">(optional)</span></label><input id="r-num" inputmode="numeric" maxlength="10" value="' + v(r && r.num) + '" autocomplete="off"></div>' +
+      '<div class="field"><label for="r-city">City <span class="muted">(optional)</span></label><input id="r-city" maxlength="60" value="' + v(r && r.city) + '" autocomplete="off"></div></div>' +
+      '<div class="field"><label for="r-aliases">Other spellings <span class="muted">(optional)</span></label><textarea id="r-aliases" rows="3">' + v(r && r.aliases.join('\n')) + '</textarea><span class="hint">One per line: how schedules and sheets write their name (“J. Parker”), so those still find them.</span></div>' +
+      '<div class="field"><label for="r-campaign">' + (r ? 'A tier change is recorded under' : 'They join the team in') + '</label><select id="r-campaign">' + CAMPAIGNS.map(function (c) { return '<option value="' + c[0] + '"' + (c[0] === '2026-fall' ? ' selected' : '') + '>' + c[1] + '</option>'; }).join('') + '</select></div>' +
+      '<div class="row"><button class="btn primary" type="submit">' + (r ? 'Save' : 'Add to the roster') + '</button></div>' + msg(S.repRes) + '</form>';
+  }
+  function repPage() {
+    var r = REPS.filter(function (x) { return x.id === S.rep; })[0];
+    var h = head(crumb('roster', 'Roster'), r.name, r.status === 'left' ? pill(['Left', 'off']) : pill([tierName(r.tier), 'on']));
+    if (S.added) h += '<p class="callout" role="status"><span><b>' + esc(r.name) + ' is on your roster.</b> <a href="#roster" data-go="rep-new">Add another</a></span></p>';
+    if (S.done === 'left') h += '<p class="callout" role="status"><span>Marked as left. ' + esc(r.name) + ' stays on your roster under Left.</span></p>';
+    if (S.done === 'active') h += '<p class="callout" role="status"><span>' + esc(r.name) + ' is back on the team.</span></p>';
+    h += '<div class="row">' + (r.phone ? '<button class="btn" type="button" data-act="contact" data-v="Call ' + phone(r.phone) + '">Call ' + phone(r.phone) + '</button><button class="btn" type="button" data-act="contact" data-v="Text ' + phone(r.phone) + '">Text</button>' : '') + (r.email ? '<button class="btn" type="button" data-act="contact" data-v="Email ' + esc(r.email) + '">Email</button>' : '') + '</div>';
+    h += repForm(r);
+    h += '<section class="card"><div class="sect-h"><h2>History</h2><span class="muted">On the team since ' + esc(r.since) + '</span></div><div class="list">' + r.history.map(function (x) { return '<div class="item"><b>' + esc(x[0]) + '</b><span class="sub">' + esc(x[1]) + ' · ' + esc(x[2]) + '</span></div>'; }).join('') + '</div></section>';
+    h += '<form class="card pad stack" onsubmit="return false"><h2>' + (r.status === 'left' ? 'Back on the team?' : 'Leaving the team?') + '</h2><p class="hint">' + (r.status === 'left' ? esc(r.name) + ' goes back into ' + esc(tierName(r.tier)) + '.' : esc(r.name) + ' stays on your roster under Left, so old schedules, pay and Rep of Record still find them. Nobody is ever deleted.') + '</p>' +
+      '<div class="row"><select class="select" aria-label="Campaign">' + CAMPAIGNS.map(function (c) { return '<option' + (c[0] === '2026-fall' ? ' selected' : '') + '>' + c[1] + '</option>'; }).join('') + '</select><button class="btn" type="button" data-act="rep-status">' + (r.status === 'left' ? 'Bring back' : 'Mark as left') + '</button></div></form>';
+    return h;
+  }
+  function repNew() { return head(crumb('roster', 'Roster'), 'Add a rep') + repForm(null); }
+  function tiersPage() {
+    if (!S.tiersDraft) S.tiersDraft = TIERS.map(function (t) { return { id: t.id, name: t.name, picks: t.picks, share: t.share, source: null }; });
+    var on = function (id) { return REPS.filter(function (r) { return r.tier === id; }).length; };
+    var h = head(crumb('roster', 'Roster'), 'Your tiers') + '<p class="muted">Top tier first. Tiers that pick shows are the ones Picking Order ranks; the rest (leaders, coordinators) are on the roster but don’t pick.</p>';
+    h += '<div class="stack"><div class="card pad stack"><div><h3>Suggest from your policy</h3><p class="hint">Claude reads your policy and lists the tiers it names, each with the words it found them in. Nothing saves until you tick “This is right” on each.</p></div>' +
+      '<div class="row"><select class="select" aria-label="Policy document"><option>' + POLICY + '</option></select><button class="btn" type="button" data-act="suggest-tiers">' + (S.suggesting ? 'Reading your policy…' : 'Suggest from your policy') + '</button></div>' + (S.suggesting ? '<p class="hint">This takes up to a minute.</p>' : '') + '</div>';
+    h += S.tiersDraft.map(function (t, i) {
+      var n = t.id ? on(t.id) : 0;
+      return '<div class="card pad stack"><div class="spread"><h3>' + (i === 0 ? 'Top tier' : 'Tier ' + (i + 1)) + '</h3><div class="row">' +
+        '<button class="btn quiet" type="button" data-act="tier-move" data-i="' + i + '" data-v="-1"' + (i === 0 ? ' disabled' : '') + '>Up</button><button class="btn quiet" type="button" data-act="tier-move" data-i="' + i + '" data-v="1"' + (i === S.tiersDraft.length - 1 ? ' disabled' : '') + '>Down</button>' +
+        '<button class="btn quiet danger" type="button" data-act="tier-remove" data-i="' + i + '"' + (n ? ' disabled title="' + n + ' reps are on it. Move them first."' : '') + '>' + (n ? n + ' on it' : 'Remove') + '</button></div></div>' +
+        '<div class="field"><label for="t-' + i + '">Name</label><input id="t-' + i + '" data-tname="' + i + '" value="' + esc(t.name) + '" maxlength="40" placeholder="Varsity"></div>' +
+        '<label class="check"><input type="checkbox" data-tpicks="' + i + '"' + (t.picks ? ' checked' : '') + '> Picks shows at the picking meeting</label>' +
+        '<label class="check"><input type="checkbox" data-tshare="' + i + '"' + (t.share ? ' checked' : '') + '> Jarvis gives their phone number to reps who ask</label>' +
+        (t.source ? '<div class="src' + (t.source.confirmed ? ' ok' : '') + '"><span>From “' + POLICY + '”, page ' + t.source.page + ': <q>' + esc(t.source.quote) + '</q></span><label class="check"><input type="checkbox" data-tconfirm="' + i + '"' + (t.source.confirmed ? ' checked' : '') + '> This is right</label></div>' : '') + '</div>';
+    }).join('');
+    h += (S.tiersDraft.length < 8 ? '<button class="btn" type="button" data-act="tier-add">Add a tier</button>' : '') +
+      '<div class="card pad stack"><div class="row"><button class="btn primary" type="button" data-act="tiers-save">Save your tiers</button>' + (S.tiersRes && S.tiersRes.ok ? '<a class="btn quiet" href="#roster" data-go="roster">Back to the roster</a>' : '') + '</div>' + msg(S.tiersRes) +
+      '<p class="hint">Renaming a tier that picks means sending your Picking Order rules again; its page shows what changed.</p></div></div>';
+    return h;
+  }
+  var CLASS_ROWS = [
+    { line: 2, name: 'Sofia Alvarez', num: '7720145', phone: '••• ••• 0190', email: '', pick: true },
+    { line: 3, name: 'Liam Carter', num: '', phone: '••• ••• 0177', email: '', pick: true },
+    { line: 4, name: 'Kayla Brooks', num: '4531172', phone: '••• ••• 0163', email: '', pick: true, match: { name: 'Kayla Brooks', fills: ['phone'], differs: [] } },
+    { line: 5, name: 'Maria Lopez', num: '', phone: '••• ••• 0141', email: '', pick: false, match: { name: 'Maria Lopez', fills: [], differs: [] } },
+    { line: 6, name: 'Jayden Price', num: '12AB', phone: '', email: '', pick: false, problems: ['Rep number 12AB isn’t 6 to 10 digits. Fix it on the sheet and read it again.'] }
+  ];
+  function importPage() {
+    var I = S.imp || (S.imp = { source: 'sheet', read: false, div: '', tier: 't3', ticked: {} });
+    var h = head(crumb('roster', 'Roster'), 'Bring in a class') + '<p class="muted">Read a sign-in sheet or a CSV, tick who’s on the team, and they’re on your roster. Someone already on it only gets what’s missing (a phone, an email, a rep number); nothing you already have is replaced.</p>';
+    h += '<form class="card pad stack" id="class-read" novalidate><fieldset class="row" style="border:0;padding:0;margin:0"><legend class="label" style="margin-bottom:8px">Where the class is</legend>' +
+      [['sheet', 'A Google Sheet'], ['file', 'A CSV file'], ['setup', 'A roster from setup']].map(function (o) { return '<label class="check"><input type="radio" name="src" data-src="' + o[0] + '"' + (I.source === o[0] ? ' checked' : '') + '> ' + o[1] + '</label>'; }).join('') + '</fieldset>' +
+      (I.source === 'sheet' ? '<div class="field"><label for="c-url">The sheet’s link</label><input id="c-url" type="url" inputmode="url" value="https://docs.google.com/spreadsheets/d/…" autocomplete="off"><span class="hint">Like your training sign-in sheet. Share it first: Share, General access, Anyone with the link, Viewer. A link to one tab reads that tab.</span></div>'
+        : I.source === 'file' ? '<div class="field"><label for="c-file">CSV file</label><input id="c-file" type="file" accept=".csv"><span class="hint">From Excel or Google Sheets: File, Download (or Save As), CSV.</span></div>'
+          : '<div class="field"><label for="c-setup">Roster file</label><select id="c-setup"><option>North roster.csv</option></select></div>') +
+      '<div class="row"><button class="btn" type="submit">Read the class</button></div></form>';
+    if (!I.read) return h;
+    var canTick = function (r) { return !r.problems; };
+    var isPicked = function (r) { return canTick(r) && (I.ticked[r.line] !== undefined ? I.ticked[r.line] : r.pick); };
+    var picked = CLASS_ROWS.filter(isPicked);
+    h += '<section class="card pad stack"><h2>Which column is which</h2><p class="hint">Read from the sheet’s first tab. The Block guessed from the headers; change any that are wrong.</p><div class="grid2">' +
+      [['Name', 'Full Name'], ['Rep number', 'Rep #'], ['Phone', 'Cell'], ['Email', 'Email']].map(function (c, i) { return '<div class="field"><label for="col-' + i + '">' + c[0] + '</label><select id="col-' + i + '"><option>' + c[1] + '</option><option>Not on this sheet</option></select></div>'; }).join('') + '</div></section>';
+    h += '<section class="card pad stack"><h2>The class</h2><div class="grid2"><div class="field"><label for="c-tier">New reps go in</label><select id="c-tier" data-imp="tier">' + TIERS.map(function (t) { return '<option value="' + t.id + '"' + (I.tier === t.id ? ' selected' : '') + '>' + esc(t.name) + '</option>'; }).join('') + '</select></div>' +
+      '<div class="field"><label for="c-campaign">They join in</label><select id="c-campaign">' + CAMPAIGNS.map(function (c) { return '<option' + (c[0] === '2027-spring' ? ' selected' : '') + '>' + c[1] + '</option>'; }).join('') + '</select></div>' +
+      '<div class="field"><label for="c-div">Division</label><select id="c-div" data-imp="div"><option value=""' + (I.div ? '' : ' selected') + ' disabled>Pick one</option>' + T.divs.map(function (d) { return '<option' + (I.div === d ? ' selected' : '') + '>' + d + '</option>'; }).join('') + '</select></div></div></section>';
+    var counts = { fresh: CLASS_ROWS.filter(function (r) { return !r.match && canTick(r); }).length, fill: CLASS_ROWS.filter(function (r) { return r.match && r.match.fills.length; }).length, stuck: CLASS_ROWS.filter(function (r) { return !canTick(r); }).length };
+    h += '<section class="card"><div class="sect-h"><h2>' + CLASS_ROWS.length + ' rows</h2><span class="muted">' + counts.fresh + ' new · ' + counts.fill + ' to fill in · ' + counts.stuck + ' can’t come in</span></div><p class="hint" style="padding:0 16px 8px">Untick anyone who isn’t on the team (a red or yellow row on your sheet).</p><div class="list">' +
+      CLASS_ROWS.map(function (r) {
+        return '<label class="item pickable' + (canTick(r) ? '' : ' stuck') + '"><input type="checkbox" data-tick="' + r.line + '"' + (isPicked(r) ? ' checked' : '') + (canTick(r) ? '' : ' disabled') + ' aria-label="Bring in ' + esc(r.name) + '"><span><b>' + esc(r.name) + '</b><span class="sub">Row ' + r.line + [r.num && '#' + r.num, phone(r.phone), r.email].filter(Boolean).map(function (x) { return ' · ' + esc(x); }).join('') + '</span>' +
+          (r.match ? '<span class="sub">On your roster as ' + esc(r.match.name) + ': ' + (r.match.fills.length ? 'fills in their ' + r.match.fills.join(', ') : 'nothing new') + '.' + (r.match.differs.length ? ' Their ' + r.match.differs.join(', ') + ' here differs; the roster keeps its own.' : '') + '</span>' : '') +
+          (r.problems || []).map(function (p) { return '<span class="sub problem">' + esc(p) + '</span>'; }).join('') + '</span></label>';
+      }).join('') + '</div></section>';
+    h += '<div class="card pad stack">' + (!I.div ? '<p class="hint">Pick the class’s division first.</p>' : '') + '<div class="row"><button class="btn primary" type="button" data-act="bring-in"' + (!picked.length || !I.div ? ' disabled' : '') + '>Bring in ' + picked.length + ' ' + plural(picked.length, 'rep') + '</button></div></div>';
+    return h;
+  }
+
+  // ---- Dashboards and Jarvis (src/app/(app)/dashboards, jarvis) ----
+  function dashboards() {
+    return head(esc(T.name) + ' · every link in one place', 'Dashboards') +
+      '<a class="card pad" href="#jarvis" data-go="jarvis" style="text-decoration:none;color:inherit"><b>What Jarvis reads</b><span class="muted" style="display:block;font-size:14px">Your policy and the documents Jarvis answers your reps from. Yours alone.</span></a>' +
+      '<div class="links">' + LINKS.map(function (l) { return '<a class="card" href="#dashboards" data-act="link"><b>' + esc(l[0]) + '</b><span class="muted" style="font-size:14px">' + esc(l[1]) + '</span></a>'; }).join('') + '</div>';
+  }
+  function docMeta(p) {
+    return '<div class="grid2"><div class="field"><label for="' + p + '-title">Name</label><input id="' + p + '-title" maxlength="120" placeholder="2027 Policy and Standards"></div><div class="field"><label for="' + p + '-kind">What it is</label><select id="' + p + '-kind"><option value="policy">Policy and standards</option><option value="faq">Questions reps ask</option><option value="dates">Important dates</option><option value="other">Something else</option></select></div></div>' +
+      '<div class="field"><label for="' + p + '-division">For</label><select id="' + p + '-division"><option value="">Every division</option>' + T.divs.map(function (d) { return '<option value="' + d + '">' + d + ' only</option>'; }).join('') + '</select></div>';
+  }
+  function jarvis() {
+    var h = head(crumb('dashboards', 'Dashboards'), 'What Jarvis reads') + '<p class="muted">Jarvis answers your reps from these documents and nothing else. They’re yours alone: no other coordinator’s Jarvis ever sees them.</p><section class="stack">';
+    h += DOCS.map(function (d) {
+      var s = DOC_STATUS[d.status];
+      return '<article class="card pad stack"><div class="spread"><div><h3>' + esc(d.title) + '</h3><p class="hint">' + KIND[d.kind] + (d.div ? ' · ' + esc(d.div) + ' only' : '') + ' · ' + (d.source === 'gdoc' ? '<a href="#jarvis" data-act="link">Google Doc</a>' : 'Uploaded file') + ' · ' + d.body.length.toLocaleString('en-US') + ' characters · read ' + esc(d.read) + '</p></div>' + pill(s) + '</div>' +
+        (d.status === 'sent_back' && d.review ? '<p class="callout bad">Alan: “' + esc(d.review) + '”</p>' : '') +
+        '<details><summary>See exactly what Jarvis reads</summary><div class="doc-text">' + esc(d.body) + '</div></details>' +
+        '<div class="row">' + (d.source === 'gdoc' && d.status !== 'sent_back' ? '<button class="btn" type="button" data-act="doc-refresh" data-i="' + d.id + '">Read it again</button>' : '') + '<button class="btn quiet danger" type="button" data-act="doc-remove" data-i="' + d.id + '">Remove</button></div></article>';
+    }).join('') + '</section>';
+    h += '<section class="stack"><h2>Add a document</h2>' + (waits() ? '<p class="hint">While you’re new, Alan checks each new document before Jarvis reads it.</p>' : '') + msg(S.docRes) +
+      '<form class="card pad stack" id="add-gdoc" novalidate><div><h3>Link a Google Doc</h3><p class="hint">Best for a policy you keep editing: Jarvis reads your latest version. Share it as “Anyone with the link, Viewer” first.</p></div>' + docMeta('gdoc') +
+      '<div class="field"><label for="gdoc-url">Link</label><input id="gdoc-url" type="url" placeholder="https://docs.google.com/document/d/…"></div><button class="btn primary" type="submit">Add the doc</button></form>' +
+      '<form class="card pad stack" id="add-upload" novalidate><div><h3>Upload a file</h3><p class="hint">A PDF, Word file (.docx) or text file, up to 4 MB. A scanned PDF is refused: Jarvis needs text, not pictures of pages.</p></div>' + docMeta('up') +
+      '<div class="field"><label for="up-file">File</label><input id="up-file" type="file" accept=".pdf,.docx,.txt,.md"></div><button class="btn primary" type="submit">Upload</button></form></section>';
+    h += '<a class="card pad" href="#agents" data-go="agent:jarvis" style="text-decoration:none;color:inherit"><b>Notes for Jarvis</b><span class="hint" style="display:block">Anything your documents don’t say: how reps reach you, who handles money questions.</span></a>';
+    return h;
+  }
+
+  // ---- Help (src/app/(app)/help) ----
+  function help() {
+    var h = head(esc(T.name) + ' · straight to Alan', 'Help');
+    h += '<form class="card pad stack" id="ask" novalidate><div class="field"><label for="body">What’s wrong, or what do you need?</label><textarea id="body" maxlength="4000" placeholder="“Monday’s charges look off for South”"></textarea></div><button class="btn primary" type="submit">Send to Alan</button>' + msg(S.helpRes) + '<p class="hint">First reply by the next business day, the same day for anything touching money or reps.</p></form>';
+    h += '<section class="card"><div class="sect-h"><h2>Requests</h2><span class="mono">' + TICKETS.length + '</span></div><div class="list">' + TICKETS.map(function (t) {
+      return '<div style="border-top:1px solid var(--line)"><div class="item" style="border-top:0"><b style="white-space:pre-wrap">' + esc(t.body) + '</b><span class="sub">' + esc(t.author) + ' · ' + esc(t.when) + '</span><span class="right">' + pill(HELP_STATUS[t.status]) + '</span></div>' +
+        (t.reply ? '<div style="padding:0 16px 16px"><p class="mono" style="margin-bottom:6px">Alan · ' + esc(t.replied) + '</p><p class="reply">' + esc(t.reply) + '</p></div>' : '') + '</div>';
+    }).join('') + '</div></section>';
+    return h;
+  }
+
+  // ---- Settings (src/app/(app)/settings, push.tsx) ----
+  function team(inSetup) {
+    var role = { owner: 'Coordinator', approver: 'Approver', viewer: 'Viewer' };
+    return '<div class="stack"><div class="list card">' + MEMBERS.map(function (m) {
+      var does = m.role === 'approver' ? 'approves ' + (m.areas.length ? m.areas.map(function (a) { return AREAS.filter(function (x) { return x[0] === a; })[0][1].toLowerCase(); }).join(', ') : 'nothing yet') : m.role === 'viewer' ? 'sees everything, approves nothing' : 'everything, plus money';
+      return '<div class="item"><b>' + esc(m.name) + '</b><span class="sub">' + does + (m.signed ? '' : ' · hasn’t signed in yet') + '</span><span class="right"><span class="pill ' + (m.role === 'owner' ? 'hold' : 'sched') + '">' + role[m.role] + '</span>' +
+        (m.role !== 'owner' ? '<button class="btn quiet danger" type="button" data-act="member-remove" data-i="' + m.id + '" aria-label="Remove ' + esc(m.name) + '">Remove</button>' : '') + '</span></div>';
+    }).join('') + '</div>' +
+      '<form class="card pad stack" id="add-member" novalidate><h2>Add someone</h2><div class="grid2"><div class="field"><label for="m-name">Name</label><input id="m-name" maxlength="80" autocomplete="off"></div><div class="field"><label for="m-email">Email</label><input id="m-email" type="email" autocapitalize="none" spellcheck="false" autocomplete="off"></div></div>' +
+      '<div class="field"><label for="m-role">What they can do</label><select id="m-role"><option value="approver">Approver: approves their area</option><option value="viewer">Viewer: sees everything, approves nothing</option></select></div>' +
+      '<fieldset class="stack" id="m-areas" style="border:0;padding:0;margin:0;gap:8px"><legend class="label" style="margin-bottom:8px">Areas they approve</legend>' + AREAS.map(function (a) { return '<label class="check"><input type="checkbox" name="areas" value="' + a[0] + '"> ' + a[1] + '</label>'; }).join('') + '</fieldset>' +
+      '<button class="btn primary" type="submit">Add to my team</button>' + msg(S.teamRes) + '</form></div>';
+  }
+  function settings() {
+    var h = head(esc(T.name), 'Settings', '<button class="btn" type="button" data-act="open-setup">Open setup</button>');
+    h += '<section class="stack"><h2>Who can sign in</h2><p class="muted">Your staff on The Block. Your reps are on the <a href="#roster" data-go="roster">Roster</a>.</p>' + team(false) + '</section>';
+    h += '<section class="card"><div class="sect-h"><h2>Your block</h2></div><div class="list">' +
+      '<div class="item"><b>Divisions</b><span class="sub">' + T.divs.join(', ') + '</span></div>' +
+      '<div class="item"><b>Time zone</b><span class="sub">' + T.tz + '</span></div>' +
+      '<div class="item"><b>VectorConnect login</b><span class="sub">' + T.vc + ' · saved Mon, Dec 7, 6:02 AM</span><span class="right">' + pill(['Verified', 'on']) + '</span></div>' +
+      '<div class="item"><b>Events line</b><span class="sub">Saved by your reps as Taylor (Events) · registered in your name</span><span class="right">' + pill(['Approved', 'on']) + '</span></div>' +
+      '<div class="item"><b>Changes to your rules</b><span class="sub">Alan checks each change before your agents use it, through ' + T.reviewWords + '.</span></div></div></section>';
+    h += '<section class="card" id="notes"><div class="sect-h"><h2>Notes for Claude</h2><span class="hint">Read with every agent’s own notes</span></div><div class="pad stack" style="padding-top:6px"><p class="hint">How your team runs, in your own words. On an agent’s page, “Read my notes” turns what they say into that agent’s settings for you to check; nothing changes until you tick it.</p>' +
+      '<textarea class="search" style="min-height:96px" id="gen-notes" aria-label="Notes for Claude" maxlength="4000">' + esc(S.genNotes) + '</textarea><div class="row"><button class="btn" type="button" data-act="toast" data-v="Saved. Claude reads these with each agent’s notes when you press Read my notes on that agent.">Save</button></div></div></section>';
+    h += '<section class="card" id="notifications"><div class="sect-h"><h2>Notifications</h2></div><div class="pad stack" style="padding-top:6px">' +
+      (S.pushHere === 'on'
+        ? '<p><b>On for this iPhone.</b> <span class="muted">Since Thu, Dec 10. Pings arrive even when The Block is closed.</span></p><div class="row"><button class="btn" type="button" data-act="push-test">Send a test</button><button class="btn quiet danger" type="button" data-act="push-off">Turn off here</button></div>'
+        : '<p class="muted">Get a ping on this device when something needs you.</p><div class="row"><button class="btn primary" type="button" data-act="push-on">Turn on notifications</button></div>') + '</div>' +
+      '<div class="list"><div class="item"><b>MacBook · Chrome</b><span class="sub">On since Wed, Dec 2</span><span class="right"><button class="btn quiet danger" type="button" data-act="toast" data-v="Removed. That computer stops getting pings.">Remove</button></span></div></div>' +
+      '<div class="pad stack" style="border-top:1px solid var(--line)"><p class="label">What you get</p>' + EVENTS.map(function (e) {
+        return '<label class="check" style="align-items:flex-start"><input type="checkbox" data-pref="' + e[0] + '"' + (S.prefs.indexOf(e[0]) > -1 ? ' checked' : '') + '><span>' + esc(e[1]) + '<span class="hint" style="display:block">' + esc(e[2]) + '</span></span></label>';
+      }).join('') + '<p class="hint">Signing out on a device stops its pings. Help requests and rule reviews still reach Alan right away.</p></div></section>';
+    h += '<section class="card pad stack"><h2>You</h2><p class="muted">Signed in as <b style="color:var(--ink)">' + esc(who().name) + '</b>, with your own email and a code.</p><div class="row"><button class="btn" type="button" data-act="signout">Sign out</button><button class="btn quiet" type="button" data-act="signout-all">Sign out on every device</button></div></section>';
+    return h;
+  }
+
+  // =============================================================================================
+  // 4. Texts: what waits for a yes, a message to the team, and every conversation on the events line
+  // =============================================================================================
+  var EVENTS_LINE = 'a number in your name';
+  var ASKS = [
+    { id: 'a1', title: 'Monday stats texts', div: 'North', who: 'Morgan', agent: 'stat-reminder', summary: '38 North reps · goes out at 9:00 AM once approved', preview: 'Hi Maria, your week: 3 events, 9 orders, $412 CPO. 1 order from Saturday is still pending. – Taylor', recips: ['Maria Lopez', 'Destiny Okafor', 'Alexis Grant', 'Priya Shah', '+ 34 more'], count: 38 },
+    { id: 'a2', title: 'It’s booked: Valley Home Show', div: 'North', who: 'Casey', agent: 'rep-updates', summary: '3 reps staffed on it', preview: 'Good news: Valley Home Show, Mar 5–7, is booked. Your shifts stand as picked. – Taylor', recips: ['Maria Lopez', 'Alexis Grant', 'Priya Shah'], count: 3 }
+  ];
+  var SENT = [
+    { title: 'Show day moved: Harbor Boat Show', when: 'Tue, Dec 8, 10:30 AM', by: 'Casey', delivered: 3, of: 4 },
+    { title: 'Monday stats texts, South', when: 'Mon, Dec 7, 9:00 AM', by: 'Morgan', delivered: 33, of: 33 }
+  ];
+  var THREADS = [
+    { id: 'x1', name: 'Jordan Pierce', div: 'South', state: ['Reply', 'wait'], msgs: [['out', 'Hi Jordan, your week: 2 events, 6 orders, $388 CPO. – Taylor', 'Mon 9:01 AM · delivered'], ['in', 'Thanks! Can I swap my Saturday shift at the boat show?', 'Mon 9:14 AM']] },
+    { id: 'x2', name: 'Maria Lopez', div: 'North', state: ['Delivered', 'on'], msgs: [['out', 'Hi Maria, your week: 3 events, 9 orders, $412 CPO. – Taylor', 'Mon, Nov 30, 9:01 AM · delivered'], ['in', 'Thank you!!', 'Mon, Nov 30, 9:20 AM']] },
+    { id: 'x3', name: 'Sam Tran', div: 'South', state: ['Not delivered', 'bad'], msgs: [['out', 'Heads up Sam: Harbor Boat Show moved to Mar 21. – Taylor', 'Tue 10:30 AM · not delivered: the carrier says this number can’t get texts. Not retried. Check the number on the roster.']] },
+    { id: 'x4', name: 'Noah Kim', div: 'South', state: ['Opted out', 'off'], msgs: [['in', 'STOP', 'Mon, Nov 30'], ['out', 'You won’t get texts from this number again. Reply START to come back.', 'Mon, Nov 30 · automatic']] }
+  ];
+  function composeCount() {
+    var C = S.compose, optedOut = { 'Noah Kim': true };
+    return REPS.filter(function (r) { return r.status === 'active' && C.tiers[r.tier] && (!C.div || r.div === C.div) && r.phone && !optedOut[r.name]; });
+  }
+  function texts() {
+    var asks = ASKS.filter(function (x) { return !x.done; }), cur = THREADS.filter(function (t) { return t.id === S.thread; })[0] || THREADS[0];
+    var to = composeCount();
+    var h = head('Your events line · ' + EVENTS_LINE + ' · Taylor (Events)', 'Texts') +
+      '<p class="callout warn"><span><b>Comes with your events line.</b> Texts and approvals arrive with your events line, before go-live. This is how they’ll work.</span></p>' +
+      '<p class="muted">Every text your agents send comes from your events line and waits for a yes from the person who approves that area. Replies land here, so your team answers them from the portal, not a personal phone.</p>';
+    h += '<section class="card"><div class="sect-h"><h2>Waiting for a yes</h2><span class="mono">' + asks.length + '</span></div><div class="list">' + (asks.map(function (a) {
+      return '<a class="item" href="#texts" data-open="' + a.id + '"><b>' + esc(a.title) + '</b><span class="sub">' + esc(a.summary) + ' · ' + esc(a.div) + '</span><span class="right">' + pill(a.who === 'You' ? ['Yours', 'hold'] : [a.who + '’s to approve', 'wait']) + '</span></a>';
+    }).join('') || '<p class="empty">Nothing is waiting. Every text that was asked for has gone out.</p>') + '</div></section>';
+    h += '<form class="card pad stack" id="compose" novalidate><div><h2>Write to your team</h2><p class="hint">The Team Text agent sends it from your events line, after a yes like every other text. {first} becomes each rep’s first name.</p></div>' +
+      '<fieldset class="row" style="border:0;padding:0;margin:0"><legend class="label" style="margin-bottom:8px">Who gets it</legend>' + TIERS.map(function (t) { return '<label class="check"><input type="checkbox" data-ctier="' + t.id + '"' + (S.compose.tiers[t.id] ? ' checked' : '') + '> ' + esc(t.name) + '</label>'; }).join('') + '</fieldset>' +
+      '<div class="field"><label for="c-div2">Division</label><select id="c-div2" data-cdiv><option value="">Both divisions</option>' + T.divs.map(function (d) { return '<option' + (S.compose.div === d ? ' selected' : '') + '>' + d + '</option>'; }).join('') + '</select></div>' +
+      '<div class="field"><label for="c-text">Message</label><textarea id="c-text" maxlength="480">' + esc(S.compose.text) + '</textarea></div>' +
+      '<p class="hint" id="c-count">Goes to ' + to.length + ' ' + plural(to.length, 'rep') + '. Reps with no phone on the roster, and anyone who texted STOP, are left out.</p>' +
+      '<div class="row"><button class="btn primary" type="submit">Review and send</button></div></form>';
+    h += '<section class="card"><div class="sect-h"><h2>Sent</h2></div><div class="list">' + SENT.map(function (s) {
+      return '<div class="item"><b>' + esc(s.title) + '</b><span class="sub">' + esc(s.when) + ' · approved by ' + esc(s.by) + ' · ' + s.delivered + ' of ' + s.of + ' delivered</span><span class="right">' + pill(s.delivered === s.of ? ['Delivered', 'on'] : [(s.of - s.delivered) + ' not delivered', 'bad']) + '</span></div>';
+    }).join('') + '</div></section>';
+    h += '<section class="card thread"><div class="list">' + THREADS.map(function (t) {
+      return '<a class="item" href="#texts" data-thread="' + t.id + '"' + (t.id === cur.id ? ' style="background:var(--bg)"' : '') + '><b>' + esc(t.name) + '</b><span class="sub">' + esc(t.msgs[t.msgs.length - 1][1]) + ' · ' + esc(t.div) + '</span><span class="right">' + pill(t.state) + '</span></a>';
+    }).join('') + '</div><div style="display:flex;flex-direction:column;min-width:0"><div class="sect-h"><h2>' + esc(cur.name) + '</h2><span class="mono">' + esc(cur.div) + '</span></div><div class="bubbles">' +
+      cur.msgs.map(function (m) { return '<div class="bub ' + m[0] + '">' + esc(m[1]) + '<small>' + esc(m[2]) + '</small></div>'; }).join('') + '</div>' +
+      (cur.state[0] === 'Opted out' ? '<p class="hint" style="margin-top:auto;padding:12px 16px;border-top:1px solid var(--line)">' + esc(cur.name) + ' texted STOP, so nothing goes to this number until they reply START.</p>'
+        : '<form class="row" id="reply-form" style="margin-top:auto;padding:12px 16px;border-top:1px solid var(--line);flex-wrap:nowrap"><input class="search" id="reply-text" aria-label="Reply to ' + esc(cur.name) + '" placeholder="Reply as Taylor (Events)…" value="' + esc(S.reply[cur.id] || '') + '"><button class="btn primary" type="submit">Send</button></form>') + '</div></section>';
+    return h;
+  }
+  var CLASS = [
+    ['Kayla Brooks', ['y', 'y', 'y', 'y', 'y'], ['y', 'y', 'y']],
+    ['Ethan Vargas', ['y', 'y', 'y', 'y', '!'], ['y', 'y', 'y']],
+    ['Priya Shah', ['y', 'y', 'y', 'y', 'y'], ['y', 'n', 'y']],
+    ['Noah Kim', ['y', '!', 'y', 'y', 'y'], ['y', 'y', 'n']],
+    ['Isabella Cruz', ['y', 'y', 'y', 'y', 'y'], ['y', 'y', 'y']],
+    ['Liam Carter', ['y', 'y', '!', '!', '!'], ['y', 'n', 'n']]
+  ];
+  function freshmen() {
+    var mark = function (v) { return v === 'y' ? '<span style="color:var(--ok);font-weight:700" aria-label="done">✓</span>' : v === '!' ? '<b style="color:var(--bad)" aria-label="overdue">!</b>' : '<span class="muted" aria-label="not yet">·</span>'; };
+    var h = head(crumb('roster', 'Roster'), 'Freshmen') + '<p class="muted">Fall 2026 class · trained Sat, Aug 8 · meeting 4 is Tue, Dec 15. The spring class starts here once its dates are in (Today shows what’s still needed).</p>';
+    h += '<section class="card"><div class="sect-h"><h2>The class so far</h2><span class="hint">Meetings count against those who came to training</span></div><div class="list">' +
+      [['Signed up', '24', 'From the sign-up form'], ['Came to training', '19', 'Sat, Aug 8'], ['Meeting 1', '18 of 19', 'Tue, Sep 15'], ['Meeting 2', '17 of 19', 'Tue, Oct 13'], ['Meeting 3', '16 of 19', 'Tue, Nov 17']].map(function (r) {
+        return '<div class="item"><b>' + r[0] + '</b><span class="sub">' + r[2] + '</span><span class="right"><b>' + r[1] + '</b></span></div>';
+      }).join('') + '</div></section>';
+    h += '<section class="card"><div class="sect-h"><h2>Checklist and meetings</h2><span class="hint">✓ done · ! overdue · · not yet</span></div><div class="diff-wrap" style="padding:0 16px 12px"><table class="diff"><thead><tr><th>Freshman</th><th>Calendar</th><th>Assistant</th><th>Group chat</th><th>VC team</th><th>Contract</th><th>M1</th><th>M2</th><th>M3</th></tr></thead><tbody>' +
+      CLASS.map(function (r) { return '<tr><td>' + esc(r[0]) + '</td>' + r[1].concat(r[2]).map(function (v) { return '<td>' + mark(v) + '</td>'; }).join('') + '</tr>'; }).join('') + '</tbody></table></div>' +
+      '<p class="hint" style="padding:0 16px 14px">Missed two meetings in a row: Liam Carter. Flagged to you; only you mark someone as left.</p></section>';
+    h += '<section class="card"><div class="sect-h"><h2>Meetings</h2></div><div class="list">' +
+      '<div class="item"><b>Meeting 4 · Tue, Dec 15, 7 PM</b><span class="sub">Check-in link and QR code ready for the door and Zoom</span><span class="right"><button class="btn" type="button" data-act="toast" data-v="Example: the check-in page opens here, with a QR code for the door and a link for Zoom.">Open check-in</button></span></div>' +
+      '<div class="item"><b>Meeting 3 · Tue, Nov 17</b><span class="sub">16 came · your DVM’s update went from your Gmail on Wed, Nov 18, after your yes</span><span class="right">' + pill(['Sent', 'on']) + '</span></div>' +
+      '<div class="item"><b>Meeting 2 · Tue, Oct 13</b><span class="sub">17 came · update sent Wed, Oct 14</span><span class="right">' + pill(['Sent', 'on']) + '</span></div>' +
+      '<div class="item"><b>Meeting 1 · Tue, Sep 15</b><span class="sub">18 came · update sent Wed, Sep 16</span><span class="right">' + pill(['Sent', 'on']) + '</span></div></div></section>';
+    h += '<p class="hint">Freshmen get a welcome text with every meeting date, then a nudge only for what they’re still missing. <a href="#agents" data-go="agent:freshmen-onboarding">Freshmen Onboarding’s settings</a></p>';
+    return h;
+  }
+  function openSheet(id) {
+    var a = ASKS.filter(function (x) { return x.id === id; })[0]; if (!a) return;
+    var scrim = document.createElement('div'); scrim.className = 'scrim';
+    scrim.innerHTML = '<div class="sheet" role="dialog" aria-modal="true" aria-labelledby="sh-t"><p class="mono">' + esc(a.div) + ' · ' + (a.who === 'You' ? 'yours to approve' : esc(a.who) + ' approves') + '</p><h2 id="sh-t" style="font-size:22px">' + esc(a.title) + '</h2><p class="muted">' + esc(a.summary) + '</p>' +
+      '<div><p class="mono" style="margin-bottom:6px">Exactly what goes out</p><div class="preview">' + esc(a.preview) + '</div></div><div><p class="mono" style="margin-bottom:6px">Who gets it</p><div class="chips">' + a.recips.map(function (r) { return '<span class="chip">' + esc(r) + '</span>'; }).join('') + '</div></div>' +
+      '<div class="grid2"><button class="btn" type="button" data-sheet="close">Not now</button><button class="btn primary" type="button" data-sheet="ok">Approve and send</button></div>' +
+      '<button class="btn quiet" type="button" data-sheet="edit">Change the wording first</button></div>';
+    document.body.appendChild(scrim);
+    scrim.querySelector('[data-sheet="ok"]').focus();
+    scrim.addEventListener('click', function (e) {
+      var b = e.target.closest('[data-sheet]');
+      if (e.target === scrim || (b && b.getAttribute('data-sheet') === 'close')) { scrim.remove(); return; }
+      if (!b) return;
+      if (b.getAttribute('data-sheet') === 'edit') { toast('The wording opens for editing, and you see the new version here again before anything goes out.'); return; }
+      a.done = true; scrim.remove();
+      SENT.unshift({ title: a.title, when: 'Thu, Dec 10, just now', by: a.who === 'You' ? 'you' : a.who, delivered: a.count, of: a.count });
+      var ag = AGENTS.filter(function (x) { return x.key === a.agent; })[0];
+      if (ag) { ag.state = 'on'; ag.note = 'Sent Thu, Dec 10 · ' + a.count + ' delivered'; }
+      render(); toast('Approved. Sent from your events line: ' + a.count + ' delivered. Replies show up here.');
+    });
+    scrim.addEventListener('keydown', function (e) { if (e.key === 'Escape') scrim.remove(); });
+  }
+
+  // =============================================================================================
+  // Rules: save, send, draft, decide (src/app/(app)/agents/[key]/actions.ts)
+  // =============================================================================================
+  function check(k) {
+    var def = RULES[k], F = formFor(k), err = {}, num = /^[0-9][0-9,]*(\.[0-9]{1,2})?$/;
+    var test = function (f, path, v) {
+      v = (v || '').trim();
+      if (!v) { if (f.required) err[path] = 'Fill this in before sending.'; return; }
+      if (f.kind === 'money' && !num.test(v)) err[path] = 'Enter an amount in dollars, like 500,000.';
+      if (f.kind === 'int' && !/^[0-9][0-9,]*$/.test(v)) err[path] = 'Enter a whole number.';
+      if (f.kind === 'url' && !/^https:\/\/\S+$/.test(v)) err[path] = 'Paste the full link, starting with https://.';
+    };
+    def.fields.forEach(function (f) { test(f, f.key, F.values[f.key]); });
+    if (k === 'stat-reminder' && F.values.reportedFrom === 'form' && !F.values.formLink) err.formLink = 'Paste the form’s link, or pick VectorConnect.';
+    (F.tiers || []).forEach(function (t, i) {
+      TIER_FIELDS.slice(2).forEach(function (f) { test(f, 'tiers.' + i + '.' + f.key, t.values[f.key]); });
+      if (t.values.ranked === 'yes') { var sum = t.weights.reduce(function (s, w) { return s + (parseInt(w.percent, 10) || 0); }, 0); if (sum !== 100) err['tiers.' + i + '.weights'] = 'A ranked tier’s weights add up to 100 (these add up to ' + sum + ').'; }
+    });
+    return err;
+  }
+  function stamp(k, status) {
+    var vs = V[k] || (V[k] = []), open = openOf(k), data = clone(formFor(k));
+    if (open) { open.data = data; open.status = status; open.when = 'Thu, Dec 10, just now'; return open; }
+    var v = { v: vs.reduce(function (m, x) { return Math.max(m, x.v); }, 0) + 1, status: status, when: 'Thu, Dec 10, just now', data: data };
+    vs.unshift(v); return v;
+  }
+  function goLive(k, v) { (V[k] || []).forEach(function (x) { if (x !== v && x.status === 'live') x.status = 'replaced'; }); v.status = 'live'; v.when = 'Thu, Dec 10, just now'; }
+  function rulesAct(act, k, el) {
+    var src = S.src[k] || {};
+    if (act === 'save') { stamp(k, 'draft'); S.err[k] = {}; S.res[k] = { ok: true, text: 'Saved as a draft. Nothing changes for your agent until you send it.' }; }
+    if (act === 'send') {
+      var err = check(k);
+      if (Object.keys(err).length) { stamp(k, 'draft'); S.err[k] = err; S.res[k] = { ok: false, text: 'Saved as a draft, but not sent: fill in or fix the marked values first.' }; }
+      else if (Object.keys(src).some(function (p) { return !src[p].confirmed; })) { stamp(k, 'draft'); S.err[k] = {}; S.res[k] = { ok: false, text: 'Saved as a draft, but not sent. Confirm every value drafted from your policy (the “This is right” boxes) before sending.' }; }
+      else {
+        S.err[k] = {}; S.src[k] = {};
+        if (k === 'freshmen-onboarding') NEEDS.forEach(function (n) { if ((formFor(k).values[n.key] || '').trim()) n.done = true; });
+        if (waits()) { var v = stamp(k, 'waiting'); var note = document.getElementById('note-' + k); v.note = note && note.value.trim(); S.res[k] = { ok: true, text: 'Sent to Alan. They go live when he OKs them; you’ll see it on this page.' }; }
+        else { goLive(k, stamp(k, 'live')); S.res[k] = { ok: true, text: 'Live. Your agent uses these from its next run.' }; }
+      }
+    }
+    if (act === 'draft') {
+      S.drafting = k; render();
+      setTimeout(function () {
+        S.drafting = null;
+        var found = DRAFTS[k] || [], F = formFor(k), s = S.src[k] || (S.src[k] = {});
+        found.forEach(function (d) { setVal(F, d[0], d[1]); s[d[0]] = { doc: POLICY, page: d[2], quote: d[3], confirmed: false }; });
+        S.res[k] = found.length ? { ok: true, text: 'Drafted ' + found.length + ' ' + plural(found.length, 'value') + ' from “' + POLICY + '”. Check each against its quote and tick “This is right”.' } : { ok: true, text: '“' + POLICY + '” doesn’t state any of these values in words Claude could quote. Fill them in by hand.' };
+        if (S.page === 'agent' && S.agent === k) render();
+      }, 1400);
+      return;
+    }
+    if (act === 'notes') {
+      S.reading = k; render();
+      setTimeout(function () {
+        S.reading = null;
+        var typed = (S.notes[k] !== undefined ? S.notes[k] : (NOTES[k] ? NOTES[k].text : '')).trim(), N = NOTES[k], F = formFor(k), s = S.src[k] || (S.src[k] = {});
+        if (!typed) S.res[k] = { ok: false, text: 'Write a note first, then Claude reads it.' };
+        else if (N && typed.indexOf(N.text) > -1) {
+          N.found.forEach(function (d) { setVal(F, d[0], d[1]); s[d[0]] = { from: 'your notes', quote: d[2], confirmed: false }; });
+          S.res[k] = { ok: true, text: 'Claude drafted ' + N.found.length + ' ' + plural(N.found.length, 'setting') + ' from your notes. Check each against your words and tick “This is right”, then send.' };
+        } else S.res[k] = { ok: true, text: 'Saved. This example only knows its sample note; in your portal Claude reads whatever you write and drafts the settings it states. Notes that aren’t a setting stay notes.' };
+        if (S.page === 'agent' && S.agent === k) render();
+      }, 1400);
+      return;
+    }
+    if (act === 'restore') { var from = (V[k] || []).filter(function (x) { return String(x.v) === el.getAttribute('data-v'); })[0]; S.forms[k] = clone(from.data); S.src[k] = {}; S.res[k] = { ok: true, text: 'Started from version ' + from.v + '. Save or send it to use it.' }; }
+    if (act === 'discard') { var o = openOf(k); o.status = 'discarded'; S.forms[k] = null; S.src[k] = {}; S.res[k] = null; }
+    if (act === 'w-add' || act === 'w-remove') {
+      var t = formFor(k).tiers[+el.getAttribute('data-i')];
+      if (act === 'w-add') t.weights.push({ metric: '', percent: '' }); else t.weights.splice(+el.getAttribute('data-j'), 1);
+    }
+    render();
+  }
+
+  // =============================================================================================
+  // Render and events
+  // =============================================================================================
+  function render() {
+    root.innerHTML = S.stage === 'signin' ? signin() : S.stage === 'setup' ? setup() : app();
+    document.querySelectorAll('.proto [data-jump]').forEach(function (b) { b.setAttribute('aria-pressed', String(b.getAttribute('data-jump') === S.stage)); });
+    var areas = document.getElementById('m-areas'), roleSel = document.getElementById('m-role');
+    if (areas && roleSel) areas.hidden = roleSel.value !== 'approver';
+  }
+  function go(target) {
+    var p = target.split(':');
+    S.page = p[0]; S.added = false; S.done = null; S.repRes = null;
+    if (p[0] === 'agent') { S.agent = p[1]; S.div = null; }
+    if (p[0] === 'rep') S.rep = p[1];
+    if (p[0] === 'tiers') { S.tiersDraft = null; S.tiersRes = null; }
+    if (p[0] === 'import') S.imp = null;
+    if (p[0] !== 'today') S.pushRes = null;
+    S.stage = 'app'; render(); window.scrollTo(0, 0);
+  }
+  function rerenderList() { var l = document.getElementById('roster-list'); if (l) l.innerHTML = rosterList(); }
+
+  document.addEventListener('submit', function (e) {
+    e.preventDefault();
+    var id = e.target.id, val = function (x) { var el = document.getElementById(x); return el ? el.value.trim() : ''; };
+    if (id === 'f-email') { S.email = val('email') || who().email; S.auth = 'code'; S.authNote = null; render(); }
+    if (id === 'f-code') { S.stage = 'setup'; S.step = 1; render(); toast('Signed in. First time only: a short setup.'); }
+    if (id === 'rep-form') {
+      var name = val('r-name'), div = val('r-div'), num = val('r-num').replace(/\s/g, '');
+      if (!name) { S.repRes = { ok: false, text: 'Add their name.' }; render(); return; }
+      if (!div) { S.repRes = { ok: false, text: 'Pick their division.' }; render(); return; }
+      if (num && !/^\d{6,10}$/.test(num)) { S.repRes = { ok: false, text: 'A VectorConnect rep number is 6 to 10 digits.' }; render(); return; }
+      var fields = { name: name, goes: val('r-goes'), tier: val('r-tier'), div: div, phone: val('r-phone').replace(/\D/g, '').slice(-10), email: val('r-email'), num: num, city: val('r-city'), aliases: val('r-aliases').split('\n').map(function (s) { return s.trim(); }).filter(Boolean) };
+      if (S.page === 'rep') {
+        var r = REPS.filter(function (x) { return x.id === S.rep; })[0];
+        if (r.tier !== fields.tier) r.history.push([CAMPAIGNS.filter(function (c) { return c[0] === val('r-campaign'); })[0][1], tierName(fields.tier), 'Thu, Dec 10']);
+        for (var f in fields) r[f] = fields[f];
+        S.repRes = { ok: true, text: 'Saved.' }; render();
+      } else {
+        var nr = rep('r' + (REPS.length + 1) + 'n', fields.name, fields.tier, fields.div, fields.phone, fields.email, fields.num);
+        for (var g in fields) nr[g] = fields[g];
+        nr.since = CAMPAIGNS.filter(function (c) { return c[0] === val('r-campaign'); })[0][1]; nr.history = [[nr.since, tierName(nr.tier), 'Thu, Dec 10']];
+        REPS.push(nr); go('rep:' + nr.id); S.added = true; render();
+      }
+    }
+    if (id === 'class-read') { S.imp.read = true; render(); }
+    if (id === 'add-gdoc' || id === 'add-upload') {
+      var p = id === 'add-gdoc' ? 'gdoc' : 'up', title = val(p + '-title');
+      if (!title) { S.docRes = { ok: false, text: 'Give it a name your reps would recognize.' }; render(); return; }
+      if (p === 'gdoc' && !/^https:\/\/docs\.google\.com\/document\/d\/[A-Za-z0-9_-]{10,}/.test(val('gdoc-url'))) { S.docRes = { ok: false, text: 'Paste the Doc’s full link, starting with https://docs.google.com/document/d/.' }; render(); return; }
+      DOCS.push({ id: DOCS.length + 1, kind: val(p + '-kind'), title: title, source: p === 'gdoc' ? 'gdoc' : 'upload', read: 'Thu, Dec 10, just now', status: waits() ? 'waiting' : 'live', div: val(p + '-division') || null, body: '(Prototype: the document’s text shows here, exactly as Jarvis reads it.)' });
+      S.docRes = { ok: true, text: waits() ? 'Added. Alan checks it before Jarvis reads it.' : 'Added. Jarvis reads it from now on.' }; render();
+    }
+    if (id === 'ask') {
+      var body = val('body');
+      if (body.length < 3) { S.helpRes = { ok: false, text: 'Say what’s wrong or what you need.' }; render(); return; }
+      var t = { id: TICKETS.length + 1, author: who().name, body: body, status: 'new', when: 'just now' }; TICKETS.unshift(t);
+      S.helpRes = { ok: true, text: 'Sent. Alan gets it within 5 minutes, and his answer shows here.' }; render();
+      setTimeout(function () { t.status = 'sent'; if (S.page === 'help') render(); }, 1800);
+    }
+    if (id === 'add-member') {
+      var mn = val('m-name'), me = val('m-email'), mr = val('m-role');
+      if (!mn || !/^\S+@\S+\.\S+$/.test(me)) { S.teamRes = { ok: false, text: 'Add their name and a working email.' }; render(); return; }
+      var areas = Array.prototype.slice.call(document.querySelectorAll('#m-areas input:checked')).map(function (x) { return x.value; });
+      MEMBERS.push({ id: 'm' + (MEMBERS.length + 1), name: mn, email: me, role: mr, areas: mr === 'approver' ? areas : [], signed: false });
+      S.teamRes = { ok: true, text: mn + ' can sign in now with ' + me + '. Tell them the link; The Block doesn’t email them.' }; render();
+    }
+    if (id === 'compose') {
+      var to = composeCount(), text = val('c-text');
+      if (!to.length) { toast('Pick at least one tier with reps on it.'); return; }
+      if (text.length < 5) { toast('Write the message first.'); return; }
+      S.compose.text = text;
+      var first = to[0].goes || to[0].name.split(' ')[0], ask = { id: 'a' + (ASKS.length + 1), title: 'Team text to ' + to.length + ' reps', div: S.compose.div || 'Both divisions', who: 'You', agent: 'team-text', summary: to.length + ' reps · goes out once approved', preview: text.replace(/\{first\}/g, first), recips: to.slice(0, 4).map(function (r) { return r.name; }).concat(to.length > 4 ? ['+ ' + (to.length - 4) + ' more'] : []), count: to.length };
+      ASKS.push(ask); render(); openSheet(ask.id);
+    }
+    if (id === 'reply-form') {
+      var rt = val('reply-text'), th = THREADS.filter(function (x) { return x.id === S.thread; })[0] || THREADS[0];
+      if (!rt) return;
+      th.msgs.push(['out', rt, 'Thu 10:12 AM · sending…']); th.state = ['Delivered', 'on']; S.reply[th.id] = ''; render();
+      setTimeout(function () { th.msgs[th.msgs.length - 1][2] = 'Thu 10:12 AM · delivered'; if (S.page === 'texts') render(); }, 1200);
+    }
+  });
+
+  document.addEventListener('input', function (e) {
+    var el = e.target;
+    if (el.id === 'roster-q') { S.q = el.value; rerenderList(); return; }
+    if (el.id === 'c-text') { S.compose.text = el.value; return; }
+    if (el.id === 'reply-text') { S.reply[S.thread] = el.value; return; }
+    if (el.hasAttribute('data-notes')) { S.notes[el.getAttribute('data-notes')] = el.value; return; }
+    if (el.id === 'gen-notes') { S.genNotes = el.value; return; }
+    if (el.hasAttribute('data-path')) {
+      var k = el.getAttribute('data-rk'), path = el.getAttribute('data-path');
+      setVal(formFor(k), path, el.value);
+      // A value the person typed is theirs, not the policy's.
+      if (S.src[k] && S.src[k][path]) { delete S.src[k][path]; var sb = el.closest('.field').querySelector('.src'); if (sb) sb.remove(); }
+      if (S.err[k] && S.err[k][path]) { delete S.err[k][path]; var eb = el.closest('.field').querySelector('.message.error'); if (eb) eb.remove(); }
+      return;
+    }
+    if (el.hasAttribute('data-w')) { var p = el.getAttribute('data-w').split('.'); formFor(el.getAttribute('data-rk')).tiers[+p[0]].weights[+p[1]][p[2]] = el.value; return; }
+    if (el.hasAttribute('data-tname')) { var t = S.tiersDraft[+el.getAttribute('data-tname')]; t.name = el.value; if (t.source) { t.source = null; var s2 = el.closest('.card').querySelector('.src'); if (s2) s2.remove(); } }
+  });
+
+  document.addEventListener('change', function (e) {
+    var el = e.target;
+    if (el.hasAttribute('data-confirm')) { var k = el.getAttribute('data-rk'); S.src[k][el.getAttribute('data-confirm')].confirmed = el.checked; el.closest('.src').classList.toggle('ok', el.checked); var u = Object.keys(S.src[k]).filter(function (p) { return !S.src[k][p].confirmed; }).length; if (!u) render(); return; }
+    if (el.hasAttribute('data-ranked')) { formFor(el.getAttribute('data-rk')).tiers[+el.getAttribute('data-ranked')].values.ranked = el.checked ? 'yes' : 'no'; render(); return; }
+    if (el.hasAttribute('data-pick')) { S.picked[el.getAttribute('data-pick')] = el.checked; rerenderList(); return; }
+    if (el.id === 'bulk-to') { S.bulkTo = el.value; return; }
+    if (el.id === 'bulk-campaign') { S.bulkCampaign = el.value; return; }
+    if (el.hasAttribute('data-tpicks')) { S.tiersDraft[+el.getAttribute('data-tpicks')].picks = el.checked; return; }
+    if (el.hasAttribute('data-tshare')) { S.tiersDraft[+el.getAttribute('data-tshare')].share = el.checked; return; }
+    if (el.hasAttribute('data-tconfirm')) { S.tiersDraft[+el.getAttribute('data-tconfirm')].source.confirmed = el.checked; el.closest('.src').classList.toggle('ok', el.checked); return; }
+    if (el.hasAttribute('data-src')) { S.imp.source = el.getAttribute('data-src'); S.imp.read = false; render(); return; }
+    if (el.hasAttribute('data-tick')) { S.imp.ticked[el.getAttribute('data-tick')] = el.checked; render(); return; }
+    if (el.getAttribute('data-imp') === 'div') { S.imp.div = el.value; render(); return; }
+    if (el.getAttribute('data-imp') === 'tier') { S.imp.tier = el.value; return; }
+    if (el.id === 'm-role') { document.getElementById('m-areas').hidden = el.value !== 'approver'; return; }
+    if (el.hasAttribute('data-pref')) { var key = el.getAttribute('data-pref'); S.prefs = S.prefs.filter(function (x) { return x !== key; }); if (el.checked) S.prefs.push(key); toast('Saved.'); return; }
+    if (el.hasAttribute('data-ctier') || el.hasAttribute('data-cdiv')) {
+      if (el.hasAttribute('data-ctier')) S.compose.tiers[el.getAttribute('data-ctier')] = el.checked; else S.compose.div = el.value;
+      var n = composeCount().length, c = document.getElementById('c-count');
+      if (c) c.textContent = 'Goes to ' + n + ' ' + plural(n, 'rep') + '. Reps with no phone on the roster, and anyone who texted STOP, are left out.';
+    }
+  });
+
+  document.addEventListener('click', function (e) {
+    var t = e.target.closest('[data-jump],[data-go],[data-act],[data-div],[data-show],[data-open],[data-thread]');
+    if (!t || t.tagName === 'SELECT' || (t.tagName === 'INPUT' && t.type !== 'button')) return;
+    if (t.tagName === 'A') e.preventDefault();
+    if (t.hasAttribute('data-jump')) {
+      var j = t.getAttribute('data-jump');
+      S.stage = j; S.auth = 'email'; S.authNote = null; if (j === 'app') S.page = 'today';
+      render(); window.scrollTo(0, 0); return;
+    }
+    if (t.hasAttribute('data-thread')) S.thread = t.getAttribute('data-thread');
+    if (t.hasAttribute('data-go')) { go(t.getAttribute('data-go')); return; }
+    if (t.hasAttribute('data-div')) { S.div = t.getAttribute('data-div') || null; render(); return; }
+    if (t.hasAttribute('data-show')) { S.show = t.getAttribute('data-show'); rerenderList(); return; }
+    if (t.hasAttribute('data-open')) { openSheet(t.getAttribute('data-open')); return; }
+    if (t.hasAttribute('data-thread')) { render(); return; }
+    var act = t.getAttribute('data-act'), k = t.getAttribute('data-rk');
+    if (['save', 'send', 'draft', 'notes', 'restore', 'discard', 'w-add', 'w-remove'].indexOf(act) > -1) { rulesAct(act, k, t); return; }
+    switch (act) {
+      case 'restart': S.auth = 'email'; render(); break;
+      case 'resend': toast('A new code is on its way. The last one stops working.'); break;
+      case 'app-open': S.stage = 'signin'; S.auth = 'email'; S.authNote = 'The Home Screen app keeps its own sign-in, so it stays signed in. Enter your email once more for a code.'; render(); break;
+      case 'next': if (S.step < 5) { S.step++; render(); } else { S.stage = 'app'; S.page = 'today'; render(); toast('All set. Your read-only agents start with the next scheduled run.'); } window.scrollTo(0, 0); break;
+      case 'back': if (S.step > 1) { S.step--; render(); } break;
+      case 'skip': S.stage = 'app'; S.page = 'today'; render(); break;
+      case 'file-remove': S.files.splice(+t.getAttribute('data-i'), 1); render(); break;
+      case 'vc-save': S.vc = 'locked'; render(); setTimeout(function () { S.vc = 'verified'; if (S.stage === 'setup' && S.step === 4) render(); }, 1600); break;
+      case 'push-on': S.pushHere = 'on'; S.nudge = false; S.pushRes = S.page === 'today' ? 'Notifications are on for this iPhone.' : null; render(); if (S.page !== 'today') toast('Notifications are on for this iPhone.'); break;
+      case 'push-later': S.nudge = false; render(); break;
+      case 'push-off': S.pushHere = 'none'; render(); toast('Turned off on this iPhone.'); break;
+      case 'push-test': toast('Test sent. It should arrive on this iPhone in a few seconds.'); break;
+      case 'pause':
+        var pa = AGENTS.filter(function (x) { return x.key === k; })[0];
+        if (pa.state === 'paused') { pa.state = pa.was || 'on'; pa.note = 'Turned back on by you just now'; toast(pa.name + ' is back on.'); }
+        else { pa.was = pa.state; pa.state = 'paused'; pa.note = 'Paused by you just now · nothing runs until someone turns it back on'; toast(pa.name + ' is paused. It stops before its next text or filing.'); }
+        render(); break;
+      case 'member-remove': MEMBERS = MEMBERS.filter(function (m) { return m.id !== t.getAttribute('data-i'); }); render(); break;
+      case 'signout': case 'signout-all': S.stage = 'signin'; S.auth = 'email'; S.authNote = null; render(); toast(act === 'signout' ? 'Signed out on this device.' : 'Signed out on every device.'); break;
+      case 'open-setup': S.stage = 'setup'; S.step = 1; render(); window.scrollTo(0, 0); break;
+      case 'split': toast('This starts ' + S.div + '’s own rules from the shared ones, and the tab shows them.'); break;
+      case 'doc-refresh': toast('Read again just now. Jarvis reads the latest version.'); break;
+      case 'doc-remove': DOCS = DOCS.filter(function (x) { return String(x.id) !== t.getAttribute('data-i'); }); render(); toast('Removed. Jarvis stops reading it right away.'); break;
+      case 'pick-toggle': S.picking = !S.picking; S.picked = {}; S.rosterRes = null; render(); break;
+      case 'bulk':
+        var ids = Object.keys(S.picked).filter(function (i) { return S.picked[i]; }), v = t.getAttribute('data-v'), cl = CAMPAIGNS.filter(function (c) { return c[0] === S.bulkCampaign; })[0][1];
+        ids.forEach(function (i) { var r = REPS.filter(function (x) { return x.id === i; })[0]; if (v === 'move') { r.tier = S.bulkTo; r.history.push([cl, tierName(S.bulkTo), 'Thu, Dec 10']); } else { r.status = v; r.history.push([cl, v === 'left' ? 'Left the team (was ' + tierName(r.tier) + ')' : tierName(r.tier), 'Thu, Dec 10']); } });
+        S.rosterRes = { ok: true, text: v === 'move' ? 'Moved ' + ids.length + ' ' + plural(ids.length, 'rep') + '.' : ids.length + ' ' + plural(ids.length, 'rep') + (v === 'left' ? ' marked as left. They stay on your roster under Left.' : ' back on the team.') };
+        S.picking = false; S.picked = {}; render(); break;
+      case 'rep-status':
+        var rr = REPS.filter(function (x) { return x.id === S.rep; })[0]; rr.status = rr.status === 'left' ? 'active' : 'left';
+        rr.history.push(['Fall 2026', rr.status === 'left' ? 'Left the team (was ' + tierName(rr.tier) + ')' : tierName(rr.tier), 'Thu, Dec 10']); S.done = rr.status; render(); break;
+      case 'contact': toast('Example: on a phone this opens ' + t.getAttribute('data-v') + '.'); break;
+      case 'suggest-tiers':
+        S.suggesting = true; render();
+        setTimeout(function () {
+          S.suggesting = false;
+          var q = [['Varsity', true, 2, 'Varsity: our top tier, ranked first at every picking meeting.'], ['JV', true, 2, 'JV reps pick after Varsity.'], ['Freshmen', true, 2, 'Freshmen are new this campaign and pick last.'], ['Leaders', false, 3, 'Leaders run the shows and don’t pick shifts.']];
+          S.tiersDraft = q.map(function (x, i) { var old = TIERS[i]; return { id: old ? old.id : null, name: x[0], picks: x[1], share: old ? old.share : true, source: { page: x[2], quote: x[3], confirmed: false } }; });
+          S.tiersRes = { ok: true, text: 'Suggested 4 tiers from “' + POLICY + '”. Tick “This is right” on each before you save.' };
+          if (S.page === 'tiers') render();
+        }, 1400);
+        break;
+      case 'tier-move': var i = +t.getAttribute('data-i'), by = +t.getAttribute('data-v'), a = S.tiersDraft; var tmp = a[i]; a[i] = a[i + by]; a[i + by] = tmp; render(); break;
+      case 'tier-remove': S.tiersDraft.splice(+t.getAttribute('data-i'), 1); render(); break;
+      case 'tier-add': S.tiersDraft.push({ id: null, name: '', picks: true, share: true, source: null }); render(); break;
+      case 'tiers-save':
+        var D = S.tiersDraft;
+        if (D.some(function (x) { return !x.name.trim(); })) { S.tiersRes = { ok: false, text: 'Every tier needs a name.' }; render(); break; }
+        if (D.some(function (x) { return x.source && !x.source.confirmed; })) { S.tiersRes = { ok: false, text: 'Tick “This is right” on each suggested tier first, or type the name yourself.' }; render(); break; }
+        TIERS = D.map(function (x, n) { return { id: x.id || 'tn' + n, name: x.name.trim(), picks: x.picks, share: x.share }; });
+        S.tiersDraft = null; S.tiersRes = { ok: true, text: 'Your tiers are saved.' }; render(); break;
+      case 'bring-in':
+        var I = S.imp, took = 0, filled = 0;
+        CLASS_ROWS.forEach(function (r) {
+          var on = !r.problems && (I.ticked[r.line] !== undefined ? I.ticked[r.line] : r.pick); if (!on) return;
+          if (r.match) { var m = REPS.filter(function (x) { return x.name === r.match.name; })[0]; if (m && r.match.fills.indexOf('phone') > -1 && !m.phone) { m.phone = r.phone; filled++; } return; }
+          var nr = rep('c' + r.line, r.name, I.tier, I.div, r.phone, r.email, r.num); nr.since = 'Spring 2027'; nr.history = [['Spring 2027', tierName(I.tier), 'Thu, Dec 10']]; REPS.push(nr); took++;
+        });
+        S.imp = null; S.rosterRes = { ok: true, text: 'Brought in ' + took + ' ' + plural(took, 'rep') + (filled ? ' and filled in ' + filled + ' already on your roster' : '') + '.' }; go('roster'); break;
+      case 'link': toast('Example: this opens the app in a new tab.'); break;
+      case 'toast': toast(t.getAttribute('data-v')); break;
+    }
+  });
+
+  render();
+  // Tell the page around this example that it loaded (the explorer shows a note if it never does).
+  try { if (window.parent !== window) window.parent.postMessage({ blockDemo: 'ready' }, '*'); } catch (e) { /* standalone */ }
+})();
+</script>
+</body></html>

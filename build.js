@@ -29,12 +29,14 @@ const lineupSrcPath = path.join(BUILD, 'lineup.src.html');
 execFileSync(process.execPath, [path.join(ROOT, 'src/build-lineup.js'), catalogPath, lineupSrcPath], { stdio: 'inherit' });
 const lineup = fs.readFileSync(lineupSrcPath, 'utf8');
 
-// The example portal goes into the explorer as an iframe's srcdoc, so it needs no file or link of its own.
+// The example portal is its own file, portal.html, next to every copy of the explorer (iframe src="portal.html").
+// Not an iframe srcdoc: claude.ai refuses to share a page that carries a whole document in srcdoc ("This version couldn't
+// be reviewed for sharing", 2026-11-06; the same page shared fine once the portal was its own file).
 const portal = fs.readFileSync(path.join(ROOT, 'src/portal.html'), 'utf8');
 if (/\{\{[A-Z_]+\}\}/.test(portal)) throw new Error('src/portal.html has a {{PLACEHOLDER}}; it is filled as a whole, never by key');
-const srcdoc = (html) => ('<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head><body>' + html + '</body></html>')
-  .replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-const PORTAL_SRCDOC = srcdoc(portal);
+const portalDoc = (html, noindex) => '<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">' +
+  (noindex ? '<meta name="robots" content="noindex, nofollow">' : '') + '</head><body>' + html + '</body></html>';
+if (!/<iframe id="pd-frame"[^>]* src="portal\.html"/.test(explorer)) throw new Error('src/explorer.html: the portal frame must load src="portal.html"');
 
 const fill = (html, links) => {
   let out = html;
@@ -46,8 +48,9 @@ const fill = (html, links) => {
 
 // 2. Claude copy: the artifact form (no doctype; the Artifact tool wraps it), linking to the other artifact. The
 // application form is public-only (Alan uses the Claude explorer on his own calls), so the Claude copies carry no link to it.
-const claudeLinks = { LINEUP_URL: CLAUDE_LINEUP, EXPLORER_URL: CLAUDE_EXPLORER, APPLY_LINK: '', APPLY_BTN: '', PORTAL_SRCDOC, PRESET: 'null' };
+const claudeLinks = { LINEUP_URL: CLAUDE_LINEUP, EXPLORER_URL: CLAUDE_EXPLORER, APPLY_LINK: '', APPLY_BTN: '', PRESET: 'null' };
 fs.writeFileSync(path.join(BUILD, 'claude/agent-explorer.html'), fill(explorer, claudeLinks));
+fs.writeFileSync(path.join(BUILD, 'claude/portal.html'), portalDoc(portal));   // published as the explorer's file portal.html
 fs.writeFileSync(path.join(BUILD, 'claude/agent-lineup.html'), fill(lineup, claudeLinks));
 
 // 3. GitHub copy: a full document with the same reset the Artifact tool adds, so it renders the same,
@@ -80,13 +83,14 @@ const pagesLinks = {
   LINEUP_URL: 'lineup.html', EXPLORER_URL: './',
   APPLY_LINK: '<a href="apply.html">See if it fits your team</a>',
   APPLY_BTN: '<a class="btn ghost" href="apply.html">See if it fits your team</a>',
-  PORTAL_SRCDOC, PRESET: 'null',
+  PRESET: 'null',
 };
 const apply = fs.readFileSync(path.join(ROOT, 'src/apply.html'), 'utf8');
 const pages = {
   'index.html': pagesDoc(fill(explorer, pagesLinks), { file: 'index.html', description: 'Open each events team agent, watch it run, set it to your rules, and build your division plan.' }),
   'lineup.html': pagesDoc(fill(lineup, pagesLinks), { file: 'lineup.html', description: 'Every events team agent on one page: what it does, what you get, and which set it comes in.' }),
   'apply.html': pagesDoc(fill(apply, pagesLinks), { file: 'apply.html', description: 'Five short steps: see what the admin costs your events team today, then pick a time with Alan.' }),
+  'portal.html': portalDoc(portal, true),
 };
 
 // 4. Fail closed: check the GitHub copy before it replaces what is in docs/.
@@ -97,7 +101,7 @@ if (problems.length) {
 }
 for (const [f, html] of Object.entries(pages)) fs.writeFileSync(path.join(ROOT, 'docs', f), html);
 console.log('docs/:', Object.keys(pages).map((f) => `${f} ${pages[f].length} bytes`).join(', '));
-console.log('build/claude/: agent-explorer.html, agent-lineup.html');
+console.log('build/claude/: agent-explorer.html, agent-lineup.html, portal.html');
 console.log('agents', ctx.AGENTS.length, 'live', ctx.AGENTS.filter((x) => x.status === 'live').length);
 
 // 5. One coordinator's own claude.ai copy: their name in the example portal, the agents from their call ticked, and a
@@ -119,8 +123,10 @@ if (coordFile) {
   if (!explorer.includes(title)) throw new Error('src/explorer.html: ' + title + ' not found');
   const own = fill(explorer.replace(title, `<title>${c.title.replace(/[<>&]/g, '')}</title>`), {
     LINEUP_URL: SITE + 'lineup.html', EXPLORER_URL: SITE, APPLY_LINK: '', APPLY_BTN: '',
-    PORTAL_SRCDOC: srcdoc(theirs), PRESET: JSON.stringify(c.preset).replace(/</g, '\\u003c'),
+    PRESET: JSON.stringify(c.preset).replace(/</g, '\\u003c'),
   });
+  const portalOut = out.replace(/\.html$/, '') + '-portal.html';   // publish it as the page's file portal.html
   fs.writeFileSync(out, own);
-  console.log(`${out}: ${own.length} bytes, ${c.preset.agents.length} agents ticked for ${c.name}`);
+  fs.writeFileSync(portalOut, portalDoc(theirs));
+  console.log(`${out}: ${own.length} bytes, ${c.preset.agents.length} agents ticked for ${c.name}; portal: ${portalOut}`);
 }

@@ -566,7 +566,7 @@ footer { padding-block: 40px 56px; color: var(--muted); font-size: 14.5px; }
           <span class="pd-note">Sample reps and shows. Tap around: nothing is sent.</span>
           <button class="btn" type="button" id="pd-full">Full screen</button>
         </div>
-        <div class="pd-frame"><iframe id="pd-frame" title="Example coordinator portal with sample data" srcdoc="{{PORTAL_SRCDOC}}"></iframe></div>
+        <div class="pd-frame"><iframe id="pd-frame" title="Example coordinator portal with sample data" src="portal.html"></iframe></div>
         <p class="pd-fail" id="pd-fail" hidden>The example portal didn't load on this screen. Ask me and I'll walk you through it.</p>
       </div>
       <p class="pd-fine">It runs for the Rising Sun events team today. Yours opens within a week of signing. Texts and approvals come with your events line, before go-live.</p>
@@ -1481,11 +1481,18 @@ const LOOK = {
 function renderLook(a) {
   const L = LOOK[a.id], el = $('#panel-look');
   if (!L) { el.innerHTML = `<div class="noscreen"><b>No screen of its own.</b><p>This agent works where you already are: it asks you in your portal, and then texts, emails or fills VectorConnect forms. Watch it run to see each step.</p><div><button type="button" class="btn sm dark" data-goto="run">Watch it run</button></div></div>`; return; }
-  const img = (src, w, h, alt, cls) => cls === 'phone' ? `<figure class="phone"><img src="${src}" width="${w}" height="${h}" alt="${esc(alt)}" loading="lazy"></figure>` : `<figure class="browser"><div class="bar"><i></i><i></i><i></i></div><img src="${src}" width="${w}" height="${h}" alt="${esc(alt)}" loading="lazy"></figure>`;
+  // Each screen is added below with createElement, so the page's source holds no image tag whose source is code
+  // (claude.ai's review before a page is shared reads the source, 2026-11-06).
+  const img = (src, w, h, alt, cls) => cls === 'phone' ? `<figure class="phone" data-look="${src}" data-w="${w}" data-h="${h}" data-alt="${esc(alt)}"></figure>` : `<figure class="browser" data-look="${src}" data-w="${w}" data-h="${h}" data-alt="${esc(alt)}"><div class="bar"><i></i><i></i><i></i></div></figure>`;
   const text = `<div class="look-text"><span class="label">At Rising Sun today</span><p>${esc(L.text)}</p><span class="fake">${L.real ? 'Live page, team totals' : 'Made-up names and numbers'}</span>${L.link ? `<a class="btn sm dark" href="${L.link[0]}" target="_blank" rel="noopener">${esc(L.link[1])}</a>` : ''}</div>`;
   if (L.kind === 'duo') el.innerHTML = `<div class="look duo">${img(L.img, L.w, L.h, L.alt)}${img(L.img2, L.w2, L.h2, L.alt2, 'phone')}${text}</div>`;
   else if (L.kind === 'phone') el.innerHTML = `<div class="look phones">${img(L.img, L.w, L.h, L.alt, 'phone')}${text}</div>`;
   else el.innerHTML = `<div class="look">${img(L.img, L.w, L.h, L.alt)}${text}</div>`;
+  $$('figure[data-look]', el).forEach((f) => {
+    const i = document.createElement('img');
+    i.src = f.dataset.look; i.width = +f.dataset.w; i.height = +f.dataset.h; i.alt = f.dataset.alt; i.loading = 'lazy';
+    f.appendChild(i);
+  });
 }
 
 /* ---------- division settings ---------- */

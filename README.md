@@ -24,9 +24,11 @@ Under the "They ask" band, the explorer shows The Block as a coordinator sees it
 example with a sample coordinator (Taylor Reese), sample reps and shows, and no phone numbers or e-mail addresses (phones
 show only their last four digits). It has Today with "What your agents need", every agent's rules with Draft from your
 policy and Notes for Claude ("This is right" before anything is used), the roster and the Freshmen page, Texts (labeled as
-coming with the events line), Help and Settings. Nothing in it is sent anywhere. `build.js` puts it into the explorer as an
-iframe `srcdoc` (`{{PORTAL_SRCDOC}}`), with Computer / Phone and Full screen; it posts `{blockDemo: 'ready'}` to the page
-when it loads. It was made 2026-11-06 from the proposal's example portal and brought up to The Block's main at 9521d2a.
+coming with the events line), Help and Settings. Nothing in it is sent anywhere. `build.js` writes it as `portal.html` next to every copy
+(`docs/portal.html`, `build/claude/portal.html`, and `<page>-portal.html` for a coordinator's copy), and the explorer
+loads it with `<iframe src="portal.html">`, with Computer / Phone and Full screen; it posts `{blockDemo: 'ready'}` to the
+page when it loads. Publish it with the page as the file `portal.html`. Never put it back into an iframe `srcdoc`:
+claude.ai then refuses to share the page ("This version couldn't be reviewed for sharing", 2026-11-06). It was made 2026-11-06 from the proposal's example portal and brought up to The Block's main at 9521d2a.
 When The Block changes in a way coordinators should see, change `src/portal.html` and rebuild.
 
 ## A coordinator's own copy
@@ -42,7 +44,7 @@ repo, because they carry the coordinator's name. Every other copy builds with `P
 1. Edit `src/explorer.html`. The `AGENTS` array is the catalog, and the Lineup is generated from it, so never edit the Lineup by hand. Layout changes to the Lineup go in `src/build-lineup.js`.
 2. `node build.js` writes `docs/` (the GitHub copy) and `build/claude/` (the Claude copy). If the public check fails, `docs/` is left unchanged and the build exits 1.
 3. Commit and push. Pages republishes `docs/` from `main` within a minute or two.
-4. Republish the Claude copies with the Artifact tool: `build/claude/agent-explorer.html` to the explorer URL and `build/claude/agent-lineup.html` to the lineup URL. Leave `capabilities` out so the explorer keeps its saved plans.
+4. Republish the Claude copies with the Artifact tool: `build/claude/agent-explorer.html` to the explorer URL, with `files: {"portal.html": "build/claude/portal.html"}`, and `build/claude/agent-lineup.html` to the lineup URL. Leave `capabilities` out so the explorer keeps its saved plans.
 
 The two pages link to each other. The source uses `{{LINEUP_URL}}` and `{{EXPLORER_URL}}`, and `build.js` fills them in for each copy, so a GitHub visitor never lands on a claude.ai sign-in screen.
 
