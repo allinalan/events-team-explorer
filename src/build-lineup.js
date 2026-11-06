@@ -284,7 +284,7 @@ section { padding-block: clamp(48px, 7vw, 80px) 0; }
           <div>
             <p class="eyebrow">Don't see it?</p>
             <h2>Build your own agent</h2>
-            <p>Answer four words in the explorer and it goes in your plan. I read every one and come back with what it would take.</p>
+            <p>Answer four words in the explorer and it goes in your plan. I read every one and come back within 2 business days with what it would take. If I can offer it to other coordinators too, building it costs you nothing.</p>
           </div>
           <a class="btn" href="${EXPLORER}#own">Build yours in the explorer</a>
         </div>
@@ -298,8 +298,9 @@ section { padding-block: clamp(48px, 7vw, 80px) 0; }
       <div class="panel">
         <span class="mono">For the coordinator</span>
         <h3>The Block, your portal</h3>
-        <p>Where a coordinator signs in to see every agent and what it's working on, open their dashboards and ask for help. Approvals and texts move in here next.</p>
-        <ul><li>Your team roster: every rep and tier in one place, and the agents read it from there</li><li>A ping on your phone when an agent is stuck or waiting on you</li><li>One settings file per division: time zone, Vector week, texting hours, who approves</li><li>Each agent's rules set from a form, or drafted from your policy doc</li><li>An events line in your name for texts to reps</li></ul>
+        <p>Where a coordinator signs in to see every agent and what it's working on, set its rules, keep the roster and ask for help. Texts and approvals come with the events line.</p>
+        <ul><li>Today: what's waiting on you, and what your agents still need from you, with a reminder before each one is due</li><li>Your team roster: every rep and tier in one place, and the agents read it from there</li><li>Each agent's rules on one page, drafted by Claude from your policy or your own notes, used only after you tick "This is right"</li><li>Each freshmen class from sign-up through five meetings, with Freshmen Onboarding</li><li>A ping on your phone when an agent is stuck or waiting on you</li><li>An events line in your name for texts to reps</li></ul>
+        <p><a href="${EXPLORER}#portal">Try the example portal in the explorer</a></p>
       </div>
       <div class="panel">
         <span class="mono">On request</span>

@@ -2,7 +2,10 @@
 //   docs/index.html, docs/lineup.html   the GitHub Pages copy (public, noindex, works with no Claude account)
 //   docs/apply.html                     the application form (GitHub copy only), from src/apply.html
 //   build/claude/*.html                 the Claude artifact copy (published by hand with the Artifact tool)
+// The explorer carries the example portal (src/portal.html) in a frame, in every copy.
 // Usage: node build.js. Nothing is written to docs/ unless the public check passes.
+//        node build.js --coordinator <their.json> --out <page.html> also writes one coordinator's own claude.ai copy
+//        (their name in the portal, their picks ticked). That file and that page live in the private workspace only.
 const fs = require('fs'), path = require('path'), vm = require('vm'), { execFileSync } = require('child_process');
 const { checkPublic } = require('./check-public');
 
@@ -26,6 +29,13 @@ const lineupSrcPath = path.join(BUILD, 'lineup.src.html');
 execFileSync(process.execPath, [path.join(ROOT, 'src/build-lineup.js'), catalogPath, lineupSrcPath], { stdio: 'inherit' });
 const lineup = fs.readFileSync(lineupSrcPath, 'utf8');
 
+// The example portal goes into the explorer as an iframe's srcdoc, so it needs no file or link of its own.
+const portal = fs.readFileSync(path.join(ROOT, 'src/portal.html'), 'utf8');
+if (/\{\{[A-Z_]+\}\}/.test(portal)) throw new Error('src/portal.html has a {{PLACEHOLDER}}; it is filled as a whole, never by key');
+const srcdoc = (html) => ('<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head><body>' + html + '</body></html>')
+  .replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+const PORTAL_SRCDOC = srcdoc(portal);
+
 const fill = (html, links) => {
   let out = html;
   for (const [k, v] of Object.entries(links)) out = out.split(`{{${k}}}`).join(v);
@@ -36,7 +46,7 @@ const fill = (html, links) => {
 
 // 2. Claude copy: the artifact form (no doctype; the Artifact tool wraps it), linking to the other artifact. The
 // application form is public-only (Alan uses the Claude explorer on his own calls), so the Claude copies carry no link to it.
-const claudeLinks = { LINEUP_URL: CLAUDE_LINEUP, EXPLORER_URL: CLAUDE_EXPLORER, APPLY_LINK: '', APPLY_BTN: '' };
+const claudeLinks = { LINEUP_URL: CLAUDE_LINEUP, EXPLORER_URL: CLAUDE_EXPLORER, APPLY_LINK: '', APPLY_BTN: '', PORTAL_SRCDOC, PRESET: 'null' };
 fs.writeFileSync(path.join(BUILD, 'claude/agent-explorer.html'), fill(explorer, claudeLinks));
 fs.writeFileSync(path.join(BUILD, 'claude/agent-lineup.html'), fill(lineup, claudeLinks));
 
@@ -70,6 +80,7 @@ const pagesLinks = {
   LINEUP_URL: 'lineup.html', EXPLORER_URL: './',
   APPLY_LINK: '<a href="apply.html">See if it fits your team</a>',
   APPLY_BTN: '<a class="btn ghost" href="apply.html">See if it fits your team</a>',
+  PORTAL_SRCDOC, PRESET: 'null',
 };
 const apply = fs.readFileSync(path.join(ROOT, 'src/apply.html'), 'utf8');
 const pages = {
@@ -88,3 +99,28 @@ for (const [f, html] of Object.entries(pages)) fs.writeFileSync(path.join(ROOT, 
 console.log('docs/:', Object.keys(pages).map((f) => `${f} ${pages[f].length} bytes`).join(', '));
 console.log('build/claude/: agent-explorer.html, agent-lineup.html');
 console.log('agents', ctx.AGENTS.length, 'live', ctx.AGENTS.filter((x) => x.status === 'live').length);
+
+// 5. One coordinator's own claude.ai copy: their name in the example portal, the agents from their call ticked, and a
+// line from Alan. Its lineup link is the GitHub one, because the Claude lineup links back to Alan's private explorer.
+const argv = process.argv.slice(2), flag = (n) => { const i = argv.indexOf(n); return i > -1 ? argv[i + 1] : null; };
+const coordFile = flag('--coordinator');
+if (coordFile) {
+  const out = flag('--out');
+  if (!out) throw new Error('--coordinator needs --out <page.html>');
+  const c = JSON.parse(fs.readFileSync(coordFile, 'utf8'));
+  for (const k of ['title', 'name', 'first', 'preset']) if (!c[k]) throw new Error(`${coordFile}: "${k}" is missing`);
+  const unknown = (c.preset.agents || []).filter((id) => !ctx.AGENTS.some((x) => x.id === id));
+  if (unknown.length) throw new Error(`${coordFile}: no agent called ${unknown.join(', ')}`);
+  const last = c.name.trim().split(/\s+/).pop();
+  const vcUser = (c.first[0] + last).toLowerCase().replace(/[^a-z]/g, '');
+  const theirs = [['Taylor Reese', c.name], ['treese', vcUser], ['Taylor', c.first]].reduce((h, [a, b]) => h.split(a).join(b), portal);
+  if (/Taylor|treese/.test(theirs)) throw new Error('the sample coordinator is still in their portal');
+  const title = '<title>Events Team Agent Explorer</title>';
+  if (!explorer.includes(title)) throw new Error('src/explorer.html: ' + title + ' not found');
+  const own = fill(explorer.replace(title, `<title>${c.title.replace(/[<>&]/g, '')}</title>`), {
+    LINEUP_URL: SITE + 'lineup.html', EXPLORER_URL: SITE, APPLY_LINK: '', APPLY_BTN: '',
+    PORTAL_SRCDOC: srcdoc(theirs), PRESET: JSON.stringify(c.preset).replace(/</g, '\\u003c'),
+  });
+  fs.writeFileSync(out, own);
+  console.log(`${out}: ${own.length} bytes, ${c.preset.agents.length} agents ticked for ${c.name}`);
+}

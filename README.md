@@ -18,6 +18,25 @@ The page Alan sends coordinators to see what the events team agents do, set them
 
 Under the gallery, a coordinator can describe an agent that isn't on the list by answering four prompt words: **When** (what starts it), **Checks** (where it looks), **Does** (the job) and **Tells** (who hears about it). Tap-to-fill examples sit under three of the four. Each idea is saved with the plan (`plan.custom`: `name`, `when`, `checks`, `does`, `tells`). It shows as a card, in the summary under "Your own", and as four labeled lines in Copy the plan and the email, so Alan can scope it.
 
+## The portal example
+
+Under the "They ask" band, the explorer shows The Block as a coordinator sees it: `src/portal.html`, a click-through
+example with a sample coordinator (Taylor Reese), sample reps and shows, and no phone numbers or e-mail addresses (phones
+show only their last four digits). It has Today with "What your agents need", every agent's rules with Draft from your
+policy and Notes for Claude ("This is right" before anything is used), the roster and the Freshmen page, Texts (labeled as
+coming with the events line), Help and Settings. Nothing in it is sent anywhere. `build.js` puts it into the explorer as an
+iframe `srcdoc` (`{{PORTAL_SRCDOC}}`), with Computer / Phone and Full screen; it posts `{blockDemo: 'ready'}` to the page
+when it loads. It was made 2026-11-06 from the proposal's example portal and brought up to The Block's main at 9521d2a.
+When The Block changes in a way coordinators should see, change `src/portal.html` and rebuild.
+
+## A coordinator's own copy
+
+`node build.js --coordinator <their.json> --out <page.html>` also writes one coordinator's private claude.ai copy: their
+name in the portal example (it replaces Taylor Reese), the agents from their call ticked (`PRESET`), a line from Alan under
+the title, and the GitHub lineup link (the Claude lineup links back to Alan's private explorer). Their changes stay in their
+own browser, and Copy the plan is how they reach Alan. The JSON and the page live in the private workspace, never in this
+repo, because they carry the coordinator's name. Every other copy builds with `PRESET = null`.
+
 ## Changing an agent
 
 1. Edit `src/explorer.html`. The `AGENTS` array is the catalog, and the Lineup is generated from it, so never edit the Lineup by hand. Layout changes to the Lineup go in `src/build-lineup.js`.

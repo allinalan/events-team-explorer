@@ -391,6 +391,34 @@ input:focus, select:focus, textarea:focus { outline: 2px solid var(--sun); outli
 .confirm { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; font-size: 14.5px; }
 .toast { position: fixed; left: 50%; bottom: calc(env(safe-area-inset-bottom, 0px) + 20px); transform: translateX(-50%); z-index: 60; background: var(--ink); color: var(--bg); padding: 10px 16px; border-radius: 12px; font-weight: 700; font-size: 15px; box-shadow: var(--shadow); }
 
+/* The portal example: the sample Block in a frame, as a computer or a phone, with a full-screen mode */
+.pd-points { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; margin-bottom: 22px; }
+.pd-points div { border-top: 2px solid var(--sun); padding-top: 10px; display: grid; gap: 4px; align-content: start; min-width: 0; }
+.pd-points b { font-size: 16.5px; }
+.pd-points span { color: var(--muted); font-size: 15px; }
+@media (max-width: 900px) { .pd-points { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 520px) { .pd-points { grid-template-columns: minmax(0, 1fr); } }
+.pd-live { display: grid; gap: 12px; min-width: 0; }
+.pd-ctl { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 14px; }
+.pd-ctl .pd-note { color: var(--muted); font-size: 15px; margin-right: auto; }
+.seg { display: inline-flex; border: 1px solid var(--line); border-radius: 12px; background: var(--surface); padding: 3px; gap: 3px; }
+.seg input { position: absolute; opacity: 0; pointer-events: none; width: 1px; height: 1px; }
+.seg label { padding: 6px 14px; min-height: 36px; display: inline-flex; align-items: center; font-size: 15px; font-weight: 600; cursor: pointer; border-radius: 9px; color: var(--muted); }
+.seg input:checked + label { background: var(--ink); color: var(--bg); }
+.seg input:focus-visible + label { outline: 3px solid var(--sun); outline-offset: 1px; }
+.pd-frame { width: 100%; justify-self: center; border: 1px solid var(--line); border-radius: 14px; overflow: hidden; background: var(--frame); box-shadow: var(--shadow); }
+.pd-frame iframe { display: block; width: 100%; height: 760px; border: 0; background: var(--bg); }
+.pd-live[data-size="phone"] .pd-frame { width: 390px; max-width: 100%; border: 8px solid var(--frame); border-radius: 36px; }
+.pd-live[data-size="phone"] .pd-frame iframe { height: 780px; }
+.pd-live.full { position: fixed; inset: 0; z-index: 100; background: var(--bg); grid-template-rows: auto minmax(0, 1fr); padding: max(12px, env(safe-area-inset-top, 0px)) max(12px, env(safe-area-inset-right, 0px)) max(12px, env(safe-area-inset-bottom, 0px)) max(12px, env(safe-area-inset-left, 0px)); }
+.pd-live.full .pd-frame, .pd-live.full .pd-frame iframe { height: 100%; }
+body.pd-open { overflow: hidden; }
+.pd-fail, .pd-fine { color: var(--muted); font-size: 15px; }
+.pd-fine { margin-top: 14px; max-width: 80ch; }
+@media (max-width: 700px) { .pd-frame iframe { height: 680px; } }
+.preset-note { margin-top: 20px; max-width: 70ch; background: var(--sun-soft); border-radius: 14px; padding: 14px 18px; font-size: 16.5px; }
+.preset-note b { color: var(--sun-ink); }
+
 footer { padding-block: 40px 56px; color: var(--muted); font-size: 14.5px; }
 
 @media (max-width: 900px) {
@@ -447,8 +475,9 @@ footer { padding-block: 40px 56px; color: var(--muted); font-size: 14.5px; }
         <span><b>1</b>Open an agent to see what it does and watch it run</span>
         <span><b>2</b>Set it to your rules under "Make it yours"</span>
         <span><b>3</b>Tick the ones you want for your division plan</span>
-        <a href="{{LINEUP_URL}}">See every agent on one page</a>{{APPLY_LINK}}
+        <a href="{{LINEUP_URL}}">See every agent on one page</a><a href="#portal">Try the portal</a>{{APPLY_LINK}}
       </div>
+      <p class="preset-note" id="presetNote" hidden></p>
       <div class="loop" aria-label="How every agent works">
         <div><b>Reads</b><span>VectorConnect, your schedule, your stat tracker, your calendar.</span></div>
         <div><b>Works it out</b><span>Rules do the math. AI only where judgment helps.</span></div>
@@ -471,7 +500,7 @@ footer { padding-block: 40px 56px; color: var(--muted); font-size: 14.5px; }
           <div>
             <p class="eyebrow">Don't see it?</p>
             <h3>Build your own agent</h3>
-            <p>Answer four words and it goes in your plan. I read every one and come back with what it would take.</p>
+            <p>Answer four words and it goes in your plan. I read every one and come back within 2 business days with what it would take. If I can offer it to other coordinators too, building it costs you nothing.</p>
           </div>
           <button type="button" class="btn primary" id="ownAdd">Add your own agent</button>
         </div>
@@ -500,9 +529,9 @@ footer { padding-block: 40px 56px; color: var(--muted); font-size: 14.5px; }
     <div class="wrap">
       <p class="eyebrow">How you'd talk to your agents</p>
       <h2>They ask. You answer from your phone.</h2>
-      <p class="lead">At Rising Sun my agents ask me in Slack. Yours ask you in your own portal, The Block, and reach your reps from an events line in your name. Nothing goes to a rep, a form or the home office until someone you chose says yes.</p>
+      <p class="lead">At Rising Sun my agents ask me in Slack. Yours ask you in your own portal, The Block, and reach your reps from an events line in your name. Nothing goes to a rep, a form or the home office until someone you chose says yes. It all runs on my servers, so there's nothing to buy or install.</p>
       <div class="talk">
-        <div class="tcard"><span class="st live">Live</span><h3>Your portal</h3><p>Sign in on your phone or computer. See every agent and what it's working on, keep your roster and tiers, open your dashboards, and ask for help. Your phone gets a ping when an agent is stuck or waiting on you.</p></div>
+        <div class="tcard"><span class="st live">Live</span><h3>Your portal</h3><p>Sign in on your phone or computer. See every agent and what it's working on, keep your roster and tiers, open your dashboards, and ask for help. Your phone gets a ping when an agent is stuck or waiting on you. <a href="#portal" style="color:var(--gold)">Try the example below.</a></p></div>
         <div class="tcard"><span class="st dev">Coming next</span><h3>Approvals by area</h3><p>Each batch waits in the portal with every name, dollar and word. You or the approver you pick for that area says yes, no, or types a change.</p></div>
         <div class="tcard"><span class="st live">Complete set</span><h3>Your events line</h3><p>Texts to reps come from an events number registered in your name. Replies come back to the portal, and the agent drafts answers for you to OK.</p></div>
       </div>
@@ -514,6 +543,35 @@ footer { padding-block: 40px 56px; color: var(--muted); font-size: 14.5px; }
       </div>
     </div>
   </div>
+
+  <section id="portal">
+    <div class="wrap">
+      <div class="sec-head">
+        <p class="eyebrow">The Block, your portal</p>
+        <h2>See what you'd sign in to</h2>
+        <p>One login for you and each person on your staff, on your phone or your computer. Add it to your Home Screen and it opens like an app and stays signed in.</p>
+      </div>
+      <div class="pd-points">
+        <div><b>Today</b><span>What's waiting on you, what needs a look, and what your agents still need from you, with a reminder before each one is due.</span></div>
+        <div><b>Your rules, your words</b><span>Every agent's settings on one page. Claude drafts them from your policy or from notes you write the way you'd say them. Nothing changes until you tick "This is right".</span></div>
+        <div><b>Roster and freshmen</b><span>Every rep and tier in one place, and each freshmen class from sign-up through five meetings.</span></div>
+        <div><b>Help</b><span>Ask me for a fix or a new agent. My answer lands in the same place.</span></div>
+      </div>
+      <div class="pd-live" id="pd-live" data-size="computer">
+        <div class="pd-ctl">
+          <div class="seg" role="radiogroup" aria-label="Show the portal on">
+            <input type="radio" name="pd-size" id="pd-size-computer" value="computer" checked><label for="pd-size-computer">Computer</label>
+            <input type="radio" name="pd-size" id="pd-size-phone" value="phone"><label for="pd-size-phone">Phone</label>
+          </div>
+          <span class="pd-note">Sample reps and shows. Tap around: nothing is sent.</span>
+          <button class="btn" type="button" id="pd-full">Full screen</button>
+        </div>
+        <div class="pd-frame"><iframe id="pd-frame" title="Example coordinator portal with sample data" srcdoc="{{PORTAL_SRCDOC}}"></iframe></div>
+        <p class="pd-fail" id="pd-fail" hidden>The example portal didn't load on this screen. Ask me and I'll walk you through it.</p>
+      </div>
+      <p class="pd-fine">It runs for the Rising Sun events team today. Yours opens within a week of signing. Texts and approvals come with your events line, before go-live.</p>
+    </div>
+  </section>
 
   <section id="plan">
     <div class="wrap">
@@ -529,8 +587,8 @@ footer { padding-block: 40px 56px; color: var(--muted); font-size: 14.5px; }
             <button class="btn" type="button" id="planNew">New plan</button>
           </div>
           <div class="field"><label for="planCoord">Coordinator</label><input type="text" id="planCoord" placeholder="Their name" maxlength="80"></div>
-          <div class="field"><label for="planDiv">Division</label><input type="text" id="planDiv" placeholder="Like Lone Star" maxlength="80"></div>
-          <div class="field"><label for="planNotes">Notes from the call</label><textarea id="planNotes" placeholder="What they said, what to follow up on" maxlength="4000"></textarea></div>
+          <div class="field"><label for="planDiv">Division</label><input type="text" id="planDiv" placeholder="Your division's name" maxlength="80"></div>
+          <div class="field"><label for="planNotes" id="planNotesLabel">Notes from the call</label><textarea id="planNotes" placeholder="What they said, what to follow up on" maxlength="4000"></textarea></div>
           <p class="savestate" id="saveState" role="status"><i></i><span>Changes are kept as you go.</span></p>
           <div class="confirm" id="delRow"><button class="btn sm quiet danger" type="button" id="planDel">Delete this plan</button></div>
         </div>
@@ -667,19 +725,19 @@ const AGENTS = [
     steps: ['Pulls event sales for the campaign from VectorConnect\'s Eventalytics.', 'Sorts every event into its category. AI only for the few it can\'t place by rule.', 'Publishes the analyzer and a report for the coordinators.'],
     result: 'Real numbers on which shows pay off, for planning next season\'s bookings.',
     needs: ['VectorConnect access'] },
-  // brief: described in general terms only, so the sheet shows What it does and Make it yours, no run-through or screen.
-  { id: 'freshmen-onboarding', name: 'Freshmen Onboarding Agent', area: 'freshmen', set: 'addon', status: 'dev', brief: true,
-    job: 'Gets new freshmen onboarded with ease, tailored to your division.',
-    steps: ['A new freshman joins your team.', 'It walks them through getting started, the way your division does it.', 'You see who\'s ready and who needs a hand.'],
-    result: 'Every freshman starts the same easy way, without you chasing anyone.',
-    needs: ['Your onboarding steps, however you do them today'],
-    setNote: 'An add-on to any set. Built around your division\'s own onboarding.' },
+  // brief: no run-through or screen in the sheet. Freshmen Onboarding's screen is the portal example's Freshmen page.
+  { id: 'freshmen-onboarding', name: 'Freshmen Onboarding Agent', area: 'freshmen', set: 'addon', status: 'live', brief: true,
+    job: 'Takes each new freshmen class from sign-up through training and their first five meetings.',
+    steps: ['Picks up every freshman from your sign-up form and puts them on your roster.', 'Texts each one a welcome with every meeting date, then nudges them only for what they\'re still missing.', 'Checks the five things each freshman needs by the meeting you choose: their calendar, your rep assistant, the group chat, your VectorConnect events team, and their contract.', 'Takes attendance at each meeting with a check-in link and a QR code, at the door or on Zoom.', 'After each meeting, drafts an update for your DVM and sends it from your own Gmail once you say yes.'],
+    result: 'Every freshman gets the same start, you see who needs a hand before they slip, and your DVM hears after every meeting without you writing it.',
+    needs: ['Your training month and meeting dates (your portal reminds you when they\'re due)', 'Your sign-up form', 'Your DVM, and your group chat if you use one'],
+    setNote: 'An add-on to any set. It runs for the Rising Sun freshmen class today. In the portal example below, open Roster, then Freshmen, to see the class page.' },
   { id: 'freshmen-training', name: 'Freshmen Training Agent', area: 'freshmen', set: 'addon', status: 'dev', brief: true,
     job: 'Trains freshmen on how your division works events, at their own pace.',
     steps: ['Each freshman gets training built around your division.', 'They work through it at their own pace.', 'You see where each one is before their first show.'],
     result: 'Freshmen show up to their first show ready, trained your way.',
     needs: ['Your training material, in any form'],
-    setNote: 'An add-on to any set. Built around your division\'s own training.' },
+    setNote: 'An add-on to any set. Built around your division\'s own training, and separate from Freshmen Onboarding.' },
 ];
 /* Build your own: the four prompt words a coordinator answers so Alan can scope a new agent. Here, inside the catalog,
    because the lineup page shows the same four words (build.js reads everything from AREAS down to byId). */
@@ -834,7 +892,11 @@ const DIV_DEFAULTS = { coordinator: '', tz: 'America/Chicago', weekStart: 'tue',
 /* ---------- plan state ---------- */
 const uid8 = () => Math.random().toString(36).slice(2, 10);
 const newPlan = () => ({ id: 'p-' + Date.now().toString(36) + '-' + uid8(), kind: 'plan', coordinator: '', division: '', agents: [], rules: {}, divisionSettings: clone(DIV_DEFAULTS), notes: '', custom: [], updatedAt: '' });
-let plan = newPlan();
+/* A coordinator's own copy of this page (node build.js --coordinator <file>) sets PRESET: the agents from their call,
+   the line under the title and a note from Alan. Their changes stay in their own browser. Every other copy has null. */
+const PRESET = {{PRESET}};
+const presetPlan = () => Object.assign(newPlan(), { id: 'p-preset', coordinator: PRESET.coordinator || '', division: PRESET.division || '', agents: (PRESET.agents || []).filter((id) => byId[id]) });
+let plan = PRESET ? presetPlan() : newPlan();
 let plans = {};                 // id -> plan, from the store
 const ALAN_EMAIL = 'ahernandez@allinknifeguy.com';   // where "Email this plan to Alan" sends a plan
 // The email button shows only outside Claude: an artifact runs in a sandboxed frame that may not open a mail app,
@@ -1531,7 +1593,7 @@ function renderPlanBits() {
   const has = plan.coordinator || plan.division;
   who.innerHTML = has ? `<b>${esc(plan.coordinator || 'Coordinator')}</b><span>${esc(plan.division || 'Division not named yet')}</span>` : (plan.agents.length || plan.custom.length ? '<b>Plan started</b><span>Name it at the bottom</span>' : '<b>No plan yet</b><span>Tick an agent to start one</span>');
   $('#barN').textContent = plan.agents.length + plan.custom.length;
-  $('#heroEyebrow').textContent = plan.division.trim() ? `All In Automation · set up for ${plan.division.trim()}` : 'All In Automation · proven at Rising Sun';
+  $('#heroEyebrow').textContent = PRESET && PRESET.eyebrow ? PRESET.eyebrow : plan.division.trim() ? `All In Automation · set up for ${plan.division.trim()}` : 'All In Automation · proven at Rising Sun';
   renderSummary(); renderPlanPick(); renderSaveState();
   $('#delRow').hidden = !hasContent(plan) && !plans[plan.id];
 }
@@ -1663,7 +1725,25 @@ $('#planPick').addEventListener('change', (e) => {
   plan = normalize(plans[id]); dirty = false; ls.set(LS_CURRENT, id); renderAll(); toast('Opened ' + (plan.coordinator || 'the plan'));
 });
 
+/* ---------- the portal example ---------- */
+(() => {
+  const box = $('#pd-live'), frame = $('#pd-frame'), full = $('#pd-full'), fail = $('#pd-fail');
+  if (!box) return;
+  let ok = false;
+  if (window.matchMedia && window.matchMedia('(max-width: 700px)').matches) { box.dataset.size = 'phone'; $('#pd-size-phone').checked = true; }
+  $$('input[name="pd-size"]').forEach((r) => r.addEventListener('change', () => { box.dataset.size = r.value; }));
+  const setFull = (on) => { box.classList.toggle('full', on); document.body.classList.toggle('pd-open', on); full.textContent = on ? 'Close full screen' : 'Full screen'; };
+  full.addEventListener('click', () => setFull(!box.classList.contains('full')));
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && box.classList.contains('full')) setFull(false); });
+  window.addEventListener('message', (e) => { if (e.source === frame.contentWindow && e.data && e.data.blockDemo === 'ready') { ok = true; fail.hidden = true; } });
+  setTimeout(() => { if (!ok) fail.hidden = false; }, 10000);
+})();
+
 /* ---------- start ---------- */
+if (PRESET) {
+  if (PRESET.note) { $('#presetNote').innerHTML = PRESET.note; $('#presetNote').hidden = false; }
+  if (PRESET.notesLabel) { $('#planNotesLabel').textContent = PRESET.notesLabel; $('#planNotes').placeholder = PRESET.notesPlaceholder || ''; }
+}
 renderAll();
 const h = (location.hash || '').slice(1);
 if (byId[h]) openSheet(h);
