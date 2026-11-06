@@ -2905,7 +2905,7 @@ function renderDivision() {
     if (f.kind === 'choice') return `<div class="field"><label for="${id}">${esc(f.label)}</label><select id="${id}" data-dk="${f.k}">${f.opts.map(([v, n]) => `<option value="${v}"${d[f.k] === v ? ' selected' : ''}>${esc(n)}</option>`).join('')}</select></div>`;
     if (f.kind === 'weekday') return `<div class="field"><label for="${id}">${esc(f.label)}</label><select id="${id}" data-dk="${f.k}">${DAYS.map(([k, n]) => `<option value="${k}"${d[f.k] === k ? ' selected' : ''}>${n}</option>`).join('')}</select></div>`;
     if (f.kind === 'hours') return `<div class="field"><span class="flabel">${esc(f.label)}</span><div class="field row2"><select aria-label="Texts start at" id="${id}" data-dk="${f.k[0]}">${hours.map((h) => `<option value="${h}"${String(d[f.k[0]]) === String(h) ? ' selected' : ''}>${h12(h)}</option>`).join('')}</select><select aria-label="Texts stop at" id="d-${f.k[1]}" data-dk="${f.k[1]}">${hours.map((h) => `<option value="${h}"${String(d[f.k[1]]) === String(h) ? ' selected' : ''}>${h12(h)}</option>`).join('')}</select></div></div>`;
-    if (f.kind === 'list') return `<div class="field${f.wide ? ' wide' : ''}"><label for="${id}">${esc(f.label)}</label><textarea id="${id}" data-dk="${f.k}" maxlength="600" style="min-height:64px" placeholder="Like: Angie, bookings">${esc(d[f.k])}</textarea><span class="help">${esc(f.help || '')}</span></div>`;
+    if (f.kind === 'list') return `<div class="field${f.wide ? ' wide' : ''}"><label for="${id}">${esc(f.label)}</label><textarea id="${id}" data-dk="${f.k}" maxlength="600" style="min-height:64px" placeholder="Like: Casey, bookings">${esc(d[f.k])}</textarea><span class="help">${esc(f.help || '')}</span></div>`;
     return '';
   }).join('');
 }
