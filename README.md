@@ -24,7 +24,8 @@ Under the "They ask" band, the explorer shows The Block as a coordinator sees it
 example with a sample coordinator (Taylor Reese), sample reps and shows, and no phone numbers or e-mail addresses (phones
 show only their last four digits). It has Today with "What your agents need", every agent's rules with Draft from your
 policy and Notes for Claude ("This is right" before anything is used), the roster and the Freshmen page, Texts (labeled as
-coming with the events line), Help and Settings. Nothing in it is sent anywhere. `build.js` writes it as `portal.html` next to every copy
+coming with the events line), Help and Settings. On a phone, like The Block since 2026-11-10, the bottom bar holds Today,
+Agents, Roster, Texts and More, and More lists the rest (the sidebar still lists every page). Nothing in it is sent anywhere. `build.js` writes it as `portal.html` next to every copy
 (`docs/portal.html`, `build/claude/portal.html`, and `<page>-portal.html` for a coordinator's copy), and the explorer
 loads it with `<iframe src="portal.html">`, with Computer / Phone and Full screen; it posts `{blockDemo: 'ready'}` to the
 page when it loads. Publish it with the page as the file `portal.html`. Never put it back into an iframe `srcdoc`:

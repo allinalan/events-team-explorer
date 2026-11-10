@@ -156,12 +156,21 @@ a.item:hover { background: var(--bg); }
   .mhead .mark { width: 32px; height: 32px; }
   .mhead .switcher select { max-width: 46vw; }
   .main { padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-bottom: calc(96px + env(safe-area-inset-bottom, 0px)); }
-  .tabbar { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); position: fixed; left: 0; right: 0; bottom: 0; z-index: 30; background: var(--surface); border-top: 1px solid var(--line); padding-bottom: env(safe-area-inset-bottom, 0px); padding-left: env(safe-area-inset-left, 0px); padding-right: env(safe-area-inset-right, 0px); }
-  .tabbar a { padding: 8px 1px 10px; display: grid; justify-items: center; gap: 2px; font-size: 11px; font-weight: 600; color: var(--muted); text-decoration: none; }
+  .tabbar { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(0, 1fr); position: fixed; left: 0; right: 0; bottom: 0; z-index: 30; background: var(--surface); border-top: 1px solid var(--line); padding-bottom: env(safe-area-inset-bottom, 0px); padding-left: env(safe-area-inset-left, 0px); padding-right: env(safe-area-inset-right, 0px); }
+  .tabbar a { padding: 8px 2px 10px; display: grid; justify-items: center; gap: 3px; font-size: 12px; font-weight: 600; color: var(--muted); text-decoration: none; }
   .tabbar a[aria-current="page"] { color: var(--sun-ink); }
   .tiles { grid-template-columns: minmax(0, 1fr); }
   h1 { font-size: 30px; }
 }
+/* More: the phone bar's fifth place, everything that isn't one of its four */
+.more { display: grid; overflow: hidden; }
+.more a { display: grid; grid-template-columns: 40px minmax(0, 1fr) auto; align-items: center; gap: 2px 14px; min-height: 68px; padding: 12px 16px; border-top: 1px solid var(--line); color: inherit; text-decoration: none; }
+.more a:first-child { border-top: 0; }
+.more a:hover { background: var(--bg); }
+.more .ic { grid-row: 1 / span 2; width: 40px; height: 40px; border-radius: 11px; display: grid; place-items: center; background: var(--sun-soft); color: var(--sun-ink); }
+.more b { grid-column: 2; font-size: 16px; align-self: end; }
+.more .sub { grid-column: 2; color: var(--muted); font-size: 14px; align-self: start; overflow-wrap: anywhere; }
+.more .go { grid-column: 3; grid-row: 1 / span 2; display: grid; color: var(--muted); }
 
 /* Agents' rules and Jarvis's documents */
 .tabs { display: flex; flex-wrap: wrap; gap: 6px; }
@@ -256,7 +265,9 @@ details > summary { cursor: pointer; font-weight: 600; color: var(--sun-ink); }
     lock: '<rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/>',
     alert: '<path d="M12 3l10 18H2zM12 10v5M12 18h.01"/>',
     bell: '<path d="M6 16v-5a6 6 0 0 1 12 0v5l2 2H4zM10 21a2 2 0 0 0 4 0"/>',
-    text: '<path d="M4 5h16v11H9l-5 4z"/>'
+    text: '<path d="M4 5h16v11H9l-5 4z"/>',
+    more: '<circle cx="5" cy="12" r="1.3"/><circle cx="12" cy="12" r="1.3"/><circle cx="19" cy="12" r="1.3"/>',
+    chevron: '<path d="M9 6l6 6-6 6"/>'
   };
   var icon = function (n, s) { s = s || 20; return '<svg width="' + s + '" height="' + s + '" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + ICONS[n] + '</svg>'; };
   var MARK = '<svg class="mark" viewBox="0 0 64 64" aria-hidden="true"><rect width="64" height="64" rx="15" style="fill:var(--mark-bg)"/><path d="M16 50 L32 13 L48 50" fill="none" stroke-width="7.5" stroke-linecap="round" stroke-linejoin="round" style="stroke:var(--mark-fg)"/><path d="M21.6 37 H42.4" fill="none" stroke-width="4.5" stroke-linecap="round" style="stroke:var(--mark-accent)"/><circle cx="21.6" cy="37" r="5.6" style="fill:var(--mark-accent)"/><circle cx="42.4" cy="37" r="5.6" style="fill:var(--mark-accent)"/></svg>';
@@ -586,7 +597,13 @@ details > summary { cursor: pointer; font-weight: 600; color: var(--sun-ink); }
   // =============================================================================================
   // 3. The portal: shell and navigation (src/app/(app)/layout.tsx, nav.tsx)
   // =============================================================================================
-  var NAV = [['today', 'Today', 'home'], ['agents', 'Agents', 'agents'], ['texts', 'Texts', 'text'], ['roster', 'Roster', 'roster'], ['dashboards', 'Dashboards', 'links', 'Links'], ['help', 'Help', 'help'], ['settings', 'Settings', 'settings']];
+  // The sidebar lists every place; the phone bar holds four and More (Alan, 2026-11-10; The Block's nav-items.ts).
+  var NAV = [['today', 'Today', 'home'], ['agents', 'Agents', 'agents'], ['roster', 'Roster', 'roster'], ['dashboards', 'Dashboards', 'links', 'Links'], ['texts', 'Texts', 'text'], ['help', 'Help', 'help'], ['settings', 'Settings', 'settings']];
+  var TABS = ['today', 'agents', 'roster', 'texts', 'more'];
+  var MORE_ITEM = ['more', 'More', 'more'];
+  var MORE_NOTES = { dashboards: 'Your board, what Jarvis reads and every link in one place.', help: 'Ask Alan anything, and read his answers.', settings: 'Your block, notifications and who can sign in.' };
+  var navTabs = function () { return TABS.map(function (k) { return k === 'more' ? MORE_ITEM : NAV.filter(function (n) { return n[0] === k; })[0]; }); };
+  var onMore = function () { return NAV.filter(function (n) { return TABS.indexOf(n[0]) < 0; }); };
   function section(p) {
     if (p === 'agent') return S.agent === 'jarvis' ? 'dashboards' : 'agents';
     if (['rep', 'rep-new', 'tiers', 'import', 'freshmen'].indexOf(p) > -1) return 'roster';
@@ -596,8 +613,9 @@ details > summary { cursor: pointer; font-weight: 600; color: var(--sun-ink); }
   function app() {
     var cur = section(S.page), w = who();
     var nav = function (tabs) {
-      return '<nav' + (tabs ? ' class="tabbar"' : '') + ' aria-label="The Block">' + NAV.map(function (n) {
-        return '<a href="#' + n[0] + '" data-go="' + n[0] + '"' + (cur === n[0] ? ' aria-current="page"' : '') + '>' + icon(n[2], tabs ? 22 : 20) + (tabs && n[3] ? n[3] : n[1]) + '</a>';
+      var lit = tabs && TABS.indexOf(cur) < 0 ? 'more' : cur;
+      return '<nav' + (tabs ? ' class="tabbar"' : '') + ' aria-label="The Block">' + (tabs ? navTabs() : NAV).map(function (n) {
+        return '<a href="#' + n[0] + '" data-go="' + n[0] + '"' + (lit === n[0] ? ' aria-current="page"' : '') + '>' + icon(n[2], tabs ? 22 : 20) + (tabs && n[3] ? n[3] : n[1]) + '</a>';
       }).join('') + '</nav>';
     };
     return '<div class="app"><aside class="side">' + wordmark(true) + nav(false) + '<div class="who"><span><b>' + esc(w.name) + '</b>' + esc(w.role) + ' · ' + esc(T.name) + '</span></div></aside>' +
@@ -621,8 +639,16 @@ details > summary { cursor: pointer; font-weight: 600; color: var(--sun-ink); }
       case 'settings': return settings();
       case 'texts': return texts();
       case 'freshmen': return freshmen();
+      case 'more': return morePage();
     }
     return '';
+  }
+
+  // ---- More (src/app/(app)/more/page.tsx): the phone bar's fifth place ----
+  function morePage() {
+    return head(esc(T.name) + ' · everything else', 'More') + '<nav class="card more" aria-label="More">' + onMore().map(function (n) {
+      return '<a href="#' + n[0] + '" data-go="' + n[0] + '"><span class="ic">' + icon(n[2], 20) + '</span><b>' + esc(n[1]) + '</b><span class="sub">' + esc(MORE_NOTES[n[0]]) + '</span><span class="go">' + icon('chevron', 18) + '</span></a>';
+    }).join('') + '</nav>';
   }
 
   // ---- Today (src/app/(app)/page.tsx) ----
