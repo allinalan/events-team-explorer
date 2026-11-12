@@ -219,6 +219,8 @@ section { padding-block: clamp(48px, 7vw, 80px) 0; }
 .bcard .mono { color: var(--gold); }
 .bcard h4 { color: var(--navy-ink); font-size: 19px; }
 .bcard p { color: var(--navy-muted); font-size: 15.5px; }
+.beyond-more { margin-top: 18px; }
+.beyond-more a { color: var(--gold); font-weight: 700; text-underline-offset: 3px; }
 .band-gap { height: clamp(40px, 6vw, 60px); }
 @media (max-width: 860px) { .rules { grid-template-columns: repeat(2, minmax(0, 1fr)); } .beyond { grid-template-columns: minmax(0, 1fr); } }
 @media (max-width: 520px) { .rules { grid-template-columns: minmax(0, 1fr); } }
@@ -326,6 +328,7 @@ section { padding-block: clamp(48px, 7vw, 80px) 0; }
       <div class="beyond">${BEYOND.map(([k, t, d]) => `
         <div class="bcard"><span class="mono">${esc(k)}</span><h4>${esc(t)}</h4><p>${esc(d)}</p></div>`).join('')}
       </div>
+      <p class="beyond-more"><a href="https://allinalan.github.io/automations-explorer/">See every agent I've built, business by business</a></p>
     </div>
   </div>
 
